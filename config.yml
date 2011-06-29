@@ -1,0 +1,10 @@
+# Do you want health to be shared across worlds
+health: false
+
+# Do you want inventories shared across worlds
+# *Currently does nothing, currently assuming that you got the plugin to share inventories*
+inventories: true
+
+# Players you wish to never switch inventories
+# Seperated by a comma ,
+ignore: Pluckerpluck, randomStranger

@@ -1,0 +1,14 @@
+name: MultiInv
+main: uk.co.tggl.Pluckerpluck.MultiInv.MultiInv
+version: 2.3.0
+website: http://www.tggl.co.uk
+author: Pluckerpluck
+description: >
+             This is a plugin to create seperate inventories for each world
+commands:
+  multiinv:
+    description: Saves and loads inventory
+    usage: |
+           /<command> save- saves inventory
+           /<command> load - loads inventory
+           /<command> debug - starts debugging
