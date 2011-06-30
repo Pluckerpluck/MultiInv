@@ -44,7 +44,6 @@ public class MultiInv extends JavaPlugin{
     	
      }
      
-    @Override
     public void onDisable() {
     	for (Player player : this.getServer().getOnlinePlayers()){
     		playerInventory.storeCurrentInventory(player, player.getWorld().getName());
@@ -54,7 +53,6 @@ public class MultiInv extends JavaPlugin{
         log.info( "["+ pluginName + "] Plugin disabled.");
     }
 
-    @Override
     public void onEnable() {
         fileReader = new MultiInvReader(this, this.getFile());
         PluginDescriptionFile pdfFile = this.getDescription();
