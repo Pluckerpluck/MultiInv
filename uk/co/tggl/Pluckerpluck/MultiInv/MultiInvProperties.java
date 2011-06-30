@@ -73,7 +73,10 @@ public class MultiInvProperties {
 		 try {
 			 FileInputStream in = new FileInputStream(file);
 			 prop.load(in);
-			 set = prop.stringPropertyNames();
+			 for (Object o : prop.keySet())
+                         {
+                                 set.add((String)o);
+                         }
 			 in.close();
 		 } catch (Exception ex) {
 			 ex.printStackTrace();
