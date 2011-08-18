@@ -1,4 +1,4 @@
-package uk.co.tggl.Pluckerpluck.MultiInv;
+package uk.co.tggl.pluckerpluck.multiinv;
 
 import org.bukkit.entity.Player;
 
@@ -19,7 +19,7 @@ public class MultiInvRespawnRunnable implements Runnable {
     @Override
     public void run() {
         Player playerObj = plugin.getServer().getPlayer(this.player);
-        plugin.playerInventory.storeCurrentInventory(playerObj, worldFrom);
+        plugin.playerInventory.storeManualInventory(playerObj, "MultiInvInventory", worldFrom);
         if (!plugin.ignoreList.contains(player)) {
             plugin.playerInventory.loadWorldInventory(playerObj, worldTo);
         }

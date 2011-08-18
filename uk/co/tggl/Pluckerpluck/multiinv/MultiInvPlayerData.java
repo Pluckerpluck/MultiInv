@@ -1,4 +1,4 @@
-package uk.co.tggl.Pluckerpluck.MultiInv;
+package uk.co.tggl.pluckerpluck.multiinv;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 import org.bukkit.entity.Player;
 
-import uk.co.tggl.Pluckerpluck.MultiInv.MultiInvEnums.MultiInvEvent;
+import uk.co.tggl.pluckerpluck.multiinv.MultiInvEnums.MultiInvEvent;
 
 public class MultiInvPlayerData {
 

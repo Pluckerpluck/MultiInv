@@ -1,4 +1,4 @@
-package uk.co.tggl.Pluckerpluck.MultiInv;
+package uk.co.tggl.pluckerpluck.multiinv;
 
 import org.bukkit.entity.Player;
 

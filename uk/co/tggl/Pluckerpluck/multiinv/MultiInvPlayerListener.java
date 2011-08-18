@@ -1,4 +1,4 @@
-package uk.co.tggl.Pluckerpluck.MultiInv;
+package uk.co.tggl.pluckerpluck.multiinv;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -9,7 +9,7 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import uk.co.tggl.Pluckerpluck.MultiInv.MultiInvEnums.MultiInvEvent;
+import uk.co.tggl.pluckerpluck.multiinv.MultiInvEnums.MultiInvEvent;
 
 public class MultiInvPlayerListener extends PlayerListener {
 
@@ -66,7 +66,7 @@ public class MultiInvPlayerListener extends PlayerListener {
             }
             if (!(worldTo.equals(worldFrom))) {
                 plugin.playerInventory.storeCurrentInventory(player, worldFrom);
-                if (!plugin.ignoreList.contains(player.getName().toLowerCase())) {
+                if (!plugin.ignoreList.contains(player.getName())) {
                     plugin.playerInventory.loadWorldInventory(player, worldTo);
                 }
             }
@@ -75,7 +75,7 @@ public class MultiInvPlayerListener extends PlayerListener {
 
     @Override
     public void onPlayerPortal(PlayerPortalEvent event) {
-        if (!(event.isCancelled())) {
+        if (!(event.isCancelled()) && event.getTo() != null) {
             String worldTo = event.getTo().getWorld().getName();
             Player player = event.getPlayer();
             String worldFrom = event.getFrom().getWorld().getName();
@@ -91,7 +91,7 @@ public class MultiInvPlayerListener extends PlayerListener {
             }
             if (!(worldTo.equals(worldFrom))) {
                 plugin.playerInventory.storeCurrentInventory(player, worldFrom);
-                if (!plugin.ignoreList.contains(player.getName().toLowerCase())) {
+                if (!plugin.ignoreList.contains(player.getName())) {
                     plugin.playerInventory.loadWorldInventory(player, worldTo);
                 }
             }

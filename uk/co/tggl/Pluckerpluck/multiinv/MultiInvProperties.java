@@ -1,9 +1,10 @@
-package uk.co.tggl.Pluckerpluck.MultiInv;
+package uk.co.tggl.pluckerpluck.multiinv;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
@@ -57,7 +58,7 @@ public class MultiInvProperties {
 
     public static Set<String> getAllKeys(File file) {
         Properties prop = new Properties();
-        Set<String> set = null;
+        HashSet<String> set = new HashSet<String>();
         File dir = new File(file.getParent());
         if (!dir.exists()) {
             dir.mkdirs();

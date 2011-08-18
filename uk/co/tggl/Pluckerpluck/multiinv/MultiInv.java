@@ -1,4 +1,4 @@
-package uk.co.tggl.Pluckerpluck.MultiInv;
+package uk.co.tggl.pluckerpluck.multiinv;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -200,7 +200,7 @@ public class MultiInv extends JavaPlugin {
     }
 
     void loadPermissions(Player player) {
-        if (ignoreList.contains(player.getName().toLowerCase())) {
+        if (ignoreList.contains(player.getName())) {
             player.sendMessage("You are on the master ignore list");
         }
 
