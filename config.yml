@@ -1,4 +1,4 @@
-# Do you want health to be shared across worlds
+# Do you want health to be seperated across worlds
 health: false
 
 # Do you want inventories shared across worlds
