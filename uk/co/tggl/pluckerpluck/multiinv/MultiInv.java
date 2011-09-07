@@ -26,6 +26,7 @@ public class MultiInv extends JavaPlugin {
     final MultiInvPlayerListener playerListener = new MultiInvPlayerListener(this);
     final MultiInvPlayerData playerInventory = new MultiInvPlayerData(this);
     final MultiInvWorldListener worldListener = new MultiInvWorldListener(this);
+    final MultiInvConverter versionCheck = new MultiInvConverter(this);
     final MultiInvDebugger debugger = new MultiInvDebugger(this);
     MultiInvReader fileReader;
     final MultiInvCommands commands = new MultiInvCommands(this);
@@ -56,9 +57,15 @@ public class MultiInv extends JavaPlugin {
         fileReader = new MultiInvReader(this, this.getFile());
         PluginDescriptionFile pdfFile = this.getDescription();
         pluginName = pdfFile.getName();
+        if (!versionCheck.convertFromOld()){
+            this.getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        
+        // Loads config and gives it to the player listener
         fileReader.loadConfig();
         playerInventory.storeConfig(fileReader.config);
-        fileReader.loadFileFromJar("shares.properties");
+        
         if (getServer().getOnlinePlayers().length > 0) {
             Boolean localShares = fileReader.parseShares();
             if (localShares) {

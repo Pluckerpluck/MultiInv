@@ -1,0 +1,20 @@
+# Shares are now stored using a group method
+# You choose a group name and place all the worlds you want in that group:
+# e.g.
+# groupName:
+# - world1
+# - world2
+# groupName2:
+# - world3
+# - world4
+#
+# An alternative method is:
+# groupName: [world1, world2]
+# groupName2: [world3, world4]
+#
+# Note: Currently the inventories are saves to the first world in the list
+# and not the group name... so don't mess around with the order once set
+
+default:
+- world
+- world_nether

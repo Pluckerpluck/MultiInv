@@ -51,23 +51,23 @@ public class MultiInvPlayerListener extends PlayerListener {
     @Override
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         if (!(event.isCancelled())) {
-            String worldTo = event.getTo().getWorld().getName();
+            String groupTo = event.getTo().getWorld().getName();
             Player player = event.getPlayer();
-            String worldFrom = event.getFrom().getWorld().getName();
-            if (!(worldTo.equals(worldFrom))) {
+            String groupFrom = event.getFrom().getWorld().getName();
+            if (!(groupTo.equals(groupFrom))) {
                 plugin.debugger.debugEvent(MultiInvEvent.WORLD_CHANGE,
-                        new String[]{player.getName(), worldFrom, worldTo});
+                        new String[]{player.getName(), groupFrom, groupTo});
             }
-            if (plugin.sharesMap.containsKey(worldTo)) {
-                worldTo = plugin.sharesMap.get(worldTo);
+            if (plugin.sharesMap.containsKey(groupTo)) {
+                groupTo = plugin.sharesMap.get(groupTo);
             }
-            if (plugin.sharesMap.containsKey(worldFrom)) {
-                worldFrom = plugin.sharesMap.get(worldFrom);
+            if (plugin.sharesMap.containsKey(groupFrom)) {
+                groupFrom = plugin.sharesMap.get(groupFrom);
             }
-            if (!(worldTo.equals(worldFrom))) {
-                plugin.playerInventory.storeCurrentInventory(player, worldFrom);
+            if (!(groupTo.equals(groupFrom))) {
+                plugin.playerInventory.storeCurrentInventory(player, groupFrom);
                 if (!plugin.ignoreList.contains(player.getName())) {
-                    plugin.playerInventory.loadWorldInventory(player, worldTo);
+                    plugin.playerInventory.loadWorldInventory(player, groupTo);
                 }
             }
         }
@@ -75,24 +75,27 @@ public class MultiInvPlayerListener extends PlayerListener {
 
     @Override
     public void onPlayerPortal(PlayerPortalEvent event) {
+        if (event.getTo() == null){
+            System.out.println("Portal event null... why?");
+        }
         if (!(event.isCancelled()) && event.getTo() != null) {
-            String worldTo = event.getTo().getWorld().getName();
+            String groupTo = event.getTo().getWorld().getName();
             Player player = event.getPlayer();
-            String worldFrom = event.getFrom().getWorld().getName();
-            if (!(worldTo.equals(worldFrom))) {
+            String groupFrom = event.getFrom().getWorld().getName();
+            if (!(groupTo.equals(groupFrom))) {
                 plugin.debugger.debugEvent(MultiInvEvent.WORLD_CHANGE,
-                        new String[]{player.getName(), worldFrom, worldTo});
+                        new String[]{player.getName(), groupFrom, groupTo});
             }
-            if (plugin.sharesMap.containsKey(worldTo)) {
-                worldTo = plugin.sharesMap.get(worldTo);
+            if (plugin.sharesMap.containsKey(groupTo)) {
+                groupTo = plugin.sharesMap.get(groupTo);
             }
-            if (plugin.sharesMap.containsKey(worldFrom)) {
-                worldFrom = plugin.sharesMap.get(worldFrom);
+            if (plugin.sharesMap.containsKey(groupFrom)) {
+                groupFrom = plugin.sharesMap.get(groupFrom);
             }
-            if (!(worldTo.equals(worldFrom))) {
-                plugin.playerInventory.storeCurrentInventory(player, worldFrom);
+            if (!(groupTo.equals(groupFrom))) {
+                plugin.playerInventory.storeCurrentInventory(player, groupFrom);
                 if (!plugin.ignoreList.contains(player.getName())) {
-                    plugin.playerInventory.loadWorldInventory(player, worldTo);
+                    plugin.playerInventory.loadWorldInventory(player, groupTo);
                 }
             }
         }
@@ -100,18 +103,18 @@ public class MultiInvPlayerListener extends PlayerListener {
 
     @Override
     public void onPlayerRespawn(PlayerRespawnEvent event) {
-        String worldTo = event.getRespawnLocation().getWorld().getName();
-        String worldFrom = event.getPlayer().getWorld().getName();
+        String groupTo = event.getRespawnLocation().getWorld().getName();
+        String groupFrom = event.getPlayer().getWorld().getName();
         String player = event.getPlayer().getName();
 
-        if (plugin.sharesMap.containsKey(worldTo)) {
-            worldTo = plugin.sharesMap.get(worldTo);
+        if (plugin.sharesMap.containsKey(groupTo)) {
+            groupTo = plugin.sharesMap.get(groupTo);
         }
-        if (plugin.sharesMap.containsKey(worldFrom)) {
-            worldFrom = plugin.sharesMap.get(worldFrom);
+        if (plugin.sharesMap.containsKey(groupFrom)) {
+            groupFrom = plugin.sharesMap.get(groupFrom);
         }
-        if (!(worldTo.equals(worldFrom))) {
-            MultiInvRespawnRunnable respawnWait = new MultiInvRespawnRunnable(worldTo, worldFrom, player, plugin);
+        if (!(groupTo.equals(groupFrom))) {
+            MultiInvRespawnRunnable respawnWait = new MultiInvRespawnRunnable(groupTo, groupFrom, player, plugin);
             plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, respawnWait, 40);
         }
 

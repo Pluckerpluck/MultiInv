@@ -50,26 +50,22 @@ public class MultiInvReader {
     }
 
     public boolean parseShares() {
-        File sharesFile = loadFileFromJar("shares.properties");
-        if (sharesFile == null) {
-            return false;
-        }
-        List<World> worldsO = plugin.getServer().getWorlds();
-        String[] serverWorlds = new String[worldsO.size()];
-        int i = 0;
-        for (World world : worldsO) {
-            serverWorlds[i] = world.getName();
-            i++;
-        }
-        for (String key : MultiInvProperties.getAllKeys(sharesFile)) {
-            String value = MultiInvProperties.loadFromProperties(sharesFile, key);
-            if (plugin.getServer().getWorld(key) == null || plugin.getServer().getWorld(value) == null) {
-                MultiInv.log.info("[" + MultiInv.pluginName + "] Sharing " + key + " to " + value + " is invalid");
+        boolean success = false;
+        File sharesFile = loadFileFromJar("shares.yml");
+        if (sharesFile != null) {
+            Configuration ymlFile = new Configuration(sharesFile);
+            ymlFile.load();
+            for (String key : ymlFile.getKeys()) {
+                for (String world : ymlFile.getStringList(key, null)){
+                    plugin.sharesMap.put(world, key);
+                }
             }
-            plugin.sharesMap.put(key, value);
+            success = true;
         }
-        return true;
+        return success;
     }
+    
+   
 
     public void loadConfig() {
         loadFileFromJar("config.yml");
