@@ -15,7 +15,7 @@ public class MultiInvWorldListener extends WorldListener {
     @Override
     public void onWorldSave(WorldSaveEvent event) {
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            plugin.playerInventory.storeCurrentInventory(player, player.getWorld().getName());
+            MultiInvPlayerData.storeCurrentInventory(player, player.getWorld().getName());
         }
     }
 }

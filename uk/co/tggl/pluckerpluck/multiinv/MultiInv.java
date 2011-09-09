@@ -15,6 +15,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import com.nijiko.permissions.PermissionHandler;
+import java.util.HashSet;
 
 /**
  * MultiInv for Bukkit
@@ -24,15 +25,15 @@ import com.nijiko.permissions.PermissionHandler;
 public class MultiInv extends JavaPlugin {
 
     final MultiInvPlayerListener playerListener = new MultiInvPlayerListener(this);
-    final MultiInvPlayerData playerInventory = new MultiInvPlayerData(this);
     final MultiInvWorldListener worldListener = new MultiInvWorldListener(this);
     final MultiInvConverter versionCheck = new MultiInvConverter(this);
     final MultiInvDebugger debugger = new MultiInvDebugger(this);
     MultiInvReader fileReader;
     final MultiInvCommands commands = new MultiInvCommands(this);
-    ConcurrentHashMap<String, String[]> currentInventories = new ConcurrentHashMap<String, String[]>();
-    ConcurrentHashMap<String, String> sharesMap = new ConcurrentHashMap<String, String>();
-    ArrayList<String> ignoreList = new ArrayList<String>();
+    
+    static ConcurrentHashMap<String, String[]> currentInventories = new ConcurrentHashMap<String, String[]>();
+    static ConcurrentHashMap<String, String> sharesMap = new ConcurrentHashMap<String, String>();
+    static HashSet<String> ignoreList = new HashSet<String>();
     static PermissionHandler Permissions = null;
     static final Logger log = Logger.getLogger("Minecraft");
     static String pluginName;
@@ -44,15 +45,17 @@ public class MultiInv extends JavaPlugin {
     public void onLoad() {
     }
 
+    @Override
     public void onDisable() {
         for (Player player : this.getServer().getOnlinePlayers()) {
-            playerInventory.storeCurrentInventory(player, player.getWorld().getName());
+            MultiInvPlayerData.storeCurrentInventory(player, player.getWorld().getName());
         }
 
         debugger.saveDebugLog();
         log.info("[" + pluginName + "] Plugin disabled.");
     }
 
+    @Override
     public void onEnable() {
         fileReader = new MultiInvReader(this, this.getFile());
         PluginDescriptionFile pdfFile = this.getDescription();
@@ -64,7 +67,9 @@ public class MultiInv extends JavaPlugin {
         
         // Loads config and gives it to the player listener
         fileReader.loadConfig();
-        playerInventory.storeConfig(fileReader.config);
+        MultiInvPlayerData.storeConfig(fileReader.config);
+        
+        MultiInvPlayerData.loadPlayers();
         
         if (getServer().getOnlinePlayers().length > 0) {
             Boolean localShares = fileReader.parseShares();
@@ -80,12 +85,11 @@ public class MultiInv extends JavaPlugin {
         // Event registration
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvent(Event.Type.WORLD_SAVE, worldListener, Priority.Monitor, this);
-        pm.registerEvent(Event.Type.PLAYER_LOGIN, playerListener, Priority.Monitor, this);
         pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Priority.Monitor, this);
         pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Priority.Monitor, this);
-        pm.registerEvent(Event.Type.PLAYER_TELEPORT, playerListener, Priority.Monitor, this);
+        pm.registerEvent(Event.Type.PLAYER_TELEPORT, playerListener, Priority.Highest, this);
         pm.registerEvent(Event.Type.PLAYER_RESPAWN, playerListener, Priority.Monitor, this);
-        pm.registerEvent(Event.Type.PLAYER_PORTAL, playerListener, Priority.Monitor, this);
+        pm.registerEvent(Event.Type.PLAYER_PORTAL, playerListener, Priority.Highest, this);
 
         //Permissions plugin setup
         setupPermissions();
@@ -211,9 +215,9 @@ public class MultiInv extends JavaPlugin {
             player.sendMessage("You are on the master ignore list");
         }
 
-        if (!playerInventory.existingPlayers.contains(player.getName())) {
+        if (!MultiInvPlayerData.existingPlayers.contains(player.getName())) {
             MultiInv.log.info("[" + MultiInv.pluginName + "] New player detected: " + player.getName());
-            playerInventory.existingPlayers.add(player.getName());
+            MultiInvPlayerData.existingPlayers.add(player.getName());
             return;
         }
         /* 
