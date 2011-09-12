@@ -18,3 +18,5 @@
 default:
 - world
 - world_nether
+
+creativeGroups:

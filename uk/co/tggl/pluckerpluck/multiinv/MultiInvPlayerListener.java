@@ -1,5 +1,6 @@
 package uk.co.tggl.pluckerpluck.multiinv;
 
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerListener;
@@ -94,6 +95,11 @@ public class MultiInvPlayerListener extends PlayerListener {
                 if (!MultiInv.ignoreList.contains(player.getName())) {
                     MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
                     MultiInvPlayerData.loadWorldInventory(player, groupTo);
+                    if (MultiInv.creativeGroups.contains(groupTo)) {
+                        player.setGameMode(GameMode.CREATIVE);
+                    } else {
+                        player.setGameMode(GameMode.SURVIVAL);
+                    }
                 }
             }
         }
@@ -103,7 +109,8 @@ public class MultiInvPlayerListener extends PlayerListener {
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         String groupTo = event.getRespawnLocation().getWorld().getName();
         String groupFrom = event.getPlayer().getWorld().getName();
-        String player = event.getPlayer().getName();
+        Player player = event.getPlayer();
+        String name = player.getName();
 
         if (MultiInv.sharesMap.containsKey(groupTo)) {
             groupTo = MultiInv.sharesMap.get(groupTo);
@@ -112,8 +119,15 @@ public class MultiInvPlayerListener extends PlayerListener {
             groupFrom = MultiInv.sharesMap.get(groupFrom);
         }
         if (!(groupTo.equals(groupFrom))) {
-            MultiInvRespawnRunnable respawnWait = new MultiInvRespawnRunnable(groupTo, groupFrom, player, plugin);
-            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, respawnWait, 40);
+            if (!MultiInv.ignoreList.contains(name)) {
+                MultiInvRespawnRunnable respawnWait = new MultiInvRespawnRunnable(groupTo, groupFrom, name, plugin);
+                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, respawnWait, 40);
+                if (MultiInv.creativeGroups.contains(groupTo)) {
+                    player.setGameMode(GameMode.CREATIVE);
+                } else {
+                    player.setGameMode(GameMode.SURVIVAL);
+                }
+            }
         }
 
     }

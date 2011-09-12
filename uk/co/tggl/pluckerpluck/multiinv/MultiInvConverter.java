@@ -64,9 +64,9 @@ public class MultiInvConverter {
                 }
                 ymlFile.setProperty(value, list);
             }
-            if (!keys.isEmpty()){
-                ymlFile.save();
-            }
+
+            ymlFile.setProperty("creativeGroups", null);
+            ymlFile.save();
             if (success){
                 if(!file.delete()){
                     MultiInv.log.warning("[" + MultiInv.pluginName + "] Unable to delete shares.properties. Manual deletion required.");

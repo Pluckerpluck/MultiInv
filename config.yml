@@ -1,10 +1,9 @@
-# Do you want health to be seperated across worlds
+# Do you want health to be separated across worlds
 health: false
 
-# Do you want inventories shared across worlds
-# *Currently does nothing, currently assuming that you got the plugin to share inventories*
-inventories: true
+# Do you want to allow this plugin to control which worlds are creative/survival
+worldTypes: true
 
 # Players you wish to never switch inventories
-# Seperated by a comma ,
+# Separated by a comma ,
 ignore: Pluckerpluck, randomStranger

@@ -56,8 +56,11 @@ public class MultiInvReader {
             Configuration ymlFile = new Configuration(sharesFile);
             ymlFile.load();
             for (String key : ymlFile.getKeys()) {
-                for (String world : ymlFile.getStringList(key, null)){
-                    plugin.sharesMap.put(world, key);
+                final List<String> stringList = ymlFile.getStringList(key, null);
+                if (stringList != null && key != "creativeGroups") {
+                    for (String world : stringList){
+                        plugin.sharesMap.put(world, key);
+                    }
                 }
             }
             success = true;

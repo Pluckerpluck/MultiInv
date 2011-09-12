@@ -33,6 +33,7 @@ public class MultiInv extends JavaPlugin {
     
     static ConcurrentHashMap<String, String[]> currentInventories = new ConcurrentHashMap<String, String[]>();
     static ConcurrentHashMap<String, String> sharesMap = new ConcurrentHashMap<String, String>();
+    static HashSet<String> creativeGroups = new HashSet<String>();
     static HashSet<String> ignoreList = new HashSet<String>();
     static PermissionHandler Permissions = null;
     static final Logger log = Logger.getLogger("Minecraft");
@@ -40,10 +41,6 @@ public class MultiInv extends JavaPlugin {
     boolean permissionsEnabled = true;
     // 0 = unloaded, 1 = loaded successfully, 2 = loaded with errors
     int shares = 0;
-
-    @Override
-    public void onLoad() {
-    }
 
     @Override
     public void onDisable() {
