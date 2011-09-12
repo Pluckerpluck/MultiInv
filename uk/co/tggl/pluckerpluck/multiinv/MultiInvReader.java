@@ -15,7 +15,7 @@ public class MultiInvReader {
 
     public final MultiInv plugin;
     public JarFile jar;
-    HashMap<String, Boolean> config = new HashMap<String, Boolean>();
+    final HashMap<String, Boolean> config = new HashMap<String, Boolean>();
 
     public MultiInvReader(MultiInv instance, File file) {
         plugin = instance;
@@ -57,9 +57,9 @@ public class MultiInvReader {
             ymlFile.load();
             for (String key : ymlFile.getKeys()) {
                 final List<String> stringList = ymlFile.getStringList(key, null);
-                if (stringList != null && key != "creativeGroups") {
+                if (stringList != null && !key.equals("creativeGroups")) {
                     for (String world : stringList){
-                        plugin.sharesMap.put(world, key);
+                        MultiInv.sharesMap.put(world, key);
                     }
                 }
             }
@@ -80,7 +80,7 @@ public class MultiInvReader {
         if (ignoreList != null && !ignoreList.matches(" *")) {
             String[] names = cfg.getString("ignore").split(" *, *");
             for (String name : names) {
-                plugin.ignoreList.add(name.toLowerCase());
+                MultiInv.ignoreList.add(name.toLowerCase());
             }
         }
     }

@@ -12,11 +12,9 @@ public class MultiInvDebugger {
 
     public final MultiInv plugin;
     private boolean debugging = false;
-    private ArrayList<String> debuggers = new ArrayList<String>();
-    private String dividerStart = "#-----";
-    private String dividerEnd = "-----#";
-    private ArrayList<String> logHistory = new ArrayList<String>();
-    private boolean debugLogging = true;
+    private final ArrayList<String> debuggers = new ArrayList<String>();
+    private final ArrayList<String> logHistory = new ArrayList<String>();
+    private final boolean debugLogging = true;
 
     public MultiInvDebugger(MultiInv instance) {
         plugin = instance;
@@ -53,14 +51,15 @@ public class MultiInvDebugger {
     }
 
     public void debugEvent(MultiInvEvent event, String[] args) {
-        String message = "";
-        String message2 = "";
-        if (debugging == true) {
+        String message;
+        String message2;
+        String dividerStart = "#-----";
+        String dividerEnd = "-----#";
+        if (debugging) {
             switch (event) {
                 case WORLD_CHANGE:
                     message = dividerStart + args[0] + " changed world" + dividerEnd;
                     int shareNumber = shareCheck(args[1], args[2]);
-                    message2 = "";
                     switch (shareNumber) {
                         case 0:
                             message2 = "Moved from " + args[1] + " to " + args[2];
@@ -78,7 +77,7 @@ public class MultiInvDebugger {
                             message2 = "Moved from " + args[1] + " to " + args[2] + " (Shared)";
                             break;
                         default:
-                            message2 = "Error with WORLD_CHANAGE debug event";
+                            message2 = "Error with WORLD_CHANGE debug event";
                             break;
                     }
                     sendDebuggersMessage(message);
@@ -137,7 +136,7 @@ public class MultiInvDebugger {
                     sendDebuggersMessage(message);
                     break;
                 default:
-                    message2 = "Error with " + event.toString() + " debug event";
+                    message = "Error with " + event.toString() + " debug event";
                     sendDebuggersMessage(message);
                     break;
 
@@ -160,13 +159,13 @@ public class MultiInvDebugger {
     }
 
     private int shareCheck(String world1, String world2) {
-        if (plugin.sharesMap.containsKey(world1)) {
-            if (plugin.sharesMap.containsKey(world2)) {
+        if (MultiInv.sharesMap.containsKey(world1)) {
+            if (MultiInv.sharesMap.containsKey(world2)) {
                 return 3;
             }
             return 1;
         }
-        if (plugin.sharesMap.containsKey(world2)) {
+        if (MultiInv.sharesMap.containsKey(world2)) {
             return 2;
         }
         return 0;

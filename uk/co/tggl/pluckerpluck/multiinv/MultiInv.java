@@ -31,10 +31,10 @@ public class MultiInv extends JavaPlugin {
     MultiInvReader fileReader;
     final MultiInvCommands commands = new MultiInvCommands(this);
     
-    static ConcurrentHashMap<String, String[]> currentInventories = new ConcurrentHashMap<String, String[]>();
-    static ConcurrentHashMap<String, String> sharesMap = new ConcurrentHashMap<String, String>();
-    static HashSet<String> creativeGroups = new HashSet<String>();
-    static HashSet<String> ignoreList = new HashSet<String>();
+    static final ConcurrentHashMap<String, String[]> currentInventories = new ConcurrentHashMap<String, String[]>();
+    static final ConcurrentHashMap<String, String> sharesMap = new ConcurrentHashMap<String, String>();
+    static final HashSet<String> creativeGroups = new HashSet<String>();
+    static final HashSet<String> ignoreList = new HashSet<String>();
     static PermissionHandler Permissions = null;
     static final Logger log = Logger.getLogger("Minecraft");
     static String pluginName;
@@ -93,7 +93,7 @@ public class MultiInv extends JavaPlugin {
         loadPermissions();
     }
 
-    public void setupPermissions() {
+    void setupPermissions() {
         Plugin perm = this.getServer().getPluginManager().getPlugin("Permissions");
         if (Permissions == null) {
             if (perm != null) {
@@ -107,12 +107,8 @@ public class MultiInv extends JavaPlugin {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
-        String[] trimmedArgs = args;
         String commandName = command.getName().toLowerCase();
-        if (commandName.equals("multiinv")) {
-            return performCheck(sender, trimmedArgs);
-        }
-        return false;
+        return commandName.equals("multiinv") && performCheck(sender, args);
     }
 
     boolean permissionCheck(CommandSender sender, String node) {
@@ -128,13 +124,13 @@ public class MultiInv extends JavaPlugin {
     }
 
     boolean permissionCheck(Player player, String node, Boolean loud) {
-        if (permissionsEnabled == true && !Permissions.has(player, node)) {
-            if (loud) {
+        if (permissionsEnabled && !Permissions.has(player, node)) {
+            if (true) {
                 player.sendMessage("You do not have permission to use this command");
             }
             return false;
         } else if (!player.isOp()) {
-            if (loud) {
+            if (true) {
                 player.sendMessage("You do not have permission to use this command");
             }
             return false;
@@ -176,7 +172,7 @@ public class MultiInv extends JavaPlugin {
     }
 
     public int deletePlayerInventories(String name) {
-        int count = 0;
+        int count;
         File file = new File(getDataFolder() + File.separator + "Worlds");
         count = searchFolders(file, name + ".data");
         return count;
@@ -215,7 +211,6 @@ public class MultiInv extends JavaPlugin {
         if (!MultiInvPlayerData.existingPlayers.contains(player.getName())) {
             MultiInv.log.info("[" + MultiInv.pluginName + "] New player detected: " + player.getName());
             MultiInvPlayerData.existingPlayers.add(player.getName());
-            return;
         }
         /* 
         if(permissionCheck(player, "MultiInv.state.ignore", true)){

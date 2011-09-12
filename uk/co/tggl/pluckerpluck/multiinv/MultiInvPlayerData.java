@@ -10,7 +10,7 @@ import org.bukkit.plugin.Plugin;
 
 public class MultiInvPlayerData {
 
-    public static ArrayList<String> existingPlayers = new ArrayList<String>();
+    public static final ArrayList<String> existingPlayers = new ArrayList<String>();
     private static boolean segregateHealth;
 
     static void storeConfig(HashMap<String, Boolean> config) {

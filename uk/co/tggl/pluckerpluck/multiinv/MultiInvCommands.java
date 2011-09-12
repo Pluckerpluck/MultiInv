@@ -107,39 +107,36 @@ public class MultiInvCommands {
             plugin.debugger.saveDebugLog();
             sender.sendMessage("Debugging saved");
         }
-        return;
     }
 
     private void ignoreCommand(CommandSender sender, Player player) {
         String playerName = player.getName();
-        if (plugin.ignoreList.contains(playerName)) {
+        if (MultiInv.ignoreList.contains(playerName)) {
             sender.sendMessage("Player is already being ignored");
             return;
         }
-        plugin.ignoreList.add(playerName);
+        MultiInv.ignoreList.add(playerName);
         sender.sendMessage(playerName + " is now being ignored");
-        return;
     }
 
     private void unignoreCommand(CommandSender sender, String playerName) {
-        if (plugin.ignoreList.contains(playerName)) {
-            plugin.ignoreList.remove(playerName);
+        if (MultiInv.ignoreList.contains(playerName)) {
+            MultiInv.ignoreList.remove(playerName);
             sender.sendMessage(playerName + " is no longer ignored");
             return;
         }
         sender.sendMessage(playerName + " was not being ignored");
-        return;
     }
 
     private void shareWorlds(String minorWorld, String majorWorld) {
         String file = plugin.getDataFolder() + File.separator + "shares.properties";
         MultiInvProperties.saveToProperties(file, minorWorld, majorWorld);
-        plugin.sharesMap.put(minorWorld, majorWorld);
+        MultiInv.sharesMap.put(minorWorld, majorWorld);
     }
 
     private void removeShareWorld(String minorWorld) {
         String file = plugin.getDataFolder() + File.separator + "shares.properties";
-        MultiInvProperties.removeProperty(file, minorWorld, null);
-        plugin.sharesMap.remove(minorWorld);
+        MultiInvProperties.removeProperty(file, minorWorld, "");
+        MultiInv.sharesMap.remove(minorWorld);
     }
 }

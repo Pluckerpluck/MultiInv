@@ -41,12 +41,6 @@ public class MultiInvConverter {
             Configuration ymlFile = new Configuration(newFile);
             ymlFile.load();
             List<World> worldsO = plugin.getServer().getWorlds();
-            String[] serverWorlds = new String[worldsO.size()];
-            int i = 0;
-            for (World world : worldsO) {
-                serverWorlds[i] = world.getName();
-                i++;
-            }
             Set<String> keys = MultiInvProperties.getAllKeys(file);
             for (String key : keys) {
                 String value = MultiInvProperties.loadFromProperties(file, key);

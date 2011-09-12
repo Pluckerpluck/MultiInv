@@ -18,7 +18,7 @@ public class MultiInvInventory implements Serializable {
      * inventory[0] = main inventory's contents
      * inventory[1] = armour slots contents (null for non-player inventories)
      */
-    private MultiInvItem[][] storedInventory = new MultiInvItem[2][];
+    private final MultiInvItem[][] storedInventory = new MultiInvItem[2][];
     private String name = null;
     private String regionName = null;
     private String worldName = null;
@@ -62,7 +62,7 @@ public class MultiInvInventory implements Serializable {
     /**
      * Store an inventory in the MultiInvInventory
      *
-     * @param inventory
+     * @param inventory the inventory you want to store as a MultiInvInventory
      **/
     public void setInventory(Inventory inventory) {
         setContents(inventory.getContents());

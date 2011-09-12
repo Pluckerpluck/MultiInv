@@ -5,8 +5,8 @@ import org.bukkit.entity.Player;
 
 public class MultiInvHealthRunnable implements Runnable {
 
-    public int health;
-    public String player;
+    public final int health;
+    public final String player;
 
     public MultiInvHealthRunnable(String player, int health) {
         this.health = health;

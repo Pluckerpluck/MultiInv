@@ -4,10 +4,10 @@ import org.bukkit.entity.Player;
 
 public class MultiInvRespawnRunnable implements Runnable {
 
-    public String groupTo;
-    public String groupFrom;
-    public String player;
-    public MultiInv plugin;
+    public final String groupTo;
+    public final String groupFrom;
+    public final String player;
+    public final MultiInv plugin;
 
     public MultiInvRespawnRunnable(String groupTo, String groupFrom, String player, MultiInv plugin) {
         this.groupTo = groupTo;
@@ -20,7 +20,7 @@ public class MultiInvRespawnRunnable implements Runnable {
     public void run() {
         Player playerObj = plugin.getServer().getPlayer(this.player);
         MultiInvPlayerData.storeManualInventory(playerObj, "MultiInvInventory", groupFrom);
-        if (!plugin.ignoreList.contains(player)) {
+        if (!MultiInv.ignoreList.contains(player)) {
             MultiInvPlayerData.loadWorldInventory(playerObj, groupTo);
         }
     }
