@@ -1,9 +1,9 @@
 package uk.co.tggl.pluckerpluck.multiinv;
 
-import java.io.File;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.io.File;
 
 public class MultiInvCommands {
 

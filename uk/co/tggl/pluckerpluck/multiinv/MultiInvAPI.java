@@ -8,9 +8,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 /**
- * API designed to allow MultiInv to improve compatability with other plugins
+ * API designed to allow MultiInv to improve compatibility with other plugins
  * @author Pluckerpluck
  */
+@SuppressWarnings({"UnusedDeclaration"})
 public class MultiInvAPI {
       
     /**

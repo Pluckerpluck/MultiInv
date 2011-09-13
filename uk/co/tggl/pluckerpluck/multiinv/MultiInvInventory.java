@@ -1,14 +1,13 @@
 package uk.co.tggl.pluckerpluck.multiinv;
 
-import java.io.Serializable;
-
-
 import org.bukkit.block.Block;
 import org.bukkit.block.ContainerBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+
+import java.io.Serializable;
 
 public class MultiInvInventory implements Serializable {
 

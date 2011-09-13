@@ -1,12 +1,12 @@
 package uk.co.tggl.pluckerpluck.multiinv;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.bukkit.Bukkit;
-
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 public class MultiInvPlayerData {
 

@@ -4,13 +4,13 @@
  */
 package uk.co.tggl.pluckerpluck.multiinv;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 import org.bukkit.World;
 import org.bukkit.util.config.Configuration;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  *

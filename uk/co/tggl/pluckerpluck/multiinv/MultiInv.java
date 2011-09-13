@@ -1,9 +1,7 @@
 package uk.co.tggl.pluckerpluck.multiinv;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
+import com.nijiko.permissions.PermissionHandler;
+import com.nijikokun.bukkit.Permissions.Permissions;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -13,9 +11,11 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import com.nijikokun.bukkit.Permissions.Permissions;
-import com.nijiko.permissions.PermissionHandler;
+
+import java.io.File;
 import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 /**
  * MultiInv for Bukkit

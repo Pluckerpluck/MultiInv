@@ -1,5 +1,7 @@
 package uk.co.tggl.pluckerpluck.multiinv;
 
+import org.bukkit.util.config.Configuration;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -7,9 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
-import org.bukkit.World;
-import org.bukkit.util.config.Configuration;
 
 public class MultiInvReader {
 
@@ -57,7 +56,7 @@ public class MultiInvReader {
             ymlFile.load();
             for (String key : ymlFile.getKeys()) {
                 final List<String> stringList = ymlFile.getStringList(key, null);
-                if (stringList != null && !key.equals("creativeGroups")) {
+                if (stringList != null && !"creativeGroups".equals(key)) {
                     for (String world : stringList){
                         MultiInv.sharesMap.put(world, key);
                     }
@@ -74,8 +73,8 @@ public class MultiInvReader {
         loadFileFromJar("config.yml");
         plugin.getConfiguration().load();
         Configuration cfg = plugin.getConfiguration();
-        this.config.put("health", cfg.getBoolean("health", true));
-        this.config.put("inventories", cfg.getBoolean("inventories", true));
+        config.put("health", cfg.getBoolean("health", true));
+        config.put("inventories", cfg.getBoolean("inventories", true));
         String ignoreList = cfg.getString("ignore");
         if (ignoreList != null && !ignoreList.matches(" *")) {
             String[] names = cfg.getString("ignore").split(" *, *");

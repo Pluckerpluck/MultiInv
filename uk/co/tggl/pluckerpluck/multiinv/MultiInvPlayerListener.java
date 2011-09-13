@@ -2,14 +2,8 @@ package uk.co.tggl.pluckerpluck.multiinv;
 
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerListener;
-import org.bukkit.event.player.PlayerPortalEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.scheduler.BukkitScheduler;
-
 import uk.co.tggl.pluckerpluck.multiinv.MultiInvEnums.MultiInvEvent;
 
 public class MultiInvPlayerListener extends PlayerListener {

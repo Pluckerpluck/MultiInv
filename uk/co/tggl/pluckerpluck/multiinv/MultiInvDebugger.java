@@ -1,12 +1,12 @@
 package uk.co.tggl.pluckerpluck.multiinv;
 
+import org.bukkit.entity.Player;
+import uk.co.tggl.pluckerpluck.multiinv.MultiInvEnums.MultiInvEvent;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import org.bukkit.entity.Player;
-
-import uk.co.tggl.pluckerpluck.multiinv.MultiInvEnums.MultiInvEvent;
 
 public class MultiInvDebugger {
 
@@ -14,7 +14,7 @@ public class MultiInvDebugger {
     private boolean debugging = false;
     private final ArrayList<String> debuggers = new ArrayList<String>();
     private final ArrayList<String> logHistory = new ArrayList<String>();
-    private final boolean debugLogging = true;
+    private final boolean debugLogging = false;
 
     public MultiInvDebugger(MultiInv instance) {
         plugin = instance;
