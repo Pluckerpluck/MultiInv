@@ -68,8 +68,16 @@ public class MultiInvPlayerListener extends PlayerListener {
             }
             if (!(groupTo.equals(groupFrom))) {
                 if (!MultiInv.ignoreList.contains(player.getName())) {
-                    MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
-                    MultiInvPlayerData.loadWorldInventory(player, groupTo);
+                    if (!MultiInv.creativeGroups.contains(groupFrom)) {
+                        MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
+                    }
+
+                    if (MultiInv.creativeGroups.contains(groupTo)) {
+                        player.setGameMode(GameMode.CREATIVE);
+                    } else {
+                        player.setGameMode(GameMode.SURVIVAL);
+                        MultiInvPlayerData.loadWorldInventory(player, groupTo);
+                    }
                 }
             }
         }
@@ -93,12 +101,15 @@ public class MultiInvPlayerListener extends PlayerListener {
             }
             if (!(groupTo.equals(groupFrom))) {
                 if (!MultiInv.ignoreList.contains(player.getName())) {
-                    MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
-                    MultiInvPlayerData.loadWorldInventory(player, groupTo);
+                    if (!MultiInv.creativeGroups.contains(groupFrom)) {
+                        MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
+                    }
+
                     if (MultiInv.creativeGroups.contains(groupTo)) {
                         player.setGameMode(GameMode.CREATIVE);
                     } else {
                         player.setGameMode(GameMode.SURVIVAL);
+                        MultiInvPlayerData.loadWorldInventory(player, groupTo);
                     }
                 }
             }
@@ -120,12 +131,16 @@ public class MultiInvPlayerListener extends PlayerListener {
         }
         if (!(groupTo.equals(groupFrom))) {
             if (!MultiInv.ignoreList.contains(name)) {
-                MultiInvRespawnRunnable respawnWait = new MultiInvRespawnRunnable(groupTo, groupFrom, name, plugin);
-                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, respawnWait, 40);
+                if (!MultiInv.creativeGroups.contains(groupFrom)) {
+                    MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
+                }
+
                 if (MultiInv.creativeGroups.contains(groupTo)) {
                     player.setGameMode(GameMode.CREATIVE);
                 } else {
                     player.setGameMode(GameMode.SURVIVAL);
+                    MultiInvRespawnRunnable respawnWait = new MultiInvRespawnRunnable(groupTo, groupFrom, name, plugin);
+                    plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, respawnWait, 40);
                 }
             }
         }
