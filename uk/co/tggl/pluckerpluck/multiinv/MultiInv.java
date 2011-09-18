@@ -107,7 +107,7 @@ public class MultiInv extends JavaPlugin {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
         String commandName = command.getName().toLowerCase();
-        return commandName.equals("multiinv") && performCheck(sender, args);
+        return "multiinv".equals(commandName) && performCheck(sender, args);
     }
 
     boolean permissionCheck(CommandSender sender, String node) {

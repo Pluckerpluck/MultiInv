@@ -100,7 +100,6 @@ public class MultiInvPlayerData {
         }else{
             inventoryName = "survival";
         }
-        System.out.println("Tying to load inventory: " + inventoryName);
 
         // Load the inventory into the Player
         String tmpInventory = playerFile.getString(inventoryName, null);

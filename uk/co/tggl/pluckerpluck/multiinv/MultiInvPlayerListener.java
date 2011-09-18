@@ -126,10 +126,8 @@ public class MultiInvPlayerListener extends PlayerListener {
     private void setGameMode(Player player, String group) {
         if (MultiInv.creativeGroups.contains(group)) {
             player.setGameMode(GameMode.CREATIVE);
-            System.out.println("Setting mode to creative");
         } else {
             player.setGameMode(GameMode.SURVIVAL);
-            System.out.println("Setting mode to survival");
         }
     }
 }

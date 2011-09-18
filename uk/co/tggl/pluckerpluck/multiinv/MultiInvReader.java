@@ -56,7 +56,7 @@ public class MultiInvReader {
             ymlFile.load();
             for (String key : ymlFile.getKeys()) {
                 final List<String> stringList = ymlFile.getStringList(key, null);
-                if ("creativeGroups".equals(key)){
+                if ("creativeGroups".equals(key) && plugin.fileReader.config.get("worldTypes")){
                     for (String group : stringList){
                         MultiInv.creativeGroups.add(group);
                     }  
@@ -77,6 +77,7 @@ public class MultiInvReader {
         loadFileFromJar("config.yml");
         plugin.getConfiguration().load();
         Configuration cfg = plugin.getConfiguration();
+        config.put("worldTypes", cfg.getBoolean("worldTypes", true));
         config.put("isHealthSplit", cfg.getBoolean("isHealthSplit", true));
         config.put("isHungerSplit", cfg.getBoolean("isHungerSplit", true));
         //config.put("isExpSplit", cfg.getBoolean("isExpSplit", false));
