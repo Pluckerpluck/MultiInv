@@ -3,6 +3,7 @@ package uk.co.tggl.pluckerpluck.multiinv;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.util.config.Configuration;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -10,31 +11,16 @@ import java.util.HashMap;
 
 public class MultiInvPlayerData {
 
-    public static final ArrayList<String> existingPlayers = new ArrayList<String>();
-    private static boolean segregateHealth;
+    public static ArrayList<String> existingPlayers = new ArrayList<String>();
+    private static boolean isHealthSplit;
+    private static boolean isHungerSplit;
+    private static boolean isExpSplit;
+
 
     static void storeConfig(HashMap<String, Boolean> config) {
-        segregateHealth = config.get("health");
-    }
-
-    static void loadPlayers() {
-        File file = new File("plugins" + File.separator + "MultiInv" + File.separator
-                + "Worlds");
-        searchFolders(file);
-    }
-
-    private static void searchFolders(File file) {
-        if (file.isDirectory()) {
-            String internalNames[] = file.list();
-            for (String name : internalNames) {
-                searchFolders(new File(file.getAbsolutePath() + File.separator + name));
-            }
-        } else {
-            String fileName = file.getName().split("\\.")[0];
-            if (!existingPlayers.contains(fileName)) {
-                existingPlayers.add(fileName);
-            }
-        }
+        isHealthSplit = config.get("isHealthSplit");
+        isHungerSplit = config.get("isHungerSplit");
+        isExpSplit = config.get("isExpSplit");
     }
 
     private static void loadNewInventory(Player player, String group) {
@@ -45,17 +31,32 @@ public class MultiInvPlayerData {
         player.getInventory().setBoots(null);
         //plugin.debugger.debugEvent(MultiInvEvent.INVENTORY_NEW, new String[]{player.getName()});
         // TODO: Add Debugging
-        String inventoryName = "MultiInvInventory";
+        String inventoryName;
+        if (MultiInv.creativeGroups.contains(group)){
+            inventoryName = "creative";
+        }else{
+            inventoryName = "survival";
+        }
         storeManualInventory(player, inventoryName, group);
     }
 
     public static void storeCurrentInventory(Player player, String group) {
-        String inventoryName = "MultiInvInventory";
+
+        // Load correct config file
+        File dataFile = Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder();
+        File file = new File(dataFile, "Worlds" + File.separator + group + File.separator + player.getName() + ".yml");
+        Configuration playerFile = new Configuration(file);
+        playerFile.load();
+        String inventoryName = "survival";
         if (MultiInv.currentInventories.containsKey(player.getName())) {
             inventoryName = MultiInv.currentInventories.get(player.getName())[0];
         }
         MultiInvInventory inventory = new MultiInvInventory(player, inventoryName, MultiInv.pluginName);
-        saveStateToFile(player, inventory, group);
+        playerFile.setProperty(inventoryName, inventory.toString());
+
+        saveStateToFile(playerFile, player);
+
+        playerFile.save();
         // TODO: Add Debugging
         // plugin.debugger.debugEvent(MultiInvEvent.INVENTORY_SAVE, new String[]{group});
     }
@@ -65,43 +66,44 @@ public class MultiInvPlayerData {
         String[] array = new String[2];
         array[0] = inventoryName;
         array[1] = "{other}";
-        String file = "plugins" + File.separator + "MultiInv" + File.separator
-                + "Other" + File.separator + player.getName() + ".data";
+
+        // Load correct config file
+        File dataFile = Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder();
+        File file = new File(dataFile, "Worlds" + File.separator + "other" + File.separator + player.getName() + ".yml");
         if (group != null) {
-            file = "plugins" + File.separator + "MultiInv" + File.separator
-                    + "Worlds" + File.separator + group + File.separator + player.getName() + ".data";
+            file = new File(dataFile, "Worlds" + File.separator + group + File.separator + player.getName() + ".yml");
             array[1] = group;
         }
+        Configuration playerFile = new Configuration(file);
+
+        // Store current inventory info into the array
         MultiInv.currentInventories.put(player.getName(), array);
-        MultiInvProperties.saveToProperties(file, inventory.getName(), inventory.toString(), "Stored Inventory");
+
+        // Store inventory into file
+        playerFile.setProperty(inventoryName, inventory.toString());
     }
     
-    public static void loadWorldInventory(Player player, String group) {
-        loadWorldInventory(player, group, true);
-    }
-    
-    public static void loadWorldInventory(Player player, String group, boolean loadHealth) {
-        if (!existingPlayers.contains(player.getName())) {
-            MultiInv.log.info("[" + MultiInv.pluginName + "] New player detected: " + player.getName());
-            existingPlayers.add(player.getName());
-            return;
-        }
+    public static void loadWorldInventory(Player player, String group, boolean loadExtras) {
         if (MultiInv.sharesMap.containsKey(group)) {
             group = MultiInv.sharesMap.get(group);
         }
-        if (segregateHealth && loadHealth) {
-            int health = loadHealthFromFile(player.getName(), group);
-            MultiInvHealthRunnable respawnWait = new MultiInvHealthRunnable(player.getName(), health);
-            
-            Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin("MultiInv");
-            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, respawnWait, 40);
-            //player.setHealth(health); TODO: Health (Waiting for fix by bukkit)
-        }
 
-        String inventoryName = "MultiInvInventory";
-        String file = "plugins" + File.separator + "MultiInv" + File.separator
-                + "Worlds" + File.separator + group + File.separator + player.getName() + ".data";
-        String tmpInventory = MultiInvProperties.loadFromProperties(file, inventoryName);
+        // Load correct config file
+        File dataFile = Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder();
+        File file = new File(dataFile, "Worlds" + File.separator + group + File.separator + player.getName() + ".yml");
+        Configuration playerFile = new Configuration(file);
+        playerFile.load();
+
+        String inventoryName;
+        if (MultiInv.creativeGroups.contains(group)){
+            inventoryName = "creative";
+        }else{
+            inventoryName = "survival";
+        }
+        System.out.println("Tying to load inventory: " + inventoryName);
+
+        // Load the inventory into the Player
+        String tmpInventory = playerFile.getString(inventoryName, null);
         if (tmpInventory != null) {
             MultiInvInventory inventory = new MultiInvInventory();
             inventory.fromString(tmpInventory); // converts properties string to MultiInvInventory
@@ -111,28 +113,70 @@ public class MultiInvPlayerData {
             array[1] = group;
             MultiInv.currentInventories.put(player.getName(), array);
             // TODO: Add Debugging
-            //plugin.debugger.debugEvent(MultiInvEvent.INVENTORY_LOAD, new String[]{group});
-            return;
+            // plugin.debugger.debugEvent(MultiInvEvent.INVENTORY_LOAD, new String[]{group});
+        }else{
+            loadNewInventory(player, group); //calls if no inventory is found
+            // TODO: Add Debugging
+            //plugin.debugger.debugEvent(MultiInvEvent.INVENTORY_LOAD_NEW, new String[]{player.getName()});
         }
-        loadNewInventory(player, group); //calls if no inventory is found
-        // TODO: Add Debugging
-        //plugin.debugger.debugEvent(MultiInvEvent.INVENTORY_LOAD_NEW, new String[]{player.getName()});
+
+        if (loadExtras) {
+             loadStateFromFile(playerFile, player);
+        }
+        playerFile.save();
     }
 
-    public static void saveStateToFile(Player player, MultiInvInventory inventory, String group) {
-        //String world = player.getWorld().getName();
-        String file = "plugins" + File.separator + "MultiInv" + File.separator
-                + "Worlds" + File.separator + group + File.separator + player.getName() + ".data";
-        if (segregateHealth) {
-            MultiInvProperties.saveToProperties(file, "health:" + group, Integer.toString(player.getHealth()));
+    public static void saveStateToFile(Configuration playerFile, Player player) {
+        if (isHealthSplit) {
+            playerFile.setProperty("health", player.getHealth());
         }
-        MultiInvProperties.saveToProperties(file, inventory.getName(), inventory.toString(), "Stored Inventory");
+        if(isHungerSplit){
+            playerFile.setProperty("hungerSaturation", player.getSaturation());
+            playerFile.setProperty("hungerLevel", player.getFoodLevel());
+            playerFile.setProperty("exhaustion", player.getExhaustion());
+        }
+        if (isExpSplit) {
+            playerFile.setProperty("totalExp", player.getTotalExperience());
+        }
+        playerFile.save();
     }
 
-    public static int loadHealthFromFile(String player, String group) {
-        String file = "plugins" + File.separator + "MultiInv" + File.separator
-                + "Worlds" + File.separator + group + File.separator + player + ".data";
-        String healthString = MultiInvProperties.loadFromProperties(file, "health:" + group, "20");
-        return Integer.parseInt(healthString);
+    public static HashMap<String, String> loadStateFromFile(Configuration playerFile, Player player) {
+        HashMap<String, String> data = new HashMap<String, String>();
+
+        //Store health
+        data.put("health", playerFile.getString("health", "20"));
+
+        //Store hunger levels
+        data.put("hungerSaturation", playerFile.getString("hungerSaturation", "20"));
+        data.put("hungerLevel", playerFile.getString("hungerLevel", "20"));
+        data.put("exhaustion", playerFile.getString("exhaustion", "0"));
+
+        //Store exp
+        data.put("totalExp", playerFile.getString("totalExp", "0"));
+
+        //Load info into Player
+        if (player != null) {
+            if (isHealthSplit) {
+                int health = Integer.parseInt(data.get("health"));
+                player.setHealth(health);
+            }
+            if(isHungerSplit){
+                float saturation = Float.parseFloat(data.get("hungerSaturation"));
+                player.setSaturation(saturation);
+
+                float exhaustion = Float.parseFloat(data.get("exhaustion"));
+                player.setExhaustion(exhaustion);
+
+                int hunger = Integer.parseInt(data.get("hungerLevel"));
+                player.setFoodLevel(hunger);
+            }
+            if (isExpSplit) {
+                int totalExp = Integer.parseInt(data.get("totalExp"));
+                player.setTotalExperience(totalExp);
+            }
+        }
+        return data;
     }
+
 }

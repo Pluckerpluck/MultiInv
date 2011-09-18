@@ -6,6 +6,8 @@ import org.bukkit.event.player.*;
 import org.bukkit.scheduler.BukkitScheduler;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInvEnums.MultiInvEvent;
 
+import java.sql.SQLOutput;
+
 public class MultiInvPlayerListener extends PlayerListener {
 
     public final MultiInv plugin;
@@ -62,16 +64,9 @@ public class MultiInvPlayerListener extends PlayerListener {
             }
             if (!(groupTo.equals(groupFrom))) {
                 if (!MultiInv.ignoreList.contains(player.getName())) {
-                    if (!MultiInv.creativeGroups.contains(groupFrom)) {
-                        MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
-                    }
-
-                    if (MultiInv.creativeGroups.contains(groupTo)) {
-                        player.setGameMode(GameMode.CREATIVE);
-                    } else {
-                        player.setGameMode(GameMode.SURVIVAL);
-                        MultiInvPlayerData.loadWorldInventory(player, groupTo);
-                    }
+                    MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
+                    MultiInvPlayerData.loadWorldInventory(player, groupTo, true);
+                    setGameMode(player, groupTo);
                 }
             }
         }
@@ -95,16 +90,9 @@ public class MultiInvPlayerListener extends PlayerListener {
             }
             if (!(groupTo.equals(groupFrom))) {
                 if (!MultiInv.ignoreList.contains(player.getName())) {
-                    if (!MultiInv.creativeGroups.contains(groupFrom)) {
-                        MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
-                    }
-
-                    if (MultiInv.creativeGroups.contains(groupTo)) {
-                        player.setGameMode(GameMode.CREATIVE);
-                    } else {
-                        player.setGameMode(GameMode.SURVIVAL);
-                        MultiInvPlayerData.loadWorldInventory(player, groupTo);
-                    }
+                    MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
+                    MultiInvPlayerData.loadWorldInventory(player, groupTo, true);
+                    setGameMode(player, groupTo);
                 }
             }
         }
@@ -125,19 +113,23 @@ public class MultiInvPlayerListener extends PlayerListener {
         }
         if (!(groupTo.equals(groupFrom))) {
             if (!MultiInv.ignoreList.contains(name)) {
-                if (!MultiInv.creativeGroups.contains(groupFrom)) {
-                    MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
-                }
+                MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
+                MultiInvRespawnRunnable respawnWait = new MultiInvRespawnRunnable(groupTo, groupFrom, name, plugin);
+                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, respawnWait, 40);
 
-                if (MultiInv.creativeGroups.contains(groupTo)) {
-                    player.setGameMode(GameMode.CREATIVE);
-                } else {
-                    player.setGameMode(GameMode.SURVIVAL);
-                    MultiInvRespawnRunnable respawnWait = new MultiInvRespawnRunnable(groupTo, groupFrom, name, plugin);
-                    plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, respawnWait, 40);
-                }
+                setGameMode(player, groupTo);
             }
         }
 
+    }
+
+    private void setGameMode(Player player, String group) {
+        if (MultiInv.creativeGroups.contains(group)) {
+            player.setGameMode(GameMode.CREATIVE);
+            System.out.println("Setting mode to creative");
+        } else {
+            player.setGameMode(GameMode.SURVIVAL);
+            System.out.println("Setting mode to survival");
+        }
     }
 }

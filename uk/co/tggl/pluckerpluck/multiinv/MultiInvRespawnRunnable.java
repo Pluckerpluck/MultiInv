@@ -19,9 +19,17 @@ public class MultiInvRespawnRunnable implements Runnable {
     @Override
     public void run() {
         Player playerObj = plugin.getServer().getPlayer(this.player);
-        MultiInvPlayerData.storeManualInventory(playerObj, "MultiInvInventory", groupFrom);
+
+        String inventoryName;
+        if (MultiInv.creativeGroups.contains(groupFrom)){
+            inventoryName = "creative";
+        }else{
+            inventoryName = "survival";
+        }
+
+        MultiInvPlayerData.storeManualInventory(playerObj, inventoryName, groupFrom);
         if (!MultiInv.ignoreList.contains(player)) {
-            MultiInvPlayerData.loadWorldInventory(playerObj, groupTo);
+            MultiInvPlayerData.loadWorldInventory(playerObj, groupTo, true);
         }
     }
 }

@@ -56,9 +56,13 @@ public class MultiInvReader {
             ymlFile.load();
             for (String key : ymlFile.getKeys()) {
                 final List<String> stringList = ymlFile.getStringList(key, null);
-                if (stringList != null && !"creativeGroups".equals(key)) {
-                    for (String world : stringList){
-                        MultiInv.sharesMap.put(world, key);
+                if ("creativeGroups".equals(key)){
+                    for (String group : stringList){
+                        MultiInv.creativeGroups.add(group);
+                    }  
+                }else if (stringList != null) {
+                    for (String group : stringList){
+                        MultiInv.sharesMap.put(group, key);
                     }
                 }
             }
@@ -73,8 +77,10 @@ public class MultiInvReader {
         loadFileFromJar("config.yml");
         plugin.getConfiguration().load();
         Configuration cfg = plugin.getConfiguration();
-        config.put("health", cfg.getBoolean("health", true));
-        config.put("inventories", cfg.getBoolean("inventories", true));
+        config.put("isHealthSplit", cfg.getBoolean("isHealthSplit", true));
+        config.put("isHungerSplit", cfg.getBoolean("isHungerSplit", true));
+        //config.put("isExpSplit", cfg.getBoolean("isExpSplit", false));
+        config.put("isExpSplit", false);
         String ignoreList = cfg.getString("ignore");
         if (ignoreList != null && !ignoreList.matches(" *")) {
             String[] names = cfg.getString("ignore").split(" *, *");

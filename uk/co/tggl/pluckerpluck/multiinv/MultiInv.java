@@ -65,8 +65,7 @@ public class MultiInv extends JavaPlugin {
         // Loads config and gives it to the player listener
         fileReader.loadConfig();
         MultiInvPlayerData.storeConfig(fileReader.config);
-        
-        MultiInvPlayerData.loadPlayers();
+
         
         if (getServer().getOnlinePlayers().length > 0) {
             Boolean localShares = fileReader.parseShares();
