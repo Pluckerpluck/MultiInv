@@ -74,6 +74,8 @@ public class MultiInv extends JavaPlugin {
                 this.shares = 1;
             }
             this.shares = 2;
+        }else{
+            fileReader.loadFileFromJar("shares.yml");
         }
 
         log.info("[" + pluginName + "] version " + pdfFile.getVersion() + " is enabled!");
