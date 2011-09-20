@@ -111,17 +111,17 @@ public class MultiInvCommands {
 
     private void ignoreCommand(CommandSender sender, Player player) {
         String playerName = player.getName();
-        if (MultiInv.ignoreList.contains(playerName)) {
+        if (MultiInv.ignoreList.contains(playerName.toLowerCase())) {
             sender.sendMessage("Player is already being ignored");
             return;
         }
-        MultiInv.ignoreList.add(playerName);
+        MultiInv.ignoreList.add(playerName.toLowerCase());
         sender.sendMessage(playerName + " is now being ignored");
     }
 
     private void unignoreCommand(CommandSender sender, String playerName) {
-        if (MultiInv.ignoreList.contains(playerName)) {
-            MultiInv.ignoreList.remove(playerName);
+        if (MultiInv.ignoreList.contains(playerName.toLowerCase())) {
+            MultiInv.ignoreList.remove(playerName.toLowerCase());
             sender.sendMessage(playerName + " is no longer ignored");
             return;
         }

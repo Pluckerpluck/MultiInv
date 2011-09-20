@@ -11,6 +11,7 @@ isExpSplit: false
 # Do you want to allow this plugin to control which worlds are creative/survival
 worldTypes: true
 
-# Players you wish to never switch inventories
-# Separated by a comma ,
-ignore: Pluckerpluck, randomStranger
+# Players you wish to never switch inventories (using YML lists)
+ignore:
+- Pluckerpluck
+- randomStranger

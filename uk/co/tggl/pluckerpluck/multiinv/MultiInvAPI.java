@@ -20,7 +20,7 @@ public class MultiInvAPI {
      * @param playerName The name of the player
      */
     public static void ignorePlayer(String playerName){
-        MultiInv.ignoreList.add(playerName);
+        MultiInv.ignoreList.add(playerName.toLowerCase());
     }
     
     /**
@@ -30,7 +30,7 @@ public class MultiInvAPI {
      * @param force If true will force an un-ignore of the Player
      */
     public static void unignorePlayer(String playerName, boolean force){
-        MultiInv.ignoreList.remove(playerName);
+        MultiInv.ignoreList.remove(playerName.toLowerCase());
     }
     
     /**
@@ -39,7 +39,7 @@ public class MultiInvAPI {
      * @param playerName The name of the player
      */
     public static void unignorePlayer(String playerName){
-        unignorePlayer(playerName, false);
+        unignorePlayer(playerName.toLowerCase(), false);
     }
     
     /**
@@ -49,7 +49,7 @@ public class MultiInvAPI {
      */
     public static boolean isIgnored(String playerName){
         boolean ignored = false;
-        if (MultiInv.ignoreList.contains(playerName)){
+        if (MultiInv.ignoreList.contains(playerName.toLowerCase())){
             ignored = true;
         }
         return ignored;

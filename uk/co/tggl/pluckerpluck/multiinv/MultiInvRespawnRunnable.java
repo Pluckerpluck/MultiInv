@@ -28,7 +28,7 @@ public class MultiInvRespawnRunnable implements Runnable {
         }
 
         MultiInvPlayerData.storeManualInventory(playerObj, inventoryName, groupFrom);
-        if (!MultiInv.ignoreList.contains(player)) {
+        if (!MultiInv.ignoreList.contains(player.toLowerCase())) {
             MultiInvPlayerData.loadWorldInventory(playerObj, groupTo, true);
         }
     }

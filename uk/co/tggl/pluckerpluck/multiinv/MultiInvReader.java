@@ -82,12 +82,9 @@ public class MultiInvReader {
         config.put("isHungerSplit", cfg.getBoolean("isHungerSplit", true));
         //config.put("isExpSplit", cfg.getBoolean("isExpSplit", false));
         config.put("isExpSplit", false);
-        String ignoreList = cfg.getString("ignore");
-        if (ignoreList != null && !ignoreList.matches(" *")) {
-            String[] names = cfg.getString("ignore").split(" *, *");
-            for (String name : names) {
-                MultiInv.ignoreList.add(name.toLowerCase());
-            }
+        List<String> ignoreList = cfg.getStringList("ignore", null);
+        for (String name : ignoreList) {
+            MultiInv.ignoreList.add(name.toLowerCase());
         }
     }
 }

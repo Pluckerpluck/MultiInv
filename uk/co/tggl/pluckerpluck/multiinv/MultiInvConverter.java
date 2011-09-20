@@ -35,7 +35,9 @@ public class MultiInvConverter {
             success = false;
         }
         File file = new File(plugin.getDataFolder(), "Worlds");
-        searchFolders(file);
+        if (file.exists()){
+            searchFolders(file);
+        }
         if (invConversionInProgress) {
             MultiInv.log.info("Converting old inventories completed");
             invConversionInProgress = false;
@@ -104,7 +106,7 @@ public class MultiInvConverter {
             }
         } else {
             String[] fileParts = file.getName().split("\\.");
-            if ("data".equals(fileParts[1])) {
+            if (fileParts.length > 1 && "data".equals(fileParts[1])) {
                 if (!invConversionInProgress) {
                     MultiInv.log.info("Starting old inventory conversion...");
                     invConversionInProgress = true;

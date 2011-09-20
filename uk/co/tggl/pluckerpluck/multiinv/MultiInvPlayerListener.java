@@ -63,7 +63,7 @@ public class MultiInvPlayerListener extends PlayerListener {
                 groupFrom = MultiInv.sharesMap.get(groupFrom);
             }
             if (!(groupTo.equals(groupFrom))) {
-                if (!MultiInv.ignoreList.contains(player.getName())) {
+                if (!MultiInv.ignoreList.contains(player.getName().toLowerCase())) {
                     MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
                     MultiInvPlayerData.loadWorldInventory(player, groupTo, true);
                     setGameMode(player, groupTo);
@@ -89,7 +89,7 @@ public class MultiInvPlayerListener extends PlayerListener {
                 groupFrom = MultiInv.sharesMap.get(groupFrom);
             }
             if (!(groupTo.equals(groupFrom))) {
-                if (!MultiInv.ignoreList.contains(player.getName())) {
+                if (!MultiInv.ignoreList.contains(player.getName().toLowerCase())) {
                     MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
                     MultiInvPlayerData.loadWorldInventory(player, groupTo, true);
                     setGameMode(player, groupTo);
@@ -112,7 +112,7 @@ public class MultiInvPlayerListener extends PlayerListener {
             groupFrom = MultiInv.sharesMap.get(groupFrom);
         }
         if (!(groupTo.equals(groupFrom))) {
-            if (!MultiInv.ignoreList.contains(name)) {
+            if (!MultiInv.ignoreList.contains(name.toLowerCase())) {
                 MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
                 MultiInvRespawnRunnable respawnWait = new MultiInvRespawnRunnable(groupTo, groupFrom, name, plugin);
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, respawnWait, 40);
