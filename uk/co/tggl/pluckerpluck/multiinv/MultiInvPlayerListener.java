@@ -65,8 +65,10 @@ public class MultiInvPlayerListener extends PlayerListener {
             if (!(groupTo.equals(groupFrom))) {
                 if (!MultiInv.ignoreList.contains(player.getName().toLowerCase())) {
                     MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
-                    MultiInvPlayerData.loadWorldInventory(player, groupTo, true);
+
+                    //set GameMode and load inventory
                     setGameMode(player, groupTo);
+                    MultiInvPlayerData.loadWorldInventory(player, groupTo, true);
                 }
             }
         }
@@ -91,11 +93,19 @@ public class MultiInvPlayerListener extends PlayerListener {
             if (!(groupTo.equals(groupFrom))) {
                 if (!MultiInv.ignoreList.contains(player.getName().toLowerCase())) {
                     MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
-                    MultiInvPlayerData.loadWorldInventory(player, groupTo, true);
+
+                    // Set gameMode and load inventory
                     setGameMode(player, groupTo);
+                    MultiInvPlayerData.loadWorldInventory(player, groupTo, true);
                 }
             }
         }
+    }
+
+    @Override
+    public void onPlayerGameModeChange(PlayerGameModeChangeEvent event) {
+        Player player = event.getPlayer();
+        MultiInvPlayerData.storeCurrentInventory(player, player.getWorld().getName());
     }
 
     @Override
@@ -114,10 +124,11 @@ public class MultiInvPlayerListener extends PlayerListener {
         if (!(groupTo.equals(groupFrom))) {
             if (!MultiInv.ignoreList.contains(name.toLowerCase())) {
                 MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
+
+                //set GameMode and load start runnable for respawn
+                setGameMode(player, groupTo);
                 MultiInvRespawnRunnable respawnWait = new MultiInvRespawnRunnable(groupTo, groupFrom, name, plugin);
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, respawnWait, 40);
-
-                setGameMode(player, groupTo);
             }
         }
 

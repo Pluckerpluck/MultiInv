@@ -56,13 +56,15 @@ public class MultiInvAPI {
     }
     
     /**
-     * Saves the inventory of the chosen player to the chosen world
+     * Saves the inventory of the chosen player using the given name
+     * The current inventory is saved to the group which matches world
+     * Note: Unless you have a reason to do otherwise, use saveState
      * @param player Player whose inventory you want to save
      * @param world Name of the world you want to save the inventory to
+     * @param inventoryName Name of the inventory (survival/creative are built into MultiInv)
      * @return false if world does not exist
      */
-    public static boolean saveInventory(Player player, String world){
-        String inventoryName = "MultiInvInventory";
+    public static boolean saveManualInventory(Player player, String world, String inventoryName){
         boolean success = false;
         if (player.isOnline() && Bukkit.getServer().getWorld(world) != null){
             MultiInvPlayerData.storeManualInventory(player, inventoryName, world);
@@ -70,17 +72,33 @@ public class MultiInvAPI {
         }
         return success;
     }
-    
+
     /**
-     * Loads the inventory from the chosen world and gives it to the player
-     * @param player The player whose inventory you want to set
-     * @param world The world's inventory that you wish to load
+     * Saves the inventory (and state) of the player to the chosen world
+     * @param player Player whose inventory you want to save
+     * @param world Name of the world you want to save the inventory to
      * @return false if world does not exist
      */
-    public static boolean loadInventory(Player player, String world){
+    public static boolean saveInventory(Player player, String world){
+        boolean success = false;
+        if (player.isOnline() && Bukkit.getServer().getWorld(world) != null){
+            MultiInvPlayerData.storeCurrentInventory(player, world);
+            success = true;
+        }
+        return success;
+    }
+    
+    /**
+     * Loads the inventory from the group containing the chosen world and gives it to the player
+     * @param player The player whose inventory you want to set
+     * @param world The world's inventory that you wish to load
+     * @param state Whether you wish to load extras from the world (health/hunger etc)
+     * @return false if world does not exist
+     */
+    public static boolean loadInventory(Player player, String world, boolean state){
         boolean success = false;
         if (Bukkit.getServer().getWorld(world) != null){
-            MultiInvPlayerData.loadWorldInventory(player, world, false);
+            MultiInvPlayerData.loadWorldInventory(player, world, state);
             success = true;
         }
         return success;

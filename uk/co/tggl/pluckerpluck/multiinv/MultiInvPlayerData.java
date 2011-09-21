@@ -1,6 +1,7 @@
 package uk.co.tggl.pluckerpluck.multiinv;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.config.Configuration;
@@ -95,7 +96,7 @@ public class MultiInvPlayerData {
         playerFile.load();
 
         String inventoryName;
-        if (MultiInv.creativeGroups.contains(group)){
+        if (player.getGameMode() == GameMode.CREATIVE){
             inventoryName = "creative";
         }else{
             inventoryName = "survival";
