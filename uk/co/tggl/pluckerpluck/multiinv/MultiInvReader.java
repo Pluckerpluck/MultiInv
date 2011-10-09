@@ -80,6 +80,7 @@ public class MultiInvReader {
         config.put("worldTypes", cfg.getBoolean("worldTypes", true));
         config.put("isHealthSplit", cfg.getBoolean("isHealthSplit", true));
         config.put("isHungerSplit", cfg.getBoolean("isHungerSplit", true));
+        config.put("invertList", cfg.getBoolean("invertList", false));
         //config.put("isExpSplit", cfg.getBoolean("isExpSplit", false));
         config.put("isExpSplit", false);
         List<String> ignoreList = cfg.getStringList("ignore", null);

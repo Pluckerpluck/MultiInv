@@ -6,15 +6,15 @@ import org.bukkit.event.player.*;
 import org.bukkit.scheduler.BukkitScheduler;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInvEnums.MultiInvEvent;
 
-import java.sql.SQLOutput;
-
 public class MultiInvPlayerListener extends PlayerListener {
 
     public final MultiInv plugin;
     public BukkitScheduler tasks;
+    private boolean isIgnoreNonInverted;
 
     public MultiInvPlayerListener(MultiInv instance) {
         plugin = instance;
+        isIgnoreNonInverted = !plugin.fileReader.config.get("invertList");
     }
 
     @Override
@@ -63,7 +63,8 @@ public class MultiInvPlayerListener extends PlayerListener {
                 groupFrom = MultiInv.sharesMap.get(groupFrom);
             }
             if (!(groupTo.equals(groupFrom))) {
-                if (!MultiInv.ignoreList.contains(player.getName().toLowerCase())) {
+                boolean isInIgnoreList = MultiInv.ignoreList.contains(player.getName().toLowerCase());
+                if (isInIgnoreList ^ isIgnoreNonInverted) {
                     MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
 
                     //set GameMode and load inventory
@@ -91,7 +92,8 @@ public class MultiInvPlayerListener extends PlayerListener {
                 groupFrom = MultiInv.sharesMap.get(groupFrom);
             }
             if (!(groupTo.equals(groupFrom))) {
-                if (!MultiInv.ignoreList.contains(player.getName().toLowerCase())) {
+                boolean isInIgnoreList = MultiInv.ignoreList.contains(player.getName().toLowerCase());
+                if (isInIgnoreList ^ isIgnoreNonInverted) {
                     MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
 
                     // Set gameMode and load inventory
@@ -122,7 +124,8 @@ public class MultiInvPlayerListener extends PlayerListener {
             groupFrom = MultiInv.sharesMap.get(groupFrom);
         }
         if (!(groupTo.equals(groupFrom))) {
-            if (!MultiInv.ignoreList.contains(name.toLowerCase())) {
+            boolean isInIgnoreList = MultiInv.ignoreList.contains(name.toLowerCase());
+            if (isInIgnoreList ^ isIgnoreNonInverted) {
                 MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
 
                 //set GameMode and load start runnable for respawn

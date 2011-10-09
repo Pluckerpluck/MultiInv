@@ -24,12 +24,12 @@ import java.util.logging.Logger;
  */
 public class MultiInv extends JavaPlugin {
 
-    final MultiInvPlayerListener playerListener = new MultiInvPlayerListener(this);
-    final MultiInvWorldListener worldListener = new MultiInvWorldListener(this);
-    final MultiInvConverter versionCheck = new MultiInvConverter(this);
-    final MultiInvDebugger debugger = new MultiInvDebugger(this);
+    MultiInvPlayerListener playerListener;
+    MultiInvWorldListener worldListener = new MultiInvWorldListener(this);
+    MultiInvConverter versionCheck = new MultiInvConverter(this);
+    MultiInvDebugger debugger = new MultiInvDebugger(this);
     MultiInvReader fileReader;
-    final MultiInvCommands commands = new MultiInvCommands(this);
+    MultiInvCommands commands = new MultiInvCommands(this);
     
     static final ConcurrentHashMap<String, String[]> currentInventories = new ConcurrentHashMap<String, String[]>();
     static final ConcurrentHashMap<String, String> sharesMap = new ConcurrentHashMap<String, String>();
@@ -54,7 +54,9 @@ public class MultiInv extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        //File reader must be initialized here due to limitation with getFile()
         fileReader = new MultiInvReader(this, this.getFile());
+
         PluginDescriptionFile pdfFile = this.getDescription();
         pluginName = pdfFile.getName();
         if (!versionCheck.convertFromOld()){
@@ -79,6 +81,10 @@ public class MultiInv extends JavaPlugin {
         }
 
         log.info("[" + pluginName + "] version " + pdfFile.getVersion() + " is enabled!");
+
+        //Initialize classes
+        playerListener = new MultiInvPlayerListener(this);
+
 
         // Event registration
         PluginManager pm = getServer().getPluginManager();
