@@ -145,6 +145,9 @@ public class MultiInvConverter {
         }
         String healthString = MultiInvProperties.loadFromProperties(file, "health:" + folder, "20");
         int health = Integer.parseInt(healthString);
+        if (health <= 0) {
+        	health = 20;
+        }
         Configuration ymlFile = new Configuration(fileDest);
         ymlFile.load();
         ymlFile.setProperty("health", health);

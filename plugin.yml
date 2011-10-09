@@ -1,14 +1,47 @@
 name: MultiInv
 main: uk.co.tggl.pluckerpluck.multiinv.MultiInv
-version: 2.4.1
+version: 2.4.2
 website: http://www.tggl.co.uk
 author: Pluckerpluck
 description: >
              This is a plugin to create seperate inventories for each world
+permissions:
+  MultiInv.*:
+    description: Gives access to all MultiInv commands
+    children:
+      MultiInv.mod.*: true
+      MultiInv.admin.*: true
+  MultiInv.mod.*:
+    description: Gives access to all MultiInv mod commands
+    children:
+      MultiInv.mod.ignore: true
+  MultiInv.admin.*:
+    description: Gives access to all MultiInv admin commands
+    children:
+      MultiInv.admin.delete: true
+      MultiInv.admin.debug: true
+      MultiInv.admin.shares: true
+  MultiInv.mod.ignore:
+    description: Permission to add user to global ignore list
+    default: op
+  MultiInv.admin.delete:
+    description: Permission to delete a users inventory
+    default: op
+  MultiInv.admin.debug:
+    description: Permission to use debugging commands
+    default: op
+  MultiInv.admin.shares:
+    description: Permission to share and unshare world inventories
+    default: op
 commands:
   multiinv:
-    description: Saves and loads inventory
+    description: MultiInv admin commands
     usage: |
-           /<command> save- saves inventory
-           /<command> load - loads inventory
-           /<command> debug - starts debugging
+           /<command> delete <player> - delete all inventories for player
+           /<command> debug start [show] - start debugger
+           /<command> debug stop - stop debugger
+           /<command> debug save - save debug log
+           /<command> ignore <player> - add user to shared inventory ignore list
+           /<command> unignore <player> - remove user from shared inventory ignore list
+           /<command> addShare <minorWorld> <majorWorld> - share inventory from majorWorld with minorWorld
+           /<command> removeShare <minorWorld> - remove minorWorld from shared inventories
