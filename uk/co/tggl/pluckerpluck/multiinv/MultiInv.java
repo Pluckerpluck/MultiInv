@@ -1,7 +1,5 @@
 package uk.co.tggl.pluckerpluck.multiinv;
 
-import com.nijiko.permissions.PermissionHandler;
-import com.nijikokun.bukkit.Permissions.Permissions;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -35,10 +33,8 @@ public class MultiInv extends JavaPlugin {
     static final ConcurrentHashMap<String, String> sharesMap = new ConcurrentHashMap<String, String>();
     static final HashSet<String> creativeGroups = new HashSet<String>();
     static final HashSet<String> ignoreList = new HashSet<String>();
-    static PermissionHandler Permissions = null;
     static final Logger log = Logger.getLogger("Minecraft");
     static String pluginName;
-    boolean permissionsEnabled = true;
     // 0 = unloaded, 1 = loaded successfully, 2 = loaded with errors
     int shares = 0;
 
@@ -96,21 +92,8 @@ public class MultiInv extends JavaPlugin {
         pm.registerEvent(Event.Type.PLAYER_PORTAL, playerListener, Priority.Highest, this);
         pm.registerEvent(Event.Type.PLAYER_GAME_MODE_CHANGE, playerListener, Priority.Highest, this);
 
-        //Permissions plugin setup
-        setupPermissions();
+        //Permissions setup
         loadPermissions();
-    }
-
-    void setupPermissions() {
-        Plugin perm = this.getServer().getPluginManager().getPlugin("Permissions");
-        if (Permissions == null) {
-            if (perm != null) {
-                Permissions = ((Permissions) perm).getHandler();
-            } else {
-                log.info("[" + pluginName + "] Permission system not enabled. Using ops.txt");
-                permissionsEnabled = false;
-            }
-        }
     }
 
     @Override
@@ -132,23 +115,19 @@ public class MultiInv extends JavaPlugin {
     }
 
     boolean permissionCheck(Player player, String node, Boolean loud) {
-        if (permissionsEnabled && !Permissions.has(player, node)) {
-            if (true) {
-                player.sendMessage("You do not have permission to use this command");
-            }
-            return false;
-        } else if (!player.isOp()) {
-            if (true) {
-                player.sendMessage("You do not have permission to use this command");
-            }
-            return false;
+        if (!player.hasPermission(node)) {
+        	if (loud) {
+        		player.sendMessage("You do not have permission to use this command");
+        	}
+        	return false;
         }
         return true;
+
     }
 
     private boolean performCheck(CommandSender sender, String[] split) {
         if (split.length == 0) {
-            sender.sendMessage("Type a command to utalize MultiInv'");
+            sender.sendMessage("Type a command to utilize MultiInv");
             return true;
         }
         if (sender instanceof Player) {
@@ -164,7 +143,6 @@ public class MultiInv extends JavaPlugin {
 
             // Ignore commands (Admin power)
             commandPermissions.put("delete", "MultiInv.admin.delete");
-            commandPermissions.put("unignore", "MultiInv.admin.debug");
             commandPermissions.put("addshare", "MultiInv.admin.shares");
             commandPermissions.put("removeshare", "MultiInv.admin.shares");
             commandPermissions.put("debug", "MultiInv.admin.debug");
