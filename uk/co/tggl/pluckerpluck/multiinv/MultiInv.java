@@ -191,7 +191,7 @@ public class MultiInv extends JavaPlugin {
 
     void loadPermissions(Player player) {
         if (ignoreList.contains(player.getName().toLowerCase())) {
-            player.sendMessage("You are on the master ignore list");
+            player.sendMessage("MultiInv is ignoring you");
         }
 
         if (!MultiInvPlayerData.existingPlayers.contains(player.getName())) {

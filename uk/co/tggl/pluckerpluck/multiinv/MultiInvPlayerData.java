@@ -129,7 +129,7 @@ public class MultiInvPlayerData {
     public static void saveStateToFile(Configuration playerFile, Player player) {
         if (isHealthSplit) {
         	int health = player.getHealth();
-            if (health <= 0) {
+            if (health <= 0 || health > 20) {
             	health = 20;
             }
             playerFile.setProperty("health", health);
@@ -163,7 +163,7 @@ public class MultiInvPlayerData {
         if (player != null) {
             if (isHealthSplit) {
                 int health = Integer.parseInt(data.get("health"));
-                if (health <= 0) {
+                if (health <= 0 || health > 20) {
                 	health = 20;
                 }
                 player.setHealth(health);
