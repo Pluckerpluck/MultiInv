@@ -43,8 +43,8 @@ public class MultiInvProperties {
             prop.load(in);
             if (prop.containsKey(key)) {
                 value = prop.getProperty(key);
-                in.close();
             }
+            in.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -102,7 +102,7 @@ public class MultiInvProperties {
             }
         }
         try {
-            FileInputStream in = new FileInputStream(FileP);
+			FileInputStream in = new FileInputStream(FileP);
             prop.load(in);
             prop.put(key, value);
             prop.store(new FileOutputStream(FileP), comment);
