@@ -57,6 +57,13 @@ public class MultiInvPlayerData {
 
         saveStateToFile(playerFile, player);
 
+        // Save gameMode
+        int creativeGroup = 0;
+        if (MultiInv.creativeGroups.contains(group)){
+            creativeGroup = 1;
+        }
+        playerFile.setProperty("gameMode", playerFile.getInt("gameMode", creativeGroup));
+
         playerFile.save();
         // TODO: Add Debugging
         // plugin.debugger.debugEvent(MultiInvEvent.INVENTORY_SAVE, new String[]{group});
@@ -95,6 +102,17 @@ public class MultiInvPlayerData {
         Configuration playerFile = new Configuration(file);
         playerFile.load();
 
+        // Get gameMode
+        int creativeGroup = 0;
+        if (MultiInv.creativeGroups.contains(group)){
+            creativeGroup = 1;
+        }
+        player.setGameMode(GameMode.getByValue(playerFile.getInt("gameMode", creativeGroup)));
+
+        if (loadExtras) {
+             loadStateFromFile(playerFile, player);
+        }
+
         String inventoryName;
         if (player.getGameMode() == GameMode.CREATIVE){
             inventoryName = "creative";
@@ -119,10 +137,6 @@ public class MultiInvPlayerData {
             // TODO: Add Debugging
             //plugin.debugger.debugEvent(MultiInvEvent.INVENTORY_LOAD_NEW, new String[]{player.getName()});
         }
-
-        if (loadExtras) {
-             loadStateFromFile(playerFile, player);
-        }
         playerFile.save();
     }
 
@@ -142,6 +156,7 @@ public class MultiInvPlayerData {
         if (isExpSplit) {
             playerFile.setProperty("totalExp", player.getTotalExperience());
         }
+
         playerFile.save();
     }
 

@@ -4,6 +4,8 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.*;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.getspout.spoutapi.SpoutManager;
+import org.getspout.spoutapi.player.SpoutPlayer;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInvEnums.MultiInvEvent;
 
 public class MultiInvPlayerListener extends PlayerListener {
@@ -67,6 +69,10 @@ public class MultiInvPlayerListener extends PlayerListener {
                 if (isInIgnoreList ^ isIgnoreNonInverted) {
                     MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
 
+                    // If using spout, close the inventory to stop cheating
+                    SpoutPlayer spoutPlayer = SpoutManager.getPlayer(event.getPlayer());
+                    spoutPlayer.closeActiveWindow();
+
                     //set GameMode and load inventory
                     setGameMode(player, groupTo);
                     MultiInvPlayerData.loadWorldInventory(player, groupTo, true);
@@ -95,6 +101,10 @@ public class MultiInvPlayerListener extends PlayerListener {
                 boolean isInIgnoreList = MultiInv.ignoreList.contains(player.getName().toLowerCase());
                 if (isInIgnoreList ^ isIgnoreNonInverted) {
                     MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
+
+                    // If using spout, close the inventory to stop cheating
+                    SpoutPlayer spoutPlayer = SpoutManager.getPlayer(event.getPlayer());
+                    spoutPlayer.closeActiveWindow();
 
                     // Set gameMode and load inventory
                     setGameMode(player, groupTo);
