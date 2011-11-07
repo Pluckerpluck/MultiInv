@@ -77,7 +77,7 @@ public class MultiInvPlayerListener extends PlayerListener {
 
     @Override
     public void onPlayerPortal(PlayerPortalEvent event) {
-        if (!(event.isCancelled()) && event.getTo() != null) {
+        if (!(event.isCancelled()) || event.getTo() != null) {
             String groupTo = event.getTo().getWorld().getName();
             Player player = event.getPlayer();
             String groupFrom = event.getFrom().getWorld().getName();
