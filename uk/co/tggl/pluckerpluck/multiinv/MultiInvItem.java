@@ -67,6 +67,8 @@ public class MultiInvItem implements Serializable {
     	for(Enchantment tench : setenchantments) {
     		if(!first) {
     			senchantments = senchantments + ",";
+    		}else {
+    			first = false;
     		}
     		senchantments = senchantments + tench.getId() + "," + enchantments.get(tench).intValue();
     	}
