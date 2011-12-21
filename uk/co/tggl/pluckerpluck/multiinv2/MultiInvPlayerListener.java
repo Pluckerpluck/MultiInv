@@ -1,4 +1,4 @@
-package uk.co.tggl.pluckerpluck.multiinv;
+package uk.co.tggl.pluckerpluck.multiinv2;
 
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -6,7 +6,6 @@ import org.bukkit.event.player.*;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.player.SpoutPlayer;
-import uk.co.tggl.pluckerpluck.multiinv.MultiInvEnums.MultiInvEvent;
 
 public class MultiInvPlayerListener extends PlayerListener {
 
@@ -35,7 +34,7 @@ public class MultiInvPlayerListener extends PlayerListener {
 
         plugin.loadPermissions(player);
 
-        plugin.debugger.debugEvent(MultiInvEvent.PLAYER_LOGIN, new String[]{playerName});
+        plugin.debugger.debugEvent(MultiInvEnums.MultiInvEvent.PLAYER_LOGIN, new String[]{playerName});
         //plugin.playerInventory.loadWorldInventory(player, world);
     }
 
@@ -55,7 +54,7 @@ public class MultiInvPlayerListener extends PlayerListener {
             Player player = event.getPlayer();
             String groupFrom = event.getFrom().getWorld().getName();
             if (!(groupTo.equals(groupFrom))) {
-                plugin.debugger.debugEvent(MultiInvEvent.WORLD_CHANGE,
+                plugin.debugger.debugEvent(MultiInvEnums.MultiInvEvent.WORLD_CHANGE,
                         new String[]{player.getName(), groupFrom, groupTo});
             }
             if (MultiInv.sharesMap.containsKey(groupTo)) {
@@ -88,7 +87,7 @@ public class MultiInvPlayerListener extends PlayerListener {
             Player player = event.getPlayer();
             String groupFrom = event.getFrom().getWorld().getName();
             if (!(groupTo.equals(groupFrom))) {
-                plugin.debugger.debugEvent(MultiInvEvent.WORLD_CHANGE,
+                plugin.debugger.debugEvent(MultiInvEnums.MultiInvEvent.WORLD_CHANGE,
                         new String[]{player.getName(), groupFrom, groupTo});
             }
             if (MultiInv.sharesMap.containsKey(groupTo)) {

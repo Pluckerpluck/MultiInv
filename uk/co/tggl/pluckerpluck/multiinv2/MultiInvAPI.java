@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package uk.co.tggl.pluckerpluck.multiinv;
+package uk.co.tggl.pluckerpluck.multiinv2;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

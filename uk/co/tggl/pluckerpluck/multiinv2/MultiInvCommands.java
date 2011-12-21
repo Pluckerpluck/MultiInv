@@ -1,4 +1,4 @@
-package uk.co.tggl.pluckerpluck.multiinv;
+package uk.co.tggl.pluckerpluck.multiinv2;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

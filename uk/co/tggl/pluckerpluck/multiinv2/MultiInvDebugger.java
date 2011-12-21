@@ -1,7 +1,6 @@
-package uk.co.tggl.pluckerpluck.multiinv;
+package uk.co.tggl.pluckerpluck.multiinv2;
 
 import org.bukkit.entity.Player;
-import uk.co.tggl.pluckerpluck.multiinv.MultiInvEnums.MultiInvEvent;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -50,7 +49,7 @@ public class MultiInvDebugger {
         }
     }
 
-    public void debugEvent(MultiInvEvent event, String[] args) {
+    public void debugEvent(MultiInvEnums.MultiInvEvent event, String[] args) {
         String message;
         String message2;
         String dividerStart = "#-----";

@@ -1,4 +1,4 @@
-package uk.co.tggl.pluckerpluck.multiinv;
+package uk.co.tggl.pluckerpluck.multiinv2;
 
 import java.io.File;
 import java.io.FileInputStream;

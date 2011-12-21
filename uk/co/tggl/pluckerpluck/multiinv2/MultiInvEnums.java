@@ -1,4 +1,4 @@
-package uk.co.tggl.pluckerpluck.multiinv;
+package uk.co.tggl.pluckerpluck.multiinv2;
 
 public class MultiInvEnums {
 

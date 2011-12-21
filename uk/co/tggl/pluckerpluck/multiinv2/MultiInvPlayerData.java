@@ -1,18 +1,15 @@
-package uk.co.tggl.pluckerpluck.multiinv;
+package uk.co.tggl.pluckerpluck.multiinv2;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.util.config.Configuration;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MultiInvPlayerData {
 
-    public static ArrayList<String> existingPlayers = new ArrayList<String>();
     private static boolean isHealthSplit;
     private static boolean isHungerSplit;
     private static boolean isExpSplit;
