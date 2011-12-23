@@ -31,9 +31,13 @@ public class MultiInvPlayerListener extends PlayerListener {
         }
         Player player = event.getPlayer();
         String playerName = player.getName();
-        //String world = player.getWorld().getName();
+        String groupTo = player.getWorld().getName();
+        if (MultiInv.sharesMap.containsKey(groupTo)) {
+            groupTo = MultiInv.sharesMap.get(groupTo);
+        }
 
         plugin.loadPermissions(player);
+        MultiInvPlayerData.loadWorldInventory(player, groupTo, true);
 
         plugin.debugger.debugEvent(MultiInvEvent.PLAYER_LOGIN, new String[]{playerName});
         //plugin.playerInventory.loadWorldInventory(player, world);
@@ -50,7 +54,7 @@ public class MultiInvPlayerListener extends PlayerListener {
 
     @Override
     public void onPlayerTeleport(PlayerTeleportEvent event) {
-        if (!(event.isCancelled())) {
+        if (!event.isCancelled()) {
             String groupTo = event.getTo().getWorld().getName();
             Player player = event.getPlayer();
             String groupFrom = event.getFrom().getWorld().getName();
@@ -70,11 +74,16 @@ public class MultiInvPlayerListener extends PlayerListener {
                     MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
 
                     // If using spout, close the inventory to stop cheating
-                    SpoutPlayer spoutPlayer = SpoutManager.getPlayer(event.getPlayer());
-                    spoutPlayer.closeActiveWindow();
+                    if(plugin.hasspout) {
+                        SpoutPlayer spoutPlayer = SpoutManager.getPlayer(event.getPlayer());
+                        spoutPlayer.closeActiveWindow();
+                    }
 
                     //set GameMode and load inventory
-                    setGameMode(player, groupTo);
+                    
+                    if(MultiInvPlayerData.restoreGameModes) {
+                        setGameMode(player, groupTo);
+                    }
                     MultiInvPlayerData.loadWorldInventory(player, groupTo, true);
                 }
             }
@@ -83,7 +92,7 @@ public class MultiInvPlayerListener extends PlayerListener {
 
     @Override
     public void onPlayerPortal(PlayerPortalEvent event) {
-        if (!(event.isCancelled()) || event.getTo() != null) {
+        if (!event.isCancelled() && event.getTo() != null) {
             String groupTo = event.getTo().getWorld().getName();
             Player player = event.getPlayer();
             String groupFrom = event.getFrom().getWorld().getName();
@@ -102,12 +111,16 @@ public class MultiInvPlayerListener extends PlayerListener {
                 if (isInIgnoreList ^ isIgnoreNonInverted) {
                     MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
 
-                    // If using spout, close the inventory to stop cheating
-                    SpoutPlayer spoutPlayer = SpoutManager.getPlayer(event.getPlayer());
-                    spoutPlayer.closeActiveWindow();
+                    if(plugin.hasspout) {
+                        // If using spout, close the inventory to stop cheating
+                        SpoutPlayer spoutPlayer = SpoutManager.getPlayer(event.getPlayer());
+                        spoutPlayer.closeActiveWindow();
+                    }
 
                     // Set gameMode and load inventory
-                    setGameMode(player, groupTo);
+                    if(MultiInvPlayerData.restoreGameModes) {
+                        setGameMode(player, groupTo);
+                    }
                     MultiInvPlayerData.loadWorldInventory(player, groupTo, true);
                 }
             }
@@ -139,7 +152,9 @@ public class MultiInvPlayerListener extends PlayerListener {
                 MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
 
                 //set GameMode and load start runnable for respawn
-                setGameMode(player, groupTo);
+                if(MultiInvPlayerData.restoreGameModes) {
+                    setGameMode(player, groupTo);
+                }
                 MultiInvRespawnRunnable respawnWait = new MultiInvRespawnRunnable(groupTo, groupFrom, name, plugin);
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, respawnWait, 40);
             }

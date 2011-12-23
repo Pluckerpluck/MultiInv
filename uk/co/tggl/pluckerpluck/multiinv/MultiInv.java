@@ -27,6 +27,7 @@ public class MultiInv extends JavaPlugin {
     MultiInvConverter versionCheck = new MultiInvConverter(this);
     MultiInvDebugger debugger = new MultiInvDebugger(this);
     MultiInvReader fileReader;
+    boolean hasspout = false;
     MultiInvCommands commands = new MultiInvCommands(this);
     
     static final ConcurrentHashMap<String, String[]> currentInventories = new ConcurrentHashMap<String, String[]>();
@@ -78,6 +79,11 @@ public class MultiInv extends JavaPlugin {
 
         log.info("[" + pluginName + "] version " + pdfFile.getVersion() + " is enabled!");
 
+        Plugin spoutPlugin = getServer().getPluginManager().getPlugin("Spout");
+        if(spoutPlugin != null) {
+        	hasspout = true;
+        }
+        
         //Initialize classes
         playerListener = new MultiInvPlayerListener(this);
 
@@ -87,7 +93,7 @@ public class MultiInv extends JavaPlugin {
         pm.registerEvent(Event.Type.WORLD_SAVE, worldListener, Priority.Monitor, this);
         pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Priority.Monitor, this);
         pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Priority.Monitor, this);
-        pm.registerEvent(Event.Type.PLAYER_TELEPORT, playerListener, Priority.Highest, this);
+        pm.registerEvent(Event.Type.PLAYER_TELEPORT, playerListener, Priority.Monitor, this);
         pm.registerEvent(Event.Type.PLAYER_RESPAWN, playerListener, Priority.Monitor, this);
         pm.registerEvent(Event.Type.PLAYER_PORTAL, playerListener, Priority.Highest, this);
         pm.registerEvent(Event.Type.PLAYER_GAME_MODE_CHANGE, playerListener, Priority.Highest, this);

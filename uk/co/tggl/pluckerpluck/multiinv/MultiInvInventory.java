@@ -2,12 +2,18 @@ package uk.co.tggl.pluckerpluck.multiinv;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.ContainerBlock;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 public class MultiInvInventory implements Serializable {
 
@@ -206,6 +212,11 @@ public class MultiInvInventory implements Serializable {
             item.setId(stack.getTypeId());
             item.setQuanitity(stack.getAmount());
             item.setDurability(stack.getDurability());
+            Iterator<Entry<Enchantment, Integer>> enchantments = stack.getEnchantments().entrySet().iterator();
+            while(enchantments.hasNext()) {
+            	Entry<Enchantment, Integer> enchantment = enchantments.next();
+            	item.addEnchantment(enchantment.getKey(), enchantment.getValue().intValue());
+            }
             items[i] = item;
             i++;
         }
@@ -225,6 +236,13 @@ public class MultiInvInventory implements Serializable {
             int amount = item.getQuanitity();
             short damage = item.getDurability();
             ItemStack stack = new ItemStack(id, amount, damage);
+            HashMap<Enchantment, Integer> enchantments = item.getEnchantments();
+            if(enchantments.size() > 0) {
+            	Set<Enchantment> setenchantments = enchantments.keySet();
+            	for(Enchantment tench : setenchantments) {
+            		stack.addEnchantment(tench, enchantments.get(tench).intValue());
+            	}
+            }
             items[i] = stack;
             i++;
         }
