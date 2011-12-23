@@ -80,7 +80,10 @@ public class MultiInvPlayerListener extends PlayerListener {
                     }
 
                     //set GameMode and load inventory
-                    setGameMode(player, groupTo);
+                    
+                    if(MultiInvPlayerData.restoreGameModes) {
+                        setGameMode(player, groupTo);
+                    }
                     MultiInvPlayerData.loadWorldInventory(player, groupTo, true);
                 }
             }
@@ -115,7 +118,9 @@ public class MultiInvPlayerListener extends PlayerListener {
                     }
 
                     // Set gameMode and load inventory
-                    setGameMode(player, groupTo);
+                    if(MultiInvPlayerData.restoreGameModes) {
+                        setGameMode(player, groupTo);
+                    }
                     MultiInvPlayerData.loadWorldInventory(player, groupTo, true);
                 }
             }
@@ -147,7 +152,9 @@ public class MultiInvPlayerListener extends PlayerListener {
                 MultiInvPlayerData.storeCurrentInventory(player, groupFrom);
 
                 //set GameMode and load start runnable for respawn
-                setGameMode(player, groupTo);
+                if(MultiInvPlayerData.restoreGameModes) {
+                    setGameMode(player, groupTo);
+                }
                 MultiInvRespawnRunnable respawnWait = new MultiInvRespawnRunnable(groupTo, groupFrom, name, plugin);
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, respawnWait, 40);
             }
