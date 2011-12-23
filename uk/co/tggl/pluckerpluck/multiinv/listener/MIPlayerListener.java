@@ -54,7 +54,7 @@ public class MIPlayerListener extends PlayerListener{
 
         if (!groupTo.equals(groupFrom) && !miPlayer.isIgnored()){
             savePlayerState(player, groupFrom);
-            loadPlayerState(player, groupFrom);
+            loadPlayerState(player, groupTo);
         }
     }
 

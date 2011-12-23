@@ -15,7 +15,7 @@ import java.io.Serializable;
  */
 public class MIInventory implements Serializable{
 
-    private MIItemStack[] MIInventoryContents = new MIItemStack[36]; // TODO: Find playerInventory size
+    private MIItemStack[] MIInventoryContents = new MIItemStack[36];
     private MIItemStack[] MIArmourContents = new MIItemStack[4];
 
     // Create an MIInventory from a PlayerInventory

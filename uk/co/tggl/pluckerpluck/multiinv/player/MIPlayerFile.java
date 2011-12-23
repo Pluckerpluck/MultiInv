@@ -86,7 +86,7 @@ public class MIPlayerFile {
     }
 
     public void saveGameMode(GameMode gameMode){
-        playerFile.set("health", gameMode.toString());
+        playerFile.set("gameMode", gameMode.toString());
         save();
     }
 

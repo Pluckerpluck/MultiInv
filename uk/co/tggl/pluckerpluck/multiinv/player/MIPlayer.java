@@ -19,7 +19,7 @@ public class MIPlayer{
     private boolean ignored = false;
 
     public MIPlayer(Player player) {
-        player = player;
+        this.player = player;
         inventory = player.getInventory();
     }
 
