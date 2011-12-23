@@ -53,8 +53,8 @@ public class MIPlayerListener extends PlayerListener{
         String groupFrom = getGroup(worldFrom);
 
         if (!groupTo.equals(groupFrom) && !miPlayer.isIgnored()){
-            savePlayerState(player, miPlayer, groupFrom);
-            loadPlayerState(player, miPlayer, groupFrom);
+            savePlayerState(player, groupFrom);
+            loadPlayerState(player, groupFrom);
         }
     }
 
@@ -72,15 +72,17 @@ public class MIPlayerListener extends PlayerListener{
         }
     }
 
-    private void savePlayerState(Player player, MIPlayer miPlayer, String group){
+    private void savePlayerState(Player player, String group){
         // TODO: Check config for each save method
+        MIPlayer miPlayer = players.get(player);
         miPlayer.saveInventory(group, player.getGameMode().toString());
         miPlayer.saveHealth(group);
         miPlayer.saveGameMode(group);
     }
 
-    private void loadPlayerState(Player player, MIPlayer miPlayer, String group){
+    private void loadPlayerState(Player player, String group){
         //  TODO: Check config for each save method
+        MIPlayer miPlayer = players.get(player);
         miPlayer.loadGameMode(group);
         miPlayer.loadHealth(group);
         miPlayer.loadInventory(group, player.getGameMode().toString());

@@ -9,7 +9,7 @@ import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 /**
  * Player class designed to store all information for each saved world
  */
-public class MIPlayer {
+public class MIPlayer{
 
     // Initialize final variables that define the MIPlayer
     final Player player;
@@ -19,8 +19,8 @@ public class MIPlayer {
     private boolean ignored = false;
 
     public MIPlayer(Player player) {
-        this.player = player;
-        this.inventory = player.getInventory();
+        player = player;
+        inventory = player.getInventory();
     }
 
     // Getters and Setters

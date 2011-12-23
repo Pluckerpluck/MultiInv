@@ -5,7 +5,9 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -17,7 +19,7 @@ import java.util.Set;
  */
 public class MIYamlFiles {
     public static YamlConfiguration config;
-    public static HashMap<String, String> groups;
+    public static HashMap<String, String> groups = new HashMap<String, String>();
 
     public static void loadConfig(){
         config = loadYamlFile("config.yml");
@@ -36,22 +38,22 @@ public class MIYamlFiles {
             MultiInv.log.info("No groups.yml found. Creating example file...");
             groups = new YamlConfiguration();
 
-            String[] exampleGroup = {"world", "survival_world"};
-            groups.addDefault("exampleGroup", exampleGroup);
+            ArrayList<String> exampleGroup = new ArrayList<String>();
+            exampleGroup.add("world");
+            exampleGroup.add("world_nether") ;
+            groups.set("exampleGroup", exampleGroup);
             saveYamlFile(groups, "groups.yml");
         }
+        parseGroups(groups);
 
     }
 
     private static void parseGroups(Configuration config){
-        Set<String> keys = config.getKeys(true); // TODO: Find out what this boolean is...
+        Set<String> keys = config.getKeys(false);
         for (String group : keys){
-            Object object = groups.get(group);
-            if (object instanceof String[]) {
-                String[] worlds = (String[]) object;
-                for (String world : worlds){
-                    groups.put(world, group);
-                }
+            List<String> worlds = config.getStringList(group);
+            for (String world : worlds){
+                groups.put(world, group);
             }
         }
     }
@@ -77,7 +79,6 @@ public class MIYamlFiles {
                 config.load(yamlFile);
             }catch (Exception e){
                 e.printStackTrace();
-                return null;
             }
         }
         return config;

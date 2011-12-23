@@ -23,6 +23,7 @@ public class MIPlayerFile {
         file = new File(worldsFolder, group + File.separator + player.getName() + ".yml");
 
         playerFile = new YamlConfiguration();
+        load();
     }
 
     private void load(){
@@ -48,12 +49,9 @@ public class MIPlayerFile {
     // Load particular inventory for specified player from specified group
     public MIInventory getInventory(String inventoryName){
         // Get stored string from configuration file
+        MIInventory inventory;
         String inventoryString = playerFile.getString(inventoryName, null);
-
-        MIInventory inventory = null;
-        if (inventoryString != null) {
-            inventory = new MIInventory(inventoryString);
-        }
+        inventory = new MIInventory(inventoryString);
         return inventory;
     }
 
@@ -64,7 +62,6 @@ public class MIPlayerFile {
     }
 
     public int getHealth(){
-        load();
         int health = playerFile.getInt("health", 20);
         if (health <= 0 || health > 20) {
             health = 20;
@@ -78,12 +75,11 @@ public class MIPlayerFile {
     }
 
     public GameMode getGameMode(){
-        load();
         String gameModeString = playerFile.getString("gameMode", null);
         GameMode gameMode = null;
-        if (gameModeString.equalsIgnoreCase("CREATIVE")){
+        if ("CREATIVE".equalsIgnoreCase(gameModeString)){
             gameMode = GameMode.CREATIVE;
-        }else if (gameModeString.equalsIgnoreCase("SURVIVAL")){
+        }else if ("SURVIVAL".equalsIgnoreCase(gameModeString)){
             gameMode = GameMode.SURVIVAL;
         }
         return gameMode;

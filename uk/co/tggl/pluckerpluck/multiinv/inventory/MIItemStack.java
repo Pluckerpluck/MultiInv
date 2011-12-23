@@ -15,9 +15,11 @@ public class MIItemStack implements Serializable{
     private short durability = 0;
 
     public MIItemStack(ItemStack itemStack){
-        itemID = itemStack.getTypeId();
-        quantity = itemStack.getAmount();
-        durability = itemStack.getDurability();
+        if (itemStack != null){
+            itemID = itemStack.getTypeId();
+            quantity = itemStack.getAmount();
+            durability = itemStack.getDurability();
+        }
     }
 
     // Constructor to create an MIItemStack from a string containing its data
@@ -28,6 +30,10 @@ public class MIItemStack implements Serializable{
             quantity = Integer.parseInt(data[1]);
             durability = Short.parseShort(data[2]);
         }
+    }
+
+    public MIItemStack(){
+
     }
 
     public ItemStack getItemStack(){

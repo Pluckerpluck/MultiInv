@@ -5,7 +5,7 @@ website: http://www.tggl.co.uk
 author: Pluckerpluck
 description: >
              This is a plugin to create seperate inventories for each world
-permissions:
+
 
 commands:
   multiinv:
