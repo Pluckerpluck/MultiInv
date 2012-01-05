@@ -16,12 +16,14 @@ public class MultiInvPlayerData {
     private static boolean isHealthSplit;
     private static boolean isHungerSplit;
     private static boolean isExpSplit;
+    static boolean restoreGameModes;
 
 
     static void storeConfig(HashMap<String, Boolean> config) {
         isHealthSplit = config.get("isHealthSplit");
         isHungerSplit = config.get("isHungerSplit");
         isExpSplit = config.get("isExpSplit");
+        restoreGameModes = config.get("restoreGameModes");
     }
 
     private static void loadNewInventory(Player player, String group) {
