@@ -19,6 +19,7 @@ public class MultiInvPlayerListener extends PlayerListener {
         isIgnoreNonInverted = !plugin.fileReader.config.get("invertList");
     }
 
+    /*
     @Override
     public void onPlayerJoin(PlayerJoinEvent event) {
         if (plugin.shares == 0) {
@@ -41,8 +42,9 @@ public class MultiInvPlayerListener extends PlayerListener {
 
         plugin.debugger.debugEvent(MultiInvEvent.PLAYER_LOGIN, new String[]{playerName});
         //plugin.playerInventory.loadWorldInventory(player, world);
-    }
+    }*/
 
+    /*
     @Override
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
@@ -50,7 +52,7 @@ public class MultiInvPlayerListener extends PlayerListener {
         // TODO: Add Debugging
         // plugin.debugger.debugEvent(MultiInvEvent.PLAYER_LOGOUT, new String[]{playerName});
         MultiInvPlayerData.storeCurrentInventory(player, player.getWorld().getName());
-    }
+    }*/
 
     @Override
     public void onPlayerTeleport(PlayerTeleportEvent event) {
