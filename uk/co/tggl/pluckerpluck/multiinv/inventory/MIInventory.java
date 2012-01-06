@@ -15,8 +15,8 @@ import java.io.Serializable;
  */
 public class MIInventory implements Serializable{
 
-    private MIItemStack[] MIInventoryContents = new MIItemStack[36];
-    private MIItemStack[] MIArmourContents = new MIItemStack[4];
+    protected MIItemStack[] MIInventoryContents = new MIItemStack[36];
+    protected MIItemStack[] MIArmourContents = new MIItemStack[4];
 
     // Create an MIInventory from a PlayerInventory
     public MIInventory (PlayerInventory inventory){
@@ -55,6 +55,9 @@ public class MIInventory implements Serializable{
         }
     }
 
+    public MIInventory() {
+    }
+
     public void loadIntoInventory(PlayerInventory inventory){
         // Iterate and get inventory contents
         ItemStack[] inventoryContents = new ItemStack[MIInventoryContents.length];
@@ -90,7 +93,7 @@ public class MIInventory implements Serializable{
             inventoryString.append(";");
         }
 
-        // Replace last ";" with ":"
+        // Replace last ";" with ":" (makes string look nicer)
         inventoryString.deleteCharAt(inventoryString.length() - 1);
         inventoryString.append(":");
 

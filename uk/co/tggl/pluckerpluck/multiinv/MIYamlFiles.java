@@ -40,7 +40,8 @@ public class MIYamlFiles {
 
             ArrayList<String> exampleGroup = new ArrayList<String>();
             exampleGroup.add("world");
-            exampleGroup.add("world_nether") ;
+            exampleGroup.add("world_nether");
+            exampleGroup.add("world_the_end");
             groups.set("exampleGroup", exampleGroup);
             saveYamlFile(groups, "groups.yml");
         }

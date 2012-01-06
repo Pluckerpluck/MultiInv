@@ -11,4 +11,4 @@ commands:
   multiinv:
     description: MultiInv admin commands
     usage: |
-           /<command> delete <player> - delete all inventories for player
+           /<command> delete <player> - delete all inventories for player (doesn't work)

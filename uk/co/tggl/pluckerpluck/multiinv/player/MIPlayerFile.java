@@ -5,6 +5,7 @@ import org.bukkit.GameMode;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
+import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventoryOld;
 
 import java.io.File;
 
@@ -34,7 +35,8 @@ public class MIPlayerFile {
                 e.printStackTrace();
             }
         }else{
-                save();
+            save();
+            System.out.println("Saved?");
         }
     }
 
@@ -51,7 +53,12 @@ public class MIPlayerFile {
         // Get stored string from configuration file
         MIInventory inventory;
         String inventoryString = playerFile.getString(inventoryName, null);
-        inventory = new MIInventory(inventoryString);
+        // Check for old inventory save
+        if (inventoryString == null || inventoryString.contains(";-;")){
+            inventory = new MIInventoryOld(inventoryString);
+        }else{
+            inventory = new MIInventory(inventoryString);
+        }
         return inventory;
     }
 
@@ -87,6 +94,51 @@ public class MIPlayerFile {
 
     public void saveGameMode(GameMode gameMode){
         playerFile.set("gameMode", gameMode.toString());
+        save();
+    }
+
+    public int getHunger(){
+        int hunger = playerFile.getInt("hunger", 20);
+        if (hunger <= 0 || hunger > 20) {
+            hunger = 20;
+        }
+        return hunger;
+    }
+
+    public float getSaturation(){
+        double saturationDouble = playerFile.getDouble("saturation", 0);
+        float saturation = (float)saturationDouble;
+        return saturation;
+    }
+
+    public void saveSaturation(float saturation){
+        playerFile.set("saturation", saturation);
+        save();
+    }
+
+    public int getTotalExperience(){
+        return playerFile.getInt("experience", 0);
+    }
+
+    public int getLevel(){
+        return playerFile.getInt("level", 0);
+    }
+
+    public float getExperience(){
+        double expDouble = playerFile.getDouble("exp", 0);
+        float exp = (float)expDouble;
+        return exp;
+    }
+
+    public void saveExperience(int experience, int level, float exp){
+        playerFile.set("experience", experience);
+        playerFile.set("level", level);
+        playerFile.set("exp", exp);
+        save();
+    }
+
+    public void saveHunger(int hunger){
+        playerFile.set("hunger", hunger);
         save();
     }
 

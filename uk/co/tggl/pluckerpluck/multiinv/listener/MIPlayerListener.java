@@ -77,7 +77,9 @@ public class MIPlayerListener extends PlayerListener{
         MIPlayer miPlayer = players.get(player);
         miPlayer.saveInventory(group, player.getGameMode().toString());
         miPlayer.saveHealth(group);
+        miPlayer.saveHunger(group);
         miPlayer.saveGameMode(group);
+        miPlayer.saveExperience(group);
     }
 
     private void loadPlayerState(Player player, String group){
@@ -85,6 +87,8 @@ public class MIPlayerListener extends PlayerListener{
         MIPlayer miPlayer = players.get(player);
         miPlayer.loadGameMode(group);
         miPlayer.loadHealth(group);
+        miPlayer.loadHunger(group);
+        miPlayer.loadExperience(group);
         miPlayer.loadInventory(group, player.getGameMode().toString());
     }
 

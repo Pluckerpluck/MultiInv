@@ -101,4 +101,45 @@ public class MIPlayer{
             config.saveGameMode(player.getGameMode());
         }
     }
+
+    public void loadHunger(String group){
+        if (MIYamlFiles.config.getBoolean("useSQL")){
+            // TODO: SQL Hunger
+        }else{
+            MIPlayerFile config = new MIPlayerFile(player, group);
+            player.setFoodLevel(config.getHunger());
+            player.setSaturation(config.getSaturation());
+
+        }
+    }
+
+    public void saveHunger(String group){
+        if (MIYamlFiles.config.getBoolean("useSQL")){
+            // TODO: SQL Hunger saving
+        }else{
+            MIPlayerFile config = new MIPlayerFile(player, group);
+            config.saveHunger(player.getFoodLevel());
+            config.saveSaturation(player.getSaturation());
+        }
+    }
+
+    public void loadExperience(String group){
+        if (MIYamlFiles.config.getBoolean("useSQL")){
+            // TODO: SQL Exp loading
+        }else{
+            MIPlayerFile config = new MIPlayerFile(player, group);
+            player.setLevel(config.getLevel());
+            player.setTotalExperience(config.getTotalExperience());
+            player.setExp(config.getExperience());
+        }
+    }
+
+    public void saveExperience(String group){
+        if (MIYamlFiles.config.getBoolean("useSQL")){
+            // TODO: SQL Exp saving
+        }else{
+            MIPlayerFile config = new MIPlayerFile(player, group);
+            config.saveExperience(player.getTotalExperience(), player.getLevel(), player.getExp());
+        }
+    }
 }
