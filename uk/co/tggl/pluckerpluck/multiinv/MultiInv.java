@@ -2,7 +2,6 @@ package uk.co.tggl.pluckerpluck.multiinv;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -44,9 +43,8 @@ public class MultiInv extends JavaPlugin {
 
         // Register required events
         PluginManager pm = getServer().getPluginManager();
-        pm.registerEvent(Event.Type.PLAYER_LOGIN, playerListener, Event.Priority.Monitor, this);
-        pm.registerEvent(Event.Type.PLAYER_CHANGED_WORLD, playerListener, Event.Priority.Highest, this);
-        pm.registerEvent(Event.Type.PLAYER_GAME_MODE_CHANGE, playerListener, Event.Priority.Highest, this);
+        pm.registerEvents(playerListener, this);
+        System.out.println( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
     }
 
     public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {

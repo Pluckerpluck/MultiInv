@@ -1,6 +1,5 @@
 package uk.co.tggl.pluckerpluck.multiinv.inventory;
 
-import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -15,7 +14,11 @@ import java.io.Serializable;
  */
 public class MIInventory implements Serializable{
 
-    protected MIItemStack[] MIInventoryContents = new MIItemStack[36];
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8695822035863770397L;
+	protected MIItemStack[] MIInventoryContents = new MIItemStack[36];
     protected MIItemStack[] MIArmourContents = new MIItemStack[4];
 
     // Create an MIInventory from a PlayerInventory

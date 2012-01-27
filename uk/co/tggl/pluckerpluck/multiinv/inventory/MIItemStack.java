@@ -3,7 +3,6 @@ package uk.co.tggl.pluckerpluck.multiinv.inventory;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,7 +44,7 @@ public class MIItemStack {
         ItemStack itemStack = null;
         if (itemID != 0 && quantity != 0){
             itemStack = new ItemStack(itemID, quantity, durability);
-            itemStack.addEnchantments(enchantments);
+            itemStack.addUnsafeEnchantments(enchantments);
         }
         return itemStack;
     }

@@ -3,9 +3,11 @@ package uk.co.tggl.pluckerpluck.multiinv.listener;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
-import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayer;
@@ -19,7 +21,7 @@ import java.util.HashMap;
  * Time: 23:32
  * To change this template use File | Settings | File Templates.
  */
-public class MIPlayerListener extends PlayerListener{
+public class MIPlayerListener implements Listener{
 
     static HashMap<Player, MIPlayer> players = new HashMap<Player, MIPlayer>();
 
@@ -34,11 +36,13 @@ public class MIPlayerListener extends PlayerListener{
         }
     }
 
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerLogin(PlayerLoginEvent event){
         Player player = event.getPlayer();
         players.put(player, new MIPlayer(player));
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerChangedWorld(PlayerChangedWorldEvent event){
         // Get player objects
         Player player = event.getPlayer();
@@ -58,6 +62,7 @@ public class MIPlayerListener extends PlayerListener{
         }
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerGameModeChange(PlayerGameModeChangeEvent event){
         if (!event.isCancelled()){
             Player player = event.getPlayer();

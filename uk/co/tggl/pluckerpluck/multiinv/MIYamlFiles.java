@@ -25,10 +25,19 @@ public class MIYamlFiles {
         config = loadYamlFile("config.yml");
         if (config == null){
             config = new YamlConfiguration();
-            setConfigDefaults(config);
+            //setConfigDefaults(config);
+            config.set("useSQL", false);
+            config.set("splitHealth", true);
+            config.set("splitHunger", true);
             saveYamlFile(config, "config.yml");
         }else{
-            setConfigDefaults(config);
+        	String worldtypes = config.getString("splitHealth");
+        	if(worldtypes == null || worldtypes.equals("")) {
+                config.set("useSQL", false);
+                config.set("splitHealth", true);
+                config.set("splitHunger", true);
+                saveYamlFile(config, "config.yml");
+        	}
         }
     }
 
@@ -85,10 +94,10 @@ public class MIYamlFiles {
         return config;
     }
 
-    private static void setConfigDefaults(Configuration config){
+    /*private static void setConfigDefaults(Configuration config){
         config.addDefault("useSQL", false);
         config.addDefault("splitHealth", true);
         config.addDefault("splitHunger", true);
-    }
+    }*/
 
 }

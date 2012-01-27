@@ -1,5 +1,6 @@
 package uk.co.tggl.pluckerpluck.multiinv.inventory;
 
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -8,7 +9,12 @@ import org.bukkit.inventory.PlayerInventory;
  * Date: 23/12/11
  */
 public class MIInventoryOld extends MIInventory{
-    public MIInventoryOld(PlayerInventory inventory) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -9035556692410143450L;
+
+	public MIInventoryOld(PlayerInventory inventory) {
         super(inventory);
     }
 
@@ -55,6 +61,11 @@ public class MIInventoryOld extends MIInventory{
         int amount = Integer.parseInt(data[1]);
         short dur = Short.parseShort(data[3]);
         ItemStack itemStack = new ItemStack(ID, amount, dur);
+        if (data.length >= 6 && (data.length%2 == 0)) {
+            for(int i = 4; i < data.length; i++) {
+            	itemStack.addUnsafeEnchantment(Enchantment.getById(Integer.parseInt(data[i])), Integer.parseInt(data[++i]));
+            }
+        }
         return new MIItemStack(itemStack);
     }
 
