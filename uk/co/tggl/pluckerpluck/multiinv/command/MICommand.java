@@ -10,12 +10,14 @@ package uk.co.tggl.pluckerpluck.multiinv.command;
 public class MICommand {
 
     public static void command(String[] strings){
-        String command = strings[0];
+    	if(strings.length > 0) {
+            String command = strings[0];
 
-        // Populate a new args array
-        String[] args = new String[strings.length - 1];
-        for (int i = 1; i < strings.length; i++) {
-            args[i-1] = strings[i];
-        }
+            // Populate a new args array
+            String[] args = new String[strings.length - 1];
+            for (int i = 1; i < strings.length; i++) {
+                args[i-1] = strings[i];
+            }
+    	}
     }
 }

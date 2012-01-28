@@ -29,6 +29,7 @@ public class MIYamlFiles {
             config.set("useSQL", false);
             config.set("splitHealth", true);
             config.set("splitHunger", true);
+            config.set("controlGamemode", true);
             saveYamlFile(config, "config.yml");
         }else{
         	String worldtypes = config.getString("splitHealth");
@@ -36,6 +37,7 @@ public class MIYamlFiles {
                 config.set("useSQL", false);
                 config.set("splitHealth", true);
                 config.set("splitHunger", true);
+                config.set("controlGamemode", true);
                 saveYamlFile(config, "config.yml");
         	}
         }

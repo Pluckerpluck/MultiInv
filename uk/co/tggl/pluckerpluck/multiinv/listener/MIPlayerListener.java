@@ -90,7 +90,9 @@ public class MIPlayerListener implements Listener{
     private void loadPlayerState(Player player, String group){
         //  TODO: Check config for each save method
         MIPlayer miPlayer = players.get(player);
-        miPlayer.loadGameMode(group);
+        if(MIYamlFiles.config.getBoolean("controlGamemode", true)) {
+            miPlayer.loadGameMode(group);
+        }
         miPlayer.loadHealth(group);
         miPlayer.loadHunger(group);
         miPlayer.loadExperience(group);

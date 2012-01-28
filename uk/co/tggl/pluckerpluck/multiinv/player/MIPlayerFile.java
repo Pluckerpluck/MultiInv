@@ -55,6 +55,7 @@ public class MIPlayerFile {
         String inventoryString = playerFile.getString(inventoryName, null);
         // Check for old inventory save
         if (inventoryString == null || inventoryString.contains(";-;")){
+        	System.out.println("Old inventory file detected, converting...");
             inventory = new MIInventoryOld(inventoryString);
         }else{
             inventory = new MIInventory(inventoryString);

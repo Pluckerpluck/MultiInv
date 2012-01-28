@@ -22,12 +22,12 @@ public class MIInventoryOld extends MIInventory{
         if (inventoryString != null) {
             String[] data = inventoryString.split(";-;");
             if (data.length == 3) {
-                if (!data[0].equals("\\!\\!\\!")) {
+                if (!data[0].equals("!!!")) {
                     String[] items1 = data[0].split(";");
                     int i = 0;
                     for (String itemString : items1) {
                         MIItemStack itemStack;
-                        if (itemString.equals("\\!")) {
+                        if (itemString.equals("!")) {
                             itemStack = new MIItemStack();
                         } else {
                             itemStack = stringToItem(itemString);
@@ -37,12 +37,12 @@ public class MIInventoryOld extends MIInventory{
                     }
                 }
 
-                if (!data[1].equals("\\!\\!\\!")) {
+                if (!data[1].equals("!!!")) {
                     String[] items2 = data[1].split(";");
                     int j = 0;
                     for (String itemString : items2) {
                         MIItemStack itemStack;
-                        if (itemString.equals("\\!")) {
+                        if (itemString.equals("!")) {
                             itemStack = new MIItemStack();
                         } else {
                             itemStack = stringToItem(itemString);
