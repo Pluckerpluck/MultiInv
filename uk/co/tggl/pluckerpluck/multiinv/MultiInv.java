@@ -37,6 +37,7 @@ public class MultiInv extends JavaPlugin {
         // Load yaml files
         MIYamlFiles.loadConfig();
         MIYamlFiles.loadGroups();
+        MIYamlFiles.loadPlayerLogoutWorlds();
 
         // Initialize listeners
         playerListener = new MIPlayerListener(this);

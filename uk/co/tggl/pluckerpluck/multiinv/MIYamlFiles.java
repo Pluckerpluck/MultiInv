@@ -8,7 +8,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by IntelliJ IDEA.
@@ -19,7 +21,9 @@ import java.util.Set;
  */
 public class MIYamlFiles {
     public static YamlConfiguration config;
+    public static YamlConfiguration playerlogoutmap;
     public static HashMap<String, String> groups = new HashMap<String, String>();
+    public static ConcurrentHashMap<String, String> logoutworld = new ConcurrentHashMap<String, String>();
 
     public static void loadConfig(){
         config = loadYamlFile("config.yml");
@@ -41,6 +45,26 @@ public class MIYamlFiles {
                 saveYamlFile(config, "config.yml");
         	}
         }
+    }
+    
+    public static void loadPlayerLogoutWorlds() {
+    	playerlogoutmap = loadYamlFile("logoutworld.yml");
+        if (playerlogoutmap == null){
+        	playerlogoutmap = new YamlConfiguration();
+            saveYamlFile(playerlogoutmap, "logoutworld.yml");
+        }else{
+        	Map<String, Object> playermap = playerlogoutmap.getValues(false);
+        	Set<String> players = playermap.keySet();
+        	for(String player : players) {
+        		logoutworld.put(player, playermap.get(player).toString());
+        	}
+        }
+    }
+    
+    public static void savePlayerLogoutWorld(String player, String world) {
+    	logoutworld.put(player, world);
+    	playerlogoutmap.set(player, world);
+        saveYamlFile(playerlogoutmap, "logoutworld.yml");
     }
 
     public static void loadGroups(){

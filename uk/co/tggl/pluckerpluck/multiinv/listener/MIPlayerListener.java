@@ -11,6 +11,7 @@ import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
+import uk.co.tggl.pluckerpluck.multiinv.player.DeferredInvSwitch;
 import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayer;
 
 import java.util.HashMap;
@@ -46,6 +47,14 @@ public class MIPlayerListener implements Listener{
     public void onPlayerLogin(PlayerLoginEvent event){
         Player player = event.getPlayer();
         players.put(player, new MIPlayer(player));
+        //Let's see if the player is in a world that doesn't exist anymore...
+        if(MIYamlFiles.logoutworld.containsKey(player.getName())) {
+            if(getGroup(player.getWorld()) != MIYamlFiles.logoutworld.get(player.getName())) {
+            	//If they aren't in the same world they logged out of let's save their current inventory
+            	//and switch them to the correct inventory for this world.
+            	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new DeferredInvSwitch(player, this), 1);
+            }
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -69,6 +78,8 @@ public class MIPlayerListener implements Listener{
         	player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemovePlayer(player.getName(), playerchangeworlds), 1);
             savePlayerState(player, groupFrom);
             loadPlayerState(player, groupTo);
+            //Save the player's current world
+            MIYamlFiles.savePlayerLogoutWorld(player.getName(), groupTo);
         }
     }
 
@@ -90,7 +101,7 @@ public class MIPlayerListener implements Listener{
         }
     }
 
-    private void savePlayerState(Player player, String group){
+    public void savePlayerState(Player player, String group){
         // TODO: Check config for each save method
         MIPlayer miPlayer = players.get(player);
         miPlayer.saveInventory(group, player.getGameMode().toString());
@@ -100,7 +111,7 @@ public class MIPlayerListener implements Listener{
         miPlayer.saveExperience(group);
     }
 
-    private void loadPlayerState(Player player, String group){
+    public void loadPlayerState(Player player, String group){
         //  TODO: Check config for each save method
         MIPlayer miPlayer = players.get(player);
         if(MIYamlFiles.config.getBoolean("controlGamemode", true)) {
@@ -112,7 +123,7 @@ public class MIPlayerListener implements Listener{
         miPlayer.loadInventory(group, player.getGameMode().toString());
     }
 
-    private String getGroup(World world){
+    public String getGroup(World world){
         String group = world.getName();
         if (MIYamlFiles.groups.containsKey(group)){
             group =  MIYamlFiles.groups.get(group);
