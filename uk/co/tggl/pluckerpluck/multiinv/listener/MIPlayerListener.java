@@ -10,9 +10,12 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
+import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayer;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by IntelliJ IDEA.
@@ -24,8 +27,11 @@ import java.util.HashMap;
 public class MIPlayerListener implements Listener{
 
     static HashMap<Player, MIPlayer> players = new HashMap<Player, MIPlayer>();
+    ConcurrentHashMap<String, Boolean> playerchangeworlds = new ConcurrentHashMap<String, Boolean>();
+    static MultiInv plugin;
 
-    public MIPlayerListener() {
+    public MIPlayerListener(MultiInv plugin) {
+    	this.plugin = plugin;
         reloadPlayersMap();
     }
 
@@ -57,6 +63,10 @@ public class MIPlayerListener implements Listener{
         String groupFrom = getGroup(worldFrom);
 
         if (!groupTo.equals(groupFrom) && !miPlayer.isIgnored()){
+        	//Let's put this player in the pool of players that switched worlds, that way we don't dupe the inventory.
+        	playerchangeworlds.put(player.getName(), new Boolean(true));
+        	//Let's schedule it so that we take the player out soon afterwards.
+        	player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemovePlayer(player.getName(), playerchangeworlds), 1);
             savePlayerState(player, groupFrom);
             loadPlayerState(player, groupTo);
         }
@@ -72,7 +82,10 @@ public class MIPlayerListener implements Listener{
             World world = player.getWorld();
             String group = getGroup(world);
 
-            miPlayer.saveInventory(group, player.getGameMode().toString());
+            //We only want to save the old inventory if we didn't switch worlds in the same tick. Inventory problems otherwise.
+            if(!playerchangeworlds.containsKey(player.getName())) {
+                miPlayer.saveInventory(group, player.getGameMode().toString());
+            }
             miPlayer.loadInventory(group, event.getNewGameMode().toString());
         }
     }

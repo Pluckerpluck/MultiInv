@@ -6,7 +6,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventoryOld;
-
 import java.io.File;
 
 /**
@@ -16,13 +15,14 @@ public class MIPlayerFile {
     //final private Configuration playerFile;
     final private YamlConfiguration playerFile;
     final private File file;
+    final private String playername;
 
     public MIPlayerFile(Player player, String group) {
         // Find and load configuration file for the player
         File dataFolder =  Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder();
         File worldsFolder = new File(dataFolder, "Groups");
         file = new File(worldsFolder, group + File.separator + player.getName() + ".yml");
-
+        playername = player.getName();
         playerFile = new YamlConfiguration();
         load();
     }
@@ -55,7 +55,11 @@ public class MIPlayerFile {
         String inventoryString = playerFile.getString(inventoryName, null);
         // Check for old inventory save
         if (inventoryString == null || inventoryString.contains(";-;")){
-        	System.out.println("Old inventory file detected, converting...");
+        	System.out.println("Old inventory file detected for player " + playername + ", converting...");
+        	if(inventoryString == null) {
+        		//seems the older versions have the inventory name in lower case...
+        		inventoryString = playerFile.getString(inventoryName.toLowerCase());
+        	}
             inventory = new MIInventoryOld(inventoryString);
         }else{
             inventory = new MIInventory(inventoryString);
