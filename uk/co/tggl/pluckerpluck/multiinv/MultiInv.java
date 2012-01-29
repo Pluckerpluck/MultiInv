@@ -39,7 +39,7 @@ public class MultiInv extends JavaPlugin {
         MIYamlFiles.loadGroups();
 
         // Initialize listeners
-        playerListener = new MIPlayerListener();
+        playerListener = new MIPlayerListener(this);
 
         // Register required events
         PluginManager pm = getServer().getPluginManager();
