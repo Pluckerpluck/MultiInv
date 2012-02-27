@@ -23,7 +23,7 @@ public class SqlConnector {
 		Statement st;
 		try {
 			st = con.createStatement();
-	        ResultSet rs = st.executeQuery("show tables like \"" + table + "\"");
+	        ResultSet rs = st.executeQuery("show tables like \"" + prefix + table + "\"");
 	        if(rs.next()) {
 	        	return true;
 	        }else {
@@ -58,7 +58,7 @@ public class SqlConnector {
 	            inventory = new MIInventory(inventoryString);
 	        }
 		} catch (SQLException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		return inventory;
     }
@@ -101,7 +101,7 @@ public class SqlConnector {
 	        	health = rs.getInt("health");
 	        }
 		} catch (SQLException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
         if (health <= 0 || health > 20) {
             health = 20;
@@ -129,7 +129,7 @@ public class SqlConnector {
 	        	gameModeString = rs.getString("gamemode");
 	        }
 		} catch (SQLException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
         GameMode gameMode = null;
         if ("CREATIVE".equalsIgnoreCase(gameModeString)){
@@ -160,7 +160,7 @@ public class SqlConnector {
 	        	hunger = rs.getInt("hunger");
 	        }
 		} catch (SQLException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
         if (hunger <= 0 || hunger > 20) {
             hunger = 20;
@@ -177,7 +177,7 @@ public class SqlConnector {
 	        	saturationDouble = rs.getDouble("saturation");
 	        }
 		} catch (SQLException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
         float saturation = (float)saturationDouble;
         return saturation;
@@ -203,7 +203,7 @@ public class SqlConnector {
 	        	experience = rs.getInt("experience");
 	        }
 		} catch (SQLException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
         return experience;
     }
@@ -217,7 +217,7 @@ public class SqlConnector {
 	        	level = rs.getInt("level");
 	        }
 		} catch (SQLException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
         return level;
     }
@@ -231,7 +231,7 @@ public class SqlConnector {
 	        	expDouble = rs.getDouble("exp");
 	        }
 		} catch (SQLException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
         float exp = (float)expDouble;
         return exp;
