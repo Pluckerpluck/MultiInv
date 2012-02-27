@@ -1,6 +1,6 @@
 name: MultiInv
 main: uk.co.tggl.pluckerpluck.multiinv.MultiInv
-version: 3.0.2-dev
+version: 3.0.2
 website: http://www.tggl.co.uk
 author: Pluckerpluck
 description: >
@@ -12,3 +12,9 @@ commands:
     description: MultiInv admin commands
     usage: |
            /<command> delete <player> - delete all inventories for player (doesn't work)
+           
+permissions:
+    multiinv.reload:
+        description: reloads the config files.
+        default: op
+        command: "/multiinv reload"
