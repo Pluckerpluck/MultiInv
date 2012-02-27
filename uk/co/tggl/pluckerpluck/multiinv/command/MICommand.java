@@ -1,5 +1,6 @@
 package uk.co.tggl.pluckerpluck.multiinv.command;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -35,6 +36,7 @@ public class MICommand {
             if(command.equalsIgnoreCase("reload")) {
             	MIYamlFiles.loadConfig();
             	MIYamlFiles.loadGroups();
+            	sender.sendMessage(ChatColor.DARK_GREEN + "MultiInv configs reloaded!");
             }
     	}
     }

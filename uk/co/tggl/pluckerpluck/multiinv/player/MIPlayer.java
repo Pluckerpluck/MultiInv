@@ -43,7 +43,8 @@ public class MIPlayer{
     		inventoryName = "SURVIVAL";
     	}
         if (MIYamlFiles.config.getBoolean("useSQL")){
-            // TODO: SQL inventory
+        	MIInventory inventory = MIYamlFiles.con.getInventory(player.getName(), group, inventoryName);
+        	inventory.loadIntoInventory(this.inventory);
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);
             MIInventory inventory = config.getInventory(inventoryName);
@@ -57,7 +58,7 @@ public class MIPlayer{
     	}
         MIInventory inventory = new MIInventory(this.inventory);
         if (MIYamlFiles.config.getBoolean("useSQL")){
-            // TODO: SQL inventory saving
+        	MIYamlFiles.con.saveInventory(player.getName(), group, inventory, inventoryName);
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);
             config.saveInventory(inventory, inventoryName);
@@ -71,7 +72,7 @@ public class MIPlayer{
 
     public void loadHealth(String group){
         if (MIYamlFiles.config.getBoolean("useSQL")){
-            // TODO: SQL Health
+            player.setHealth(MIYamlFiles.con.getHealth(player.getName(), group));
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);
             player.setHealth(config.getHealth());
@@ -80,7 +81,7 @@ public class MIPlayer{
 
     public void saveHealth(String group){
         if (MIYamlFiles.config.getBoolean("useSQL")){
-            // TODO: SQL Health saving
+        	MIYamlFiles.con.saveHealth(player.getName(), group, player.getHealth());
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);
             config.saveHealth(player.getHealth());
@@ -89,7 +90,10 @@ public class MIPlayer{
 
     public void loadGameMode(String group){
         if (MIYamlFiles.config.getBoolean("useSQL")){
-            // TODO: SQL GameMode
+        	GameMode gameMode = MIYamlFiles.con.getGameMode(player.getName(), group);
+            if (gameMode != null) {
+                player.setGameMode(gameMode);
+            }
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);
             GameMode gameMode = config.getGameMode();
@@ -101,7 +105,7 @@ public class MIPlayer{
 
     public void saveGameMode(String group){
         if (MIYamlFiles.config.getBoolean("useSQL")){
-            // TODO: SQL GameMode saving
+        	MIYamlFiles.con.saveGameMode(player.getName(), group, player.getGameMode());
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);
             config.saveGameMode(player.getGameMode());
@@ -110,7 +114,8 @@ public class MIPlayer{
 
     public void loadHunger(String group){
         if (MIYamlFiles.config.getBoolean("useSQL")){
-            // TODO: SQL Hunger
+        	player.setFoodLevel(MIYamlFiles.con.getHunger(player.getName(), group));
+            player.setSaturation(MIYamlFiles.con.getSaturation(player.getName(), group));
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);
             player.setFoodLevel(config.getHunger());
@@ -121,7 +126,8 @@ public class MIPlayer{
 
     public void saveHunger(String group){
         if (MIYamlFiles.config.getBoolean("useSQL")){
-            // TODO: SQL Hunger saving
+        	MIYamlFiles.con.saveHunger(player.getName(), group, player.getFoodLevel());
+        	MIYamlFiles.con.saveSaturation(player.getName(), group, player.getSaturation());
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);
             config.saveHunger(player.getFoodLevel());
@@ -131,7 +137,9 @@ public class MIPlayer{
 
     public void loadExperience(String group){
         if (MIYamlFiles.config.getBoolean("useSQL")){
-            // TODO: SQL Exp loading
+        	player.setLevel(MIYamlFiles.con.getLevel(player.getName(), group));
+            player.setTotalExperience(MIYamlFiles.con.getTotalExperience(player.getName(), group));
+            player.setExp(MIYamlFiles.con.getExperience(player.getName(), group));
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);
             player.setLevel(config.getLevel());
@@ -142,7 +150,7 @@ public class MIPlayer{
 
     public void saveExperience(String group){
         if (MIYamlFiles.config.getBoolean("useSQL")){
-            // TODO: SQL Exp saving
+        	MIYamlFiles.con.saveExperience(player.getName(), group, player.getTotalExperience(), player.getLevel(), player.getExp());
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);
             config.saveExperience(player.getTotalExperience(), player.getLevel(), player.getExp());
