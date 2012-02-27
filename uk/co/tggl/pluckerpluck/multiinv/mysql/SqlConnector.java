@@ -49,7 +49,7 @@ public class SqlConnector {
 	
 	public MIInventory getInventory(String player, String group, String inventoryName) {
         // Get stored string from configuration file
-        MIInventory inventory = null;
+        MIInventory inventory = new MIInventory((String)null);
         try {
         	Statement st = con.createStatement();
 	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player=" + player);
