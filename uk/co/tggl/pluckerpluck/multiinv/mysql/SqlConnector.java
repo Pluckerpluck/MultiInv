@@ -12,9 +12,11 @@ import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 public class SqlConnector {
 	
 	private Connection con;
+	private String prefix = "multiinv_";
 	
-	public SqlConnector(Connection con) {
+	public SqlConnector(Connection con, String prefix) {
 		this.con = con;
+		this.prefix = prefix;
 	}
 	
 	public boolean tableExists(String table) {
@@ -37,7 +39,7 @@ public class SqlConnector {
 		Statement st;
 		try {
 			st = con.createStatement();
-	        st.executeUpdate("CREATE TABLE pet (player TEXT,survival TEXT, creative TEXT, health INT, gamemode TEXT, hunger INT, saturation DOUBLE, experience INT, level INT, exp DOUBLE)");
+	        st.executeUpdate("CREATE TABLE " + prefix + table + " (player TEXT,survival TEXT, creative TEXT, health INT, gamemode TEXT, hunger INT, saturation DOUBLE, experience INT, level INT, exp DOUBLE)");
 	        return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -50,7 +52,7 @@ public class SqlConnector {
         MIInventory inventory = null;
         try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + group + " WHERE player=" + player);
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player=" + player);
 	        if(rs.next()) {
 	        	String inventoryString = rs.getString(inventoryName.toLowerCase());
 	            inventory = new MIInventory(inventoryString);
@@ -69,18 +71,21 @@ public class SqlConnector {
         createRecord(player, group);
         try {
         	Statement st = con.createStatement();
-	        st.executeUpdate("UPDATE " + group + " SET " + inventoryName.toLowerCase() + "='" + inventoryString + "' WHERE player='"+ player + "'");
+	        st.executeUpdate("UPDATE " + prefix + group + " SET " + inventoryName.toLowerCase() + "='" + inventoryString + "' WHERE player='"+ player + "'");
 	    } catch (SQLException e) {
 			e.printStackTrace();
 		}
     }
     
     public void createRecord(String player, String group) {
+    	if(!tableExists(group)) {
+    		createTable(group);
+    	}
     	try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + group + " WHERE player='" + player + "'");
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player='" + player + "'");
 	        if(!rs.next()) {
-	        	st.executeUpdate("INSERT INTO " + group + " (player) VALUES('" + player + "')");
+	        	st.executeUpdate("INSERT INTO " + prefix + group + " (player) VALUES('" + player + "')");
 	        }
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -91,7 +96,7 @@ public class SqlConnector {
         int health = 20;
         try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + group + " WHERE player=" + player);
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player=" + player);
 	        if(rs.next()) {
 	        	health = rs.getInt("health");
 	        }
@@ -109,7 +114,7 @@ public class SqlConnector {
     	createRecord(player, group);
         try {
         	Statement st = con.createStatement();
-	        st.executeUpdate("UPDATE " + group + " SET health='" + health + "' WHERE player='"+ player + "'");
+	        st.executeUpdate("UPDATE " + prefix + group + " SET health='" + health + "' WHERE player='"+ player + "'");
 	    } catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -119,7 +124,7 @@ public class SqlConnector {
         String gameModeString = null;
         try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + group + " WHERE player=" + player);
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player=" + player);
 	        if(rs.next()) {
 	        	gameModeString = rs.getString("gamemode");
 	        }
@@ -140,7 +145,7 @@ public class SqlConnector {
     	createRecord(player, group);
         try {
         	Statement st = con.createStatement();
-	        st.executeUpdate("UPDATE " + group + " SET gamemode='" + gameMode.toString() + "' WHERE player='"+ player + "'");
+	        st.executeUpdate("UPDATE " + prefix + group + " SET gamemode='" + gameMode.toString() + "' WHERE player='"+ player + "'");
 	    } catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -150,7 +155,7 @@ public class SqlConnector {
         int hunger = 20;
         try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + group + " WHERE player=" + player);
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player=" + player);
 	        if(rs.next()) {
 	        	hunger = rs.getInt("hunger");
 	        }
@@ -167,7 +172,7 @@ public class SqlConnector {
         double saturationDouble = 0;
         try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + group + " WHERE player=" + player);
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player=" + player);
 	        if(rs.next()) {
 	        	saturationDouble = rs.getDouble("saturation");
 	        }
@@ -183,7 +188,7 @@ public class SqlConnector {
     	createRecord(player, group);
         try {
         	Statement st = con.createStatement();
-	        st.executeUpdate("UPDATE " + group + " SET saturation='" + saturation + "' WHERE player='"+ player + "'");
+	        st.executeUpdate("UPDATE " + prefix + group + " SET saturation='" + saturation + "' WHERE player='"+ player + "'");
 	    } catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -193,7 +198,7 @@ public class SqlConnector {
     	int experience = 0;
     	try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + group + " WHERE player=" + player);
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player=" + player);
 	        if(rs.next()) {
 	        	experience = rs.getInt("experience");
 	        }
@@ -207,7 +212,7 @@ public class SqlConnector {
     	int level = 0;
     	try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + group + " WHERE player=" + player);
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player=" + player);
 	        if(rs.next()) {
 	        	level = rs.getInt("level");
 	        }
@@ -221,7 +226,7 @@ public class SqlConnector {
         double expDouble = 0;
         try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + group + " WHERE player=" + player);
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player=" + player);
 	        if(rs.next()) {
 	        	expDouble = rs.getDouble("exp");
 	        }
@@ -237,7 +242,7 @@ public class SqlConnector {
     	createRecord(player, group);
         try {
         	Statement st = con.createStatement();
-	        st.executeUpdate("UPDATE " + group + " SET experience='" + experience + "', level='" + level + "', exp='" + exp + "' WHERE player='"+ player + "'");
+	        st.executeUpdate("UPDATE " + prefix + group + " SET experience='" + experience + "', level='" + level + "', exp='" + exp + "' WHERE player='"+ player + "'");
 	    } catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -247,7 +252,7 @@ public class SqlConnector {
     	createRecord(player, group);
         try {
         	Statement st = con.createStatement();
-	        st.executeUpdate("UPDATE " + group + " SET hunger='" + hunger + "' WHERE player='"+ player + "'");
+	        st.executeUpdate("UPDATE " + prefix + group + " SET hunger='" + hunger + "' WHERE player='"+ player + "'");
 	    } catch (SQLException e) {
 			e.printStackTrace();
 		}

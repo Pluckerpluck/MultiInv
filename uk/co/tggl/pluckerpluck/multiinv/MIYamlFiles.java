@@ -50,6 +50,7 @@ public class MIYamlFiles {
             config.set("sql.username", "username");
             config.set("sql.password", "password");
             config.set("sql.database", "database");
+            config.set("sql.prefix", "multiinv_");
     		creativegroups.clear();
             creativegroups.put("creative", "creative");
             saveYamlFile(config, "config.yml");
@@ -67,6 +68,7 @@ public class MIYamlFiles {
                 config.set("sql.username", "username");
                 config.set("sql.password", "password");
                 config.set("sql.database", "database");
+                config.set("sql.prefix", "multiinv_");
         		creativegroups.clear();
                 creativegroups.put("creative", "creative");
                 saveYamlFile(config, "config.yml");
@@ -80,7 +82,7 @@ public class MIYamlFiles {
                     try {
                     	String url = "jdbc:mysql://" + config.getString("sql.host", "localhost") + ":" + config.getString("sql.port", "3306") + "/" + config.getString("sql.database", "database");
                         Connection connect = DriverManager.getConnection(url, config.getString("sql.username", "username"), config.getString("sql.password", "password"));
-                        con = new SqlConnector(connect);
+                        con = new SqlConnector(connect, config.getString("sql.prefix", "multiinv_"));
 
                     } catch (SQLException ex) {
                         System.out.println("[MultiInv] Could not establish connection to the database! User inventories won't be saved!");
