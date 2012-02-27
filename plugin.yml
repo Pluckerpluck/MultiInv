@@ -1,10 +1,10 @@
 name: MultiInv
 main: uk.co.tggl.pluckerpluck.multiinv.MultiInv
-version: 3.0.1
+version: 3.0.2-dev
 website: http://www.tggl.co.uk
 author: Pluckerpluck
 description: >
-             This is a plugin to create seperate inventories for each world
+             This is a plugin to create separate inventories for each world
 
 
 commands:

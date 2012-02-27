@@ -49,7 +49,7 @@ public class MultiInv extends JavaPlugin {
     }
 
     public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
-        MICommand.command(args);
+        MICommand.command(args, sender);
         return true;
     }
 

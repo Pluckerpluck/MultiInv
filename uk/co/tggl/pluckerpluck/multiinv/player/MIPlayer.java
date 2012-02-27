@@ -39,6 +39,9 @@ public class MIPlayer{
 
     // Load methods that will load data into the game
     public void loadInventory(String group, String inventoryName){
+    	if(!MIYamlFiles.config.getBoolean("separateGamemodeInventories", true)) {
+    		inventoryName = "SURVIVAL";
+    	}
         if (MIYamlFiles.config.getBoolean("useSQL")){
             // TODO: SQL inventory
         }else{
@@ -49,6 +52,9 @@ public class MIPlayer{
     }
 
     public void saveInventory(String group, String inventoryName){
+    	if(!MIYamlFiles.config.getBoolean("separateGamemodeInventories", true)) {
+    		inventoryName = "SURVIVAL";
+    	}
         MIInventory inventory = new MIInventory(this.inventory);
         if (MIYamlFiles.config.getBoolean("useSQL")){
             // TODO: SQL inventory saving

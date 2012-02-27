@@ -1,6 +1,7 @@
 package uk.co.tggl.pluckerpluck.multiinv.listener;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,7 +16,6 @@ import uk.co.tggl.pluckerpluck.multiinv.player.DeferredInvSwitch;
 import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayer;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -32,7 +32,7 @@ public class MIPlayerListener implements Listener{
     static MultiInv plugin;
 
     public MIPlayerListener(MultiInv plugin) {
-    	this.plugin = plugin;
+    	MIPlayerListener.plugin = plugin;
         reloadPlayersMap();
     }
 
@@ -85,7 +85,7 @@ public class MIPlayerListener implements Listener{
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerGameModeChange(PlayerGameModeChangeEvent event){
-        if (!event.isCancelled()){
+        if (!event.isCancelled() && MIYamlFiles.config.getBoolean("separateGamemodeInventories", true)){
             Player player = event.getPlayer();
             MIPlayer miPlayer = players.get(player);
 
@@ -115,7 +115,13 @@ public class MIPlayerListener implements Listener{
         //  TODO: Check config for each save method
         MIPlayer miPlayer = players.get(player);
         if(MIYamlFiles.config.getBoolean("controlGamemode", true)) {
-            miPlayer.loadGameMode(group);
+        	//If this is a creative world and we control the game modes let's always switch it.
+        	if(MIYamlFiles.creativegroups.containsKey(group)) {
+        		player.setGameMode(GameMode.CREATIVE);
+        		//Otherwise default to the mode that they were in.
+        	}else {
+                miPlayer.loadGameMode(group);
+        	}
         }
         miPlayer.loadHealth(group);
         miPlayer.loadHunger(group);

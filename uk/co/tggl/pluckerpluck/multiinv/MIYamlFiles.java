@@ -23,6 +23,7 @@ public class MIYamlFiles {
     public static YamlConfiguration config;
     public static YamlConfiguration playerlogoutmap;
     public static HashMap<String, String> groups = new HashMap<String, String>();
+    public static HashMap<String, String> creativegroups = new HashMap<String, String>();
     public static ConcurrentHashMap<String, String> logoutworld = new ConcurrentHashMap<String, String>();
 
     public static void loadConfig(){
@@ -34,6 +35,10 @@ public class MIYamlFiles {
             config.set("splitHealth", true);
             config.set("splitHunger", true);
             config.set("controlGamemode", true);
+            config.set("separateGamemodeInventories", true);
+            config.set("creativeGroups", new String[]{"creative"});
+    		creativegroups.clear();
+            creativegroups.put("creative", "creative");
             saveYamlFile(config, "config.yml");
         }else{
         	String worldtypes = config.getString("splitHealth");
@@ -42,7 +47,17 @@ public class MIYamlFiles {
                 config.set("splitHealth", true);
                 config.set("splitHunger", true);
                 config.set("controlGamemode", true);
+                config.set("separateGamemodeInventories", true);
+                config.set("creativeGroups", new String[]{"creative"});
+        		creativegroups.clear();
+                creativegroups.put("creative", "creative");
                 saveYamlFile(config, "config.yml");
+        	}else {
+        		creativegroups.clear();
+        		List<String> worlds = config.getStringList("creativeGroups");
+                for (String world : worlds){
+                    creativegroups.put(world, "creative");
+                }
         	}
         }
     }
@@ -85,6 +100,7 @@ public class MIYamlFiles {
     }
 
     private static void parseGroups(Configuration config){
+    	groups.clear();
         Set<String> keys = config.getKeys(false);
         for (String group : keys){
             List<String> worlds = config.getStringList(group);

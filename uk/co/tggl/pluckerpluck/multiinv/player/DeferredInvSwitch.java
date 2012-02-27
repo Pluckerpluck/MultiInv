@@ -16,10 +16,13 @@ public class DeferredInvSwitch implements Runnable {
 	}
 	@Override
 	public void run() {
-		//If they aren't in the same world they logged out of let's save their current inventory
-    	listener.savePlayerState(player, MIYamlFiles.logoutworld.get(player.getName()));
-    	//and switch them to the correct inventory for this world.
-    	listener.loadPlayerState(player, listener.getGroup(player.getWorld()));
-    	MIYamlFiles.savePlayerLogoutWorld(player.getName(), listener.getGroup(player.getWorld()));
+		//Seems banned players generate an exception... make sure they are actually logged in...
+		if(player != null && player.isOnline()) {
+			//If they aren't in the same world they logged out of let's save their current inventory
+	    	listener.savePlayerState(player, MIYamlFiles.logoutworld.get(player.getName()));
+	    	//and switch them to the correct inventory for this world.
+	    	listener.loadPlayerState(player, listener.getGroup(player.getWorld()));
+	    	MIYamlFiles.savePlayerLogoutWorld(player.getName(), listener.getGroup(player.getWorld()));
+		}
 	}
 }
