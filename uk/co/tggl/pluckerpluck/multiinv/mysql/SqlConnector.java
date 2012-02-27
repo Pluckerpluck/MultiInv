@@ -52,7 +52,7 @@ public class SqlConnector {
         MIInventory inventory = new MIInventory((String)null);
         try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player=" + player);
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player='" + player + "'");
 	        if(rs.next()) {
 	        	String inventoryString = rs.getString(inventoryName.toLowerCase());
 	            inventory = new MIInventory(inventoryString);
@@ -96,7 +96,7 @@ public class SqlConnector {
         int health = 20;
         try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player=" + player);
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player='" + player + "'");
 	        if(rs.next()) {
 	        	health = rs.getInt("health");
 	        }
@@ -124,7 +124,7 @@ public class SqlConnector {
         String gameModeString = null;
         try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player=" + player);
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player='" + player + "'");
 	        if(rs.next()) {
 	        	gameModeString = rs.getString("gamemode");
 	        }
@@ -155,7 +155,7 @@ public class SqlConnector {
         int hunger = 20;
         try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player=" + player);
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player='" + player + "'");
 	        if(rs.next()) {
 	        	hunger = rs.getInt("hunger");
 	        }
@@ -172,7 +172,7 @@ public class SqlConnector {
         double saturationDouble = 0;
         try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player=" + player);
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player='" + player + "'");
 	        if(rs.next()) {
 	        	saturationDouble = rs.getDouble("saturation");
 	        }
@@ -198,7 +198,7 @@ public class SqlConnector {
     	int experience = 0;
     	try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player=" + player);
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player='" + player + "'");
 	        if(rs.next()) {
 	        	experience = rs.getInt("experience");
 	        }
@@ -212,7 +212,7 @@ public class SqlConnector {
     	int level = 0;
     	try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player=" + player);
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player='" + player + "'");
 	        if(rs.next()) {
 	        	level = rs.getInt("level");
 	        }
@@ -226,7 +226,7 @@ public class SqlConnector {
         double expDouble = 0;
         try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player=" + player);
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player='" + player + "'");
 	        if(rs.next()) {
 	        	expDouble = rs.getDouble("exp");
 	        }
