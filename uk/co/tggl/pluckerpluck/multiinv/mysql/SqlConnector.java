@@ -19,11 +19,11 @@ public class SqlConnector {
 		this.prefix = prefix;
 	}
 	
-	public boolean tableExists(String table) {
+	public boolean tableExists() {
 		Statement st;
 		try {
 			st = con.createStatement();
-	        ResultSet rs = st.executeQuery("show tables like \"" + prefix + table + "\"");
+	        ResultSet rs = st.executeQuery("show tables like '" + prefix + "multiinv'");
 	        if(rs.next()) {
 	        	return true;
 	        }else {
@@ -35,11 +35,23 @@ public class SqlConnector {
 		}
 	}
 	
-	public boolean createTable(String table) {
+	public boolean createTable() {
 		Statement st;
 		try {
 			st = con.createStatement();
-	        st.executeUpdate("CREATE TABLE " + prefix + table + " (player TEXT,survival TEXT, creative TEXT, health INT, gamemode TEXT, hunger INT, saturation DOUBLE, experience INT, level INT, exp DOUBLE)");
+	        st.executeUpdate("CREATE TABLE `" + prefix + "multiinv` (" +
+	        		"`inv_id` INT( 11 ) NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
+	        		"`inv_group` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL COMMENT 'Inventory group.', " +
+	        		"`inv_player` VARCHAR( 16 ) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL COMMENT 'Minecraft player name.', " +
+	        		"`inv_gamemode` ENUM('CREATIVE','SURVIVAL') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL COMMENT 'CREATIVE or SURVIVAL game mode.', " +
+	        		"`inv_health` TINYINT( 4 ) NOT NULL COMMENT 'Valid values are 0 to 20.', " +
+	        		"`inv_hunger` TINYINT( 4 ) NOT NULL COMMENT 'Valid values are 0 to 20.', " +
+	        		"`inv_saturation` DOUBLE NOT NULL COMMENT 'Valid values are 0.0 to 20.0.', " +
+	        		"`inv_level` SMALLINT( 6 ) NOT NULL, " +
+	        		"`inv_experience` INT( 11 ) NOT NULL, " +
+	        		"`inv_survival` text NOT NULL, " +
+	        		"`inv_creative` text NOT NULL, " +
+	        		"UNIQUE KEY `unique_player_group` ( `inv_player` , `inv_group` ) ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
 	        return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -52,9 +64,9 @@ public class SqlConnector {
         MIInventory inventory = new MIInventory((String)null);
         try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player='" + player + "'");
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
 	        if(rs.next()) {
-	        	String inventoryString = rs.getString(inventoryName.toLowerCase());
+	        	String inventoryString = rs.getString("inv_" + inventoryName.toLowerCase());
 	            inventory = new MIInventory(inventoryString);
 	        }
 		} catch (SQLException e) {
@@ -71,21 +83,22 @@ public class SqlConnector {
         createRecord(player, group);
         try {
         	Statement st = con.createStatement();
-	        st.executeUpdate("UPDATE " + prefix + group + " SET " + inventoryName.toLowerCase() + "='" + inventoryString + "' WHERE player='"+ player + "'");
+	        st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_" + inventoryName.toLowerCase() + "='" + inventoryString + "' WHERE inv_player='"+ player + "' AND inv_group='" + group + "'");
 	    } catch (SQLException e) {
 			e.printStackTrace();
 		}
     }
     
     public void createRecord(String player, String group) {
-    	if(!tableExists(group)) {
-    		createTable(group);
+    	if(!tableExists()) {
+    		createTable();
     	}
     	try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player='" + player + "'");
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
 	        if(!rs.next()) {
-	        	st.executeUpdate("INSERT INTO " + prefix + group + " (player) VALUES('" + player + "')");
+	        	st.executeUpdate("INSERT INTO " + prefix + "multiinv (inv_player, inv_group, inv_gamemode, inv_health, inv_hunger, inv_saturation, inv_level, inv_experience, inv_survival, inv_creative) " +
+	        			"VALUES('" + player + "', '" + group + "', 'SURVIVAL', 20, 20, 5, 0, 0, '', '')");
 	        }
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -96,9 +109,9 @@ public class SqlConnector {
         int health = 20;
         try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player='" + player + "'");
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
 	        if(rs.next()) {
-	        	health = rs.getInt("health");
+	        	health = rs.getInt("inv_health");
 	        }
 		} catch (SQLException e) {
 			//e.printStackTrace();
@@ -114,7 +127,7 @@ public class SqlConnector {
     	createRecord(player, group);
         try {
         	Statement st = con.createStatement();
-	        st.executeUpdate("UPDATE " + prefix + group + " SET health='" + health + "' WHERE player='"+ player + "'");
+	        st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_health='" + health + "' WHERE inv_player='"+ player + "' AND inv_group='" + group + "'");
 	    } catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -124,9 +137,9 @@ public class SqlConnector {
         String gameModeString = null;
         try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player='" + player + "'");
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
 	        if(rs.next()) {
-	        	gameModeString = rs.getString("gamemode");
+	        	gameModeString = rs.getString("inv_gamemode");
 	        }
 		} catch (SQLException e) {
 			//e.printStackTrace();
@@ -145,7 +158,7 @@ public class SqlConnector {
     	createRecord(player, group);
         try {
         	Statement st = con.createStatement();
-	        st.executeUpdate("UPDATE " + prefix + group + " SET gamemode='" + gameMode.toString() + "' WHERE player='"+ player + "'");
+	        st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_gamemode='" + gameMode.toString() + "' WHERE inv_player='"+ player + "' AND inv_group='" + group + "'");
 	    } catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -155,9 +168,9 @@ public class SqlConnector {
         int hunger = 20;
         try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player='" + player + "'");
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
 	        if(rs.next()) {
-	        	hunger = rs.getInt("hunger");
+	        	hunger = rs.getInt("inv_hunger");
 	        }
 		} catch (SQLException e) {
 			//e.printStackTrace();
@@ -172,9 +185,9 @@ public class SqlConnector {
         double saturationDouble = 0;
         try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player='" + player + "'");
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
 	        if(rs.next()) {
-	        	saturationDouble = rs.getDouble("saturation");
+	        	saturationDouble = rs.getDouble("inv_saturation");
 	        }
 		} catch (SQLException e) {
 			//e.printStackTrace();
@@ -188,7 +201,7 @@ public class SqlConnector {
     	createRecord(player, group);
         try {
         	Statement st = con.createStatement();
-	        st.executeUpdate("UPDATE " + prefix + group + " SET saturation='" + saturation + "' WHERE player='"+ player + "'");
+	        st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_saturation='" + saturation + "' WHERE inv_player='"+ player + "' AND inv_group='" + group + "'");
 	    } catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -198,9 +211,9 @@ public class SqlConnector {
     	int experience = 0;
     	try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player='" + player + "'");
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
 	        if(rs.next()) {
-	        	experience = rs.getInt("experience");
+	        	experience = rs.getInt("inv_experience");
 	        }
 		} catch (SQLException e) {
 			//e.printStackTrace();
@@ -208,13 +221,13 @@ public class SqlConnector {
         return experience;
     }
 
-    public int getLevel(String player, String group){
+    /*public int getLevel(String player, String group){
     	int level = 0;
     	try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player='" + player + "'");
+	        ResultSet rs = st.executeQuery("SELECT * FROM '" + prefix + "multiinv' WHERE inv_player='" + player + "', inv_group='" + group + "'");
 	        if(rs.next()) {
-	        	level = rs.getInt("level");
+	        	level = rs.getInt("inv_level");
 	        }
 		} catch (SQLException e) {
 			//e.printStackTrace();
@@ -226,23 +239,23 @@ public class SqlConnector {
         double expDouble = 0;
         try {
         	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + group + " WHERE player='" + player + "'");
+	        ResultSet rs = st.executeQuery("SELECT * FROM '" + prefix + "multiinv' WHERE inv_player='" + player + "', inv_group='" + group + "'");
 	        if(rs.next()) {
-	        	expDouble = rs.getDouble("exp");
+	        	expDouble = rs.getDouble("inv_exp");
 	        }
 		} catch (SQLException e) {
 			//e.printStackTrace();
 		}
         float exp = (float)expDouble;
         return exp;
-    }
+    }*/
 
-    public void saveExperience(String player, String group, int experience, int level, float exp){
+    public void saveExperience(String player, String group, int experience){
     	//Call this just to make sure the player record has been created.
     	createRecord(player, group);
         try {
         	Statement st = con.createStatement();
-	        st.executeUpdate("UPDATE " + prefix + group + " SET experience='" + experience + "', level='" + level + "', exp='" + exp + "' WHERE player='"+ player + "'");
+	        st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_experience='" + experience + "' WHERE inv_player='"+ player + "' AND inv_group='" + group + "'");
 	    } catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -252,7 +265,7 @@ public class SqlConnector {
     	createRecord(player, group);
         try {
         	Statement st = con.createStatement();
-	        st.executeUpdate("UPDATE " + prefix + group + " SET hunger='" + hunger + "' WHERE player='"+ player + "'");
+	        st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_hunger='" + hunger + "' WHERE inv_player='"+ player + "' AND inv_group='" + group + "'");
 	    } catch (SQLException e) {
 			e.printStackTrace();
 		}

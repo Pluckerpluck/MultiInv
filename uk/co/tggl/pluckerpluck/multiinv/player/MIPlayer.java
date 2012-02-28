@@ -137,9 +137,9 @@ public class MIPlayer{
 
     public void loadExperience(String group){
         if (MIYamlFiles.config.getBoolean("useSQL")){
-        	player.setLevel(MIYamlFiles.con.getLevel(player.getName(), group));
+        	//player.setLevel(MIYamlFiles.con.getLevel(player.getName(), group));
             player.setTotalExperience(MIYamlFiles.con.getTotalExperience(player.getName(), group));
-            player.setExp(MIYamlFiles.con.getExperience(player.getName(), group));
+            //player.setExp(MIYamlFiles.con.getExperience(player.getName(), group));
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);
             player.setLevel(config.getLevel());
@@ -150,7 +150,7 @@ public class MIPlayer{
 
     public void saveExperience(String group){
         if (MIYamlFiles.config.getBoolean("useSQL")){
-        	MIYamlFiles.con.saveExperience(player.getName(), group, player.getTotalExperience(), player.getLevel(), player.getExp());
+        	MIYamlFiles.con.saveExperience(player.getName(), group, player.getTotalExperience());
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);
             config.saveExperience(player.getTotalExperience(), player.getLevel(), player.getExp());

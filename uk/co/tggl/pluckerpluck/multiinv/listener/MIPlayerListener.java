@@ -46,6 +46,9 @@ public class MIPlayerListener implements Listener{
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerLogin(PlayerLoginEvent event){
         Player player = event.getPlayer();
+        if(player.hasPermission("multiinv.exempt")) {
+        	return;
+        }
         players.put(player, new MIPlayer(player));
         //Let's see if the player is in a world that doesn't exist anymore...
         if(MIYamlFiles.logoutworld.containsKey(player.getName())) {
@@ -61,6 +64,9 @@ public class MIPlayerListener implements Listener{
     public void onPlayerChangedWorld(PlayerChangedWorldEvent event){
         // Get player objects
         Player player = event.getPlayer();
+        if(player.hasPermission("multiinv.exempt")) {
+        	return;
+        }
         MIPlayer miPlayer = players.get(player);
 
         // Get world objects
@@ -87,6 +93,9 @@ public class MIPlayerListener implements Listener{
     public void onPlayerGameModeChange(PlayerGameModeChangeEvent event){
         if (!event.isCancelled() && MIYamlFiles.config.getBoolean("separateGamemodeInventories", true)){
             Player player = event.getPlayer();
+            if(player.hasPermission("multiinv.exempt")) {
+            	return;
+            }
             MIPlayer miPlayer = players.get(player);
 
             // Find correct group
