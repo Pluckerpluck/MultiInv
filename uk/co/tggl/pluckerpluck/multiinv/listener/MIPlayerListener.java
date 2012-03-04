@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MIPlayerListener implements Listener{
 
-    static HashMap<Player, MIPlayer> players = new HashMap<Player, MIPlayer>();
+    static HashMap<String, MIPlayer> players = new HashMap<String, MIPlayer>();
     ConcurrentHashMap<String, Boolean> playerchangeworlds = new ConcurrentHashMap<String, Boolean>();
     static MultiInv plugin;
 
@@ -39,17 +39,17 @@ public class MIPlayerListener implements Listener{
     public static void reloadPlayersMap(){
         players.clear();
         for (Player player:Bukkit.getServer().getOnlinePlayers()){
-            players.put(player, new MIPlayer(player));
+            players.put(player.getName(), new MIPlayer(player));
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerLogin(PlayerLoginEvent event){
         Player player = event.getPlayer();
+        players.put(player.getName(), new MIPlayer(player));
         if(player.hasPermission("multiinv.exempt")) {
         	return;
         }
-        players.put(player, new MIPlayer(player));
         //Let's see if the player is in a world that doesn't exist anymore...
         if(MIYamlFiles.logoutworld.containsKey(player.getName())) {
             if(getGroup(player.getWorld()) != MIYamlFiles.logoutworld.get(player.getName())) {
@@ -67,7 +67,7 @@ public class MIPlayerListener implements Listener{
         if(player.hasPermission("multiinv.exempt")) {
         	return;
         }
-        MIPlayer miPlayer = players.get(player);
+        MIPlayer miPlayer = players.get(player.getName());
 
         // Get world objects
         World worldTo = player.getWorld();
@@ -96,7 +96,7 @@ public class MIPlayerListener implements Listener{
             if(player.hasPermission("multiinv.exempt")) {
             	return;
             }
-            MIPlayer miPlayer = players.get(player);
+            MIPlayer miPlayer = players.get(player.getName());
 
             // Find correct group
             World world = player.getWorld();
@@ -112,7 +112,7 @@ public class MIPlayerListener implements Listener{
 
     public void savePlayerState(Player player, String group){
         // TODO: Check config for each save method
-        MIPlayer miPlayer = players.get(player);
+        MIPlayer miPlayer = players.get(player.getName());
         miPlayer.saveInventory(group, player.getGameMode().toString());
         miPlayer.saveHealth(group);
         miPlayer.saveHunger(group);
@@ -122,7 +122,7 @@ public class MIPlayerListener implements Listener{
 
     public void loadPlayerState(Player player, String group){
         //  TODO: Check config for each save method
-        MIPlayer miPlayer = players.get(player);
+        MIPlayer miPlayer = players.get(player.getName());
         if(MIYamlFiles.config.getBoolean("controlGamemode", true)) {
         	//If this is a creative world and we control the game modes let's always switch it.
         	if(MIYamlFiles.creativegroups.containsKey(group)) {

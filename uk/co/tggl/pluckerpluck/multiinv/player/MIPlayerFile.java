@@ -26,6 +26,16 @@ public class MIPlayerFile {
         playerFile = new YamlConfiguration();
         load();
     }
+    
+    public MIPlayerFile(String player, String group) {
+        // Find and load configuration file for the player
+        File dataFolder =  Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder();
+        File worldsFolder = new File(dataFolder, "Groups");
+        file = new File(worldsFolder, group + File.separator + player + ".yml");
+        playername = player;
+        playerFile = new YamlConfiguration();
+        load();
+    }
 
     private void load(){
         if (file.exists()){

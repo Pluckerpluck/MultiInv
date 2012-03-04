@@ -39,7 +39,7 @@ public class MIInventory implements Serializable{
 
     // Create an MIInventory from a string containing inventory data
     public MIInventory (String inventoryString){
-        if (inventoryString != null) {
+        if (inventoryString != null && !inventoryString.equals("")) {
             // data[0] = inventoryContents
             // data[1] = armourContents
             String[] data = inventoryString.split(":");
