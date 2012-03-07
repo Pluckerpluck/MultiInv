@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
 
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
-import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayerFile;
 
 /**
