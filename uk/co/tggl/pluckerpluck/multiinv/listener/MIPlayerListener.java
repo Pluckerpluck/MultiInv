@@ -50,9 +50,11 @@ public class MIPlayerListener implements Listener{
         if(player.hasPermission("multiinv.exempt")) {
         	return;
         }
+        System.out.println("Player logged in in world " + player.getWorld().getName());
         //Let's see if the player is in a world that doesn't exist anymore...
         if(MIYamlFiles.logoutworld.containsKey(player.getName())) {
             if(getGroup(player.getWorld()) != MIYamlFiles.logoutworld.get(player.getName())) {
+                System.out.println("Player world: " + getGroup(player.getWorld()) + " and the player's logout world: " + MIYamlFiles.logoutworld.get(player.getName()));
             	//If they aren't in the same world they logged out of let's save their current inventory
             	//and switch them to the correct inventory for this world.
             	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new DeferredInvSwitch(player, this), 1);
@@ -78,6 +80,7 @@ public class MIPlayerListener implements Listener{
         String groupFrom = getGroup(worldFrom);
 
         if (!groupTo.equals(groupFrom) && !miPlayer.isIgnored()){
+        	System.out.println("Player from world: " + groupFrom + " and the player's to world: " + groupTo);
         	//Let's put this player in the pool of players that switched worlds, that way we don't dupe the inventory.
         	playerchangeworlds.put(player.getName(), new Boolean(true));
         	//Let's schedule it so that we take the player out soon afterwards.

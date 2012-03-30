@@ -80,7 +80,7 @@ public class MIYamlFiles {
                 }
                 if(config.getBoolean("useSQL", false)) {
                     try {
-                    	String url = "jdbc:mysql://" + config.getString("sql.host", "localhost") + ":" + config.getString("sql.port", "3306") + "/" + config.getString("sql.database", "database");
+                    	String url = "jdbc:mysql://" + config.getString("sql.host", "localhost") + ":" + config.getString("sql.port", "3306") + "/" + config.getString("sql.database", "database") + "?autoReconnect=true";
                         Connection connect = DriverManager.getConnection(url, config.getString("sql.username", "username"), config.getString("sql.password", "password"));
                         con = new SqlConnector(connect, config.getString("sql.prefix", "multiinv_"));
 
