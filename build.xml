@@ -1,0 +1,56 @@
+<project name="MultiInv" default="main" basedir=".">
+  <!-- env variables -->
+  <property name="src" location="uk/co/tggl/pluckerpluck/multiinv/"/>
+  <property name="target" location="target/"/>
+
+  <target name="main" depends="clean, init, class, compile, jar" description="Main target">
+      <echo>Building the .jar file.</echo>
+  </target>
+  
+  <!-- Cleanup workspace -->
+  <target name="clean" description="Cleans project">
+      <echo>Cleaning</echo>
+	  <delete failonerror="false">
+	  <fileset dir="build" includes="**/*" />
+	  </delete>
+	  <delete file="target/MultiInv.jar" />
+  </target>
+
+  <!-- Initial setup -->
+  <target name="init">
+      <tstamp/>
+  <!-- Create folders -->
+      <mkdir dir="target"/>
+      <mkdir dir="build"/>
+      <mkdir dir="lib"/>
+  </target>
+  
+  <!-- Download libraries -->
+  <target name="class">
+  <get src="http://whiskeycraft.net/repo/org/bukkit/craftbukkit/lastsuccessful/craftbukkit.jar" dest="lib/CraftBukkit.jar"/>
+  <get src="http://whiskeycraft.net:8080/job/Spout%20Plugin/lastSuccessfulBuild/artifact/target/spoutplugin-dev-SNAPSHOT.jar" dest="lib/spoutplugin.jar"/>
+  </target>
+  <path id="classpath">
+      <fileset dir="lib" includes="**/*.jar"/>
+  </path>
+  
+  <!-- compile -->
+  <target name="compile">
+      <echo>Compiling</echo>
+      <javac srcdir="uk/co/tggl/pluckerpluck/multiinv" destdir="build" debug="true" debuglevel="lines,vars,source" classpathref="classpath" includeantruntime="false"/>
+      <copy file="plugin.yml" tofile="build/plugin.yml" />
+      <replace file="build/plugin.yml" token="b000" value="b${env.BUILD_NUMBER}" />
+  </target>
+  
+  <!-- jar -->
+  <target name="jar">
+	<echo>Making jar</echo>
+        <jar jarfile="target/MultiInv.jar" basedir="build" includes="uk/co/tggl/pluckerpluck/multiinv/**/*, plugin.yml">
+		<manifest>
+			<attribute name="Built-By" value="${user.name}" />
+		</manifest>
+        </jar>
+    	<delete dir="build"/>
+        <delete dir="lib"/>
+  </target>
+</project>
