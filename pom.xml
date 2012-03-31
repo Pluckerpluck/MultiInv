@@ -38,14 +38,6 @@
       <artifactId>spoutplugin</artifactId>
       <version>dev-SNAPSHOT</version>
     </dependency>
-    <!-- You need to locally install this, there is no repo -->
-    <!-- <dependency>
-      <groupId>net.milkbowl.vault</groupId>
-      <artifactId>Vault</artifactId>
-      <version>[1.2.9-SNAPSHOT,)</version>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency> -->
   </dependencies>
   
   <!-- This builds a completely 'ready to start' jar with all dependencies inside -->
@@ -87,6 +79,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.3.2</version>
         <inherited>true</inherited>
+        <!-- If you don't code against Java 1.5, fix me here! -->
         <configuration>
           <source>1.5</source>
           <target>1.5</target>
