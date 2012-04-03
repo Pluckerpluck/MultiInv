@@ -1,0 +1,91 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>uk.co</groupId>
+  <artifactId>MultiInv</artifactId>
+  <packaging>jar</packaging>
+  <!-- Specify Version here in the same format. -->
+  <version>3.0.6-SNAPSHOT</version>
+  <name>MultiInv</name>
+  <url>http://www.github.com/Pluckerpluck/MultiInv</url>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <scm>
+    <connection>scm:git:git://github.com/Pluckerpluck/MultiInv.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/Pluckerpluck/MultiInv.git</developerConnection>
+    <url>s://www.github.com/Pluckerpluck/MultiInv</url>
+  </scm>
+  <repositories>
+    <repository>
+      <id>bukkit-repo</id>
+      <url>http://repo.bukkit.org/content/groups/public</url>
+    </repository>
+    <repository>
+      <id>spout-repo</id>
+      <url>http://repo.spout.org/</url>
+    </repository>
+    </repositories>
+  <dependencies>
+    <dependency>
+      <groupId>org.bukkit</groupId>
+      <artifactId>bukkit</artifactId>
+      <version>[1.2.4-R1.0,)</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.getspout</groupId>
+      <artifactId>spoutplugin</artifactId>
+      <version>dev-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+  
+  <!-- This builds a completely 'ready to start' jar with all dependencies inside -->
+  <build>
+    <directory>target</directory>
+    <outputDirectory>target/classes</outputDirectory>
+    <finalName>${project.artifactId}</finalName>
+    <sourceDirectory>src</sourceDirectory>
+    <defaultGoal>clean install</defaultGoal>
+    
+    <resources>
+      <resource>
+        <targetPath>.</targetPath>
+        <filtering>true</filtering>
+        <directory>${basedir}</directory>
+        <includes>
+          <include>plugin.yml</include>
+        </includes>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.1</version>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Main-Class>Main</Main-Class>
+              <Implementation-Title>MultiInv</Implementation-Title>
+              <Implementation-Version>${describe}</Implementation-Version>
+              <Implementation-Vendor>Pluckerpluck</Implementation-Vendor>
+            </manifestEntries>
+          </archive>
+        </configuration>
+       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
+        <inherited>true</inherited>
+        <!-- If you don't code against Java 1.5, fix me here! -->
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+
