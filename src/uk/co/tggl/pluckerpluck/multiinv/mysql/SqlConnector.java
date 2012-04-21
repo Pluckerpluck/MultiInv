@@ -44,7 +44,7 @@ public class SqlConnector {
 	        		"`inv_group` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL COMMENT 'Inventory group.', " +
 	        		"`inv_player` VARCHAR( 16 ) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL COMMENT 'Minecraft player name.', " +
 	        		"`inv_gamemode` ENUM('CREATIVE','SURVIVAL') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL COMMENT 'CREATIVE or SURVIVAL game mode.', " +
-	        		"`inv_health` TINYINT( 4 ) NOT NULL COMMENT 'Valid values are 0 to 20.', " +
+	        		"`inv_health` SMALLINT( 6 ) NOT NULL COMMENT 'Valid values are 0 to 20.', " +
 	        		"`inv_hunger` TINYINT( 4 ) NOT NULL COMMENT 'Valid values are 0 to 20.', " +
 	        		"`inv_saturation` DOUBLE NOT NULL COMMENT 'Valid values are 0.0 to 20.0.', " +
 	        		"`inv_level` SMALLINT( 6 ) NOT NULL, " +
@@ -116,9 +116,8 @@ public class SqlConnector {
 		} catch (SQLException e) {
 			//e.printStackTrace();
 		}
-        if (health <= 0 || health > 20) {
-            health = 20;
-        }
+        if (health < 0) health = 0;
+        if (health > 20) health = 20;
         return health;
     }
 
