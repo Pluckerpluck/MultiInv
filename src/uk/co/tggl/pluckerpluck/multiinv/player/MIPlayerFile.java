@@ -85,13 +85,14 @@ public class MIPlayerFile {
 
     public int getHealth(){
         int health = playerFile.getInt("health", 20);
-        if (health <= 0 || health > 20) {
-            health = 20;
-        }
+        if (health < 0) health = 0;
+        if (health > 20) health = 20;
         return health;
     }
 
     public void saveHealth(int health){
+    	if (health < 0) health = 0;
+        if (health > 20) health = 20;
         playerFile.set("health", health);
         save();
     }
@@ -114,9 +115,10 @@ public class MIPlayerFile {
 
     public int getHunger(){
         int hunger = playerFile.getInt("hunger", 20);
-        if (hunger <= 0 || hunger > 20) {
+        if (hunger < 0)
+        	hunger = 0;
+        if (hunger > 20)
             hunger = 20;
-        }
         return hunger;
     }
 
@@ -153,6 +155,10 @@ public class MIPlayerFile {
     }
 
     public void saveHunger(int hunger){
+    	if (hunger <= 0)
+        	hunger = 0;
+        if (hunger > 20)
+            hunger = 20;
         playerFile.set("hunger", hunger);
         save();
     }
