@@ -122,6 +122,8 @@ public class SqlConnector {
     }
 
     public void saveHealth(String player, String group, int health){
+    	if (health < 0) health = 0;
+        if (health > 20) health = 20;
         //Call this just to make sure the player record has been created.
     	createRecord(player, group);
         try {
@@ -261,6 +263,8 @@ public class SqlConnector {
     }
 
     public void saveHunger(String player, String group, int hunger){
+    	if (hunger < 0) hunger = 0;
+        if (hunger > 20) hunger = 20;
     	createRecord(player, group);
         try {
         	Statement st = con.createStatement();
