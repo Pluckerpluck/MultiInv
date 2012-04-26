@@ -176,9 +176,10 @@ public class SqlConnector {
 		} catch (SQLException e) {
 			//e.printStackTrace();
 		}
-        if (hunger <= 0 || hunger > 20) {
+        if (hunger < 0)
+        	hunger = 0;
+        if (hunger > 20)
             hunger = 20;
-        }
         return hunger;
     }
 

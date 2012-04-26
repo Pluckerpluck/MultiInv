@@ -115,7 +115,7 @@ public class MIPlayerFile {
 
     public int getHunger(){
         int hunger = playerFile.getInt("hunger", 20);
-        if (hunger <= 0)
+        if (hunger < 0)
         	hunger = 0;
         if (hunger > 20)
             hunger = 20;
