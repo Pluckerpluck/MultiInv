@@ -85,7 +85,7 @@ public class MIYamlFiles {
                         con = new SqlConnector(connect, config.getString("sql.prefix", "multiinv_"));
 
                     } catch (SQLException ex) {
-                        System.out.println("[MultiInv] Could not establish connection to the database! User inventories won't be saved!");
+                        MultiInv.log.warning("Could not establish connection to the database! User inventories won't be saved!");
                     }
                 }
         	}

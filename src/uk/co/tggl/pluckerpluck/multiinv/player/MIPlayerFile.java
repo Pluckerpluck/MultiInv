@@ -4,8 +4,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventoryOld;
+import uk.co.tggl.pluckerpluck.multiinv.spout.AdminPopup;
+
 import java.io.File;
 
 /**
@@ -46,6 +49,8 @@ public class MIPlayerFile {
             }
         }else{
             save();
+
+            // Why is this here?
             System.out.println("Saved?");
         }
     }
@@ -63,9 +68,13 @@ public class MIPlayerFile {
         // Get stored string from configuration file
         MIInventory inventory;
         String inventoryString = playerFile.getString(inventoryName, null);
+
+        String folder = file.getParentFile().getName();
+        MultiInv.log.debug("Loading " + playername + "'s " + inventoryName + " inventory from " + folder);
+
         // Check for old inventory save
         if (inventoryString == null || inventoryString.contains(";-;")){
-        	System.out.println("Old inventory file detected for player " + playername + ", converting...");
+        	MultiInv.log.debug("First time or old inventory file detected for " + playername + " in " + folder);
         	if(inventoryString == null) {
         		//seems the older versions have the inventory name in lower case...
         		inventoryString = playerFile.getString(inventoryName.toLowerCase());
@@ -80,6 +89,10 @@ public class MIPlayerFile {
     public void saveInventory(MIInventory inventory, String inventoryName){
         String inventoryString = inventory.toString();
         playerFile.set(inventoryName, inventoryString);
+
+        String folder = file.getParentFile().getName();
+        MultiInv.log.debug("Saving " + playername + "'s " + inventoryName + " inventory to " + folder);
+
         save();
     }
 

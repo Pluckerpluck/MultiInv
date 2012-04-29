@@ -1,5 +1,6 @@
 package uk.co.tggl.pluckerpluck.multiinv;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -7,7 +8,9 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import uk.co.tggl.pluckerpluck.multiinv.command.MICommand;
 import uk.co.tggl.pluckerpluck.multiinv.listener.MIPlayerListener;
+import uk.co.tggl.pluckerpluck.multiinv.logger.MILogger;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -19,7 +22,8 @@ import java.util.logging.Logger;
  */
 public class MultiInv extends JavaPlugin {
 
-    public static final Logger log = Logger.getLogger("Minecraft");
+    // Initialize logger (auto implements enable/disable messages to console)
+    public static MILogger log;
 
     // Listeners
     MIPlayerListener playerListener;
@@ -31,6 +35,9 @@ public class MultiInv extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        // Initialize Logger
+        log = new MILogger();
+
         // Get the description file containing plugin information
         PluginDescriptionFile pdfFile = this.getDescription();
 
@@ -45,7 +52,7 @@ public class MultiInv extends JavaPlugin {
         // Register required events
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(playerListener, this);
-        System.out.println( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
+
     }
 
     public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {

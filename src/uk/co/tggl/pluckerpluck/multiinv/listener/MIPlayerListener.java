@@ -77,6 +77,8 @@ public class MIPlayerListener implements Listener{
         String groupTo = getGroup(worldTo);
         String groupFrom = getGroup(worldFrom);
 
+        MultiInv.log.debug(player.getName() + " moved from " + groupFrom + " to " + groupTo);
+
         if (!groupTo.equals(groupFrom) && !miPlayer.isIgnored()){
         	//Let's put this player in the pool of players that switched worlds, that way we don't dupe the inventory.
         	playerchangeworlds.put(player.getName(), new Boolean(true));
@@ -101,6 +103,8 @@ public class MIPlayerListener implements Listener{
             // Find correct group
             World world = player.getWorld();
             String group = getGroup(world);
+
+            MultiInv.log.debug(player.getName() + " changed from " + player.getGameMode().toString() + " to " + event.getNewGameMode().toString());
 
             //We only want to save the old inventory if we didn't switch worlds in the same tick. Inventory problems otherwise.
             if(!playerchangeworlds.containsKey(player.getName())) {
