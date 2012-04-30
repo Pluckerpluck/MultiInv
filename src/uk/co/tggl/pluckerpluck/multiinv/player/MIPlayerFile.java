@@ -65,11 +65,11 @@ public class MIPlayerFile {
         String inventoryString = playerFile.getString(inventoryName, null);
         // Check for old inventory save
         if (inventoryString == null || inventoryString.contains(";-;")){
-        	System.out.println("Old inventory file detected for player " + playername + ", converting...");
-        	if(inventoryString == null) {
-        		//seems the older versions have the inventory name in lower case...
-        		inventoryString = playerFile.getString(inventoryName.toLowerCase());
-        	}
+            System.out.println("Old inventory file detected for player " + playername + ", converting...");
+            if(inventoryString == null) {
+                //seems the older versions have the inventory name in lower case...
+                inventoryString = playerFile.getString(inventoryName.toLowerCase());
+            }
             inventory = new MIInventoryOld(inventoryString);
         }else{
             inventory = new MIInventory(inventoryString);
@@ -91,7 +91,7 @@ public class MIPlayerFile {
     }
 
     public void saveHealth(int health){
-    	if (health < 0) health = 0;
+        if (health < 0) health = 0;
         if (health > 20) health = 20;
         playerFile.set("health", health);
         save();
@@ -115,10 +115,8 @@ public class MIPlayerFile {
 
     public int getHunger(){
         int hunger = playerFile.getInt("hunger", 20);
-        if (hunger < 0)
-        	hunger = 0;
-        if (hunger > 20)
-            hunger = 20;
+        if (hunger < 0) hunger = 0;
+        if (hunger > 20) hunger = 20;
         return hunger;
     }
 
@@ -155,10 +153,8 @@ public class MIPlayerFile {
     }
 
     public void saveHunger(int hunger){
-    	if (hunger <= 0)
-        	hunger = 0;
-        if (hunger > 20)
-            hunger = 20;
+        if (hunger < 0) hunger = 0;
+        if (hunger > 20) hunger = 20;
         playerFile.set("hunger", hunger);
         save();
     }
