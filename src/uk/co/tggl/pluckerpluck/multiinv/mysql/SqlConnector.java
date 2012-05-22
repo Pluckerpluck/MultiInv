@@ -116,7 +116,7 @@ public class SqlConnector {
 		} catch (SQLException e) {
 			//e.printStackTrace();
 		}
-        if (health <= 0 || health > 20) {
+        if (health > 20) {
             health = 20;
         }
         return health;
@@ -175,7 +175,7 @@ public class SqlConnector {
 		} catch (SQLException e) {
 			//e.printStackTrace();
 		}
-        if (hunger <= 0 || hunger > 20) {
+        if (hunger > 20) {
             hunger = 20;
         }
         return hunger;

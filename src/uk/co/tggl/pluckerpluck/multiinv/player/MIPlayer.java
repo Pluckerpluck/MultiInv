@@ -81,7 +81,11 @@ public class MIPlayer{
 
     public void saveHealth(String group){
         if (MIYamlFiles.config.getBoolean("useSQL")){
-        	MIYamlFiles.con.saveHealth(player.getName(), group, player.getHealth());
+        	if(player.getHealth() < 0) {
+        		MIYamlFiles.con.saveHealth(player.getName(), group, 0);
+        	}else {
+            	MIYamlFiles.con.saveHealth(player.getName(), group, player.getHealth());
+        	}
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);
             config.saveHealth(player.getHealth());

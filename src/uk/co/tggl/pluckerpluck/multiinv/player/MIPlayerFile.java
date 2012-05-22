@@ -98,7 +98,7 @@ public class MIPlayerFile {
 
     public int getHealth(){
         int health = playerFile.getInt("health", 20);
-        if (health <= 0 || health > 20) {
+        if (health > 20) {
             health = 20;
         }
         return health;
@@ -127,7 +127,7 @@ public class MIPlayerFile {
 
     public int getHunger(){
         int hunger = playerFile.getInt("hunger", 20);
-        if (hunger <= 0 || hunger > 20) {
+        if (hunger > 20) {
             hunger = 20;
         }
         return hunger;
