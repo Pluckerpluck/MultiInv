@@ -13,6 +13,7 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 import uk.co.tggl.pluckerpluck.multiinv.player.DeferredInvSwitch;
+import uk.co.tggl.pluckerpluck.multiinv.player.DeferredWorldCheck;
 import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayer;
 
 import java.util.HashMap;
@@ -29,7 +30,7 @@ public class MIPlayerListener implements Listener{
 
     static HashMap<String, MIPlayer> players = new HashMap<String, MIPlayer>();
     ConcurrentHashMap<String, Boolean> playerchangeworlds = new ConcurrentHashMap<String, Boolean>();
-    static MultiInv plugin;
+    static public MultiInv plugin;
 
     public MIPlayerListener(MultiInv plugin) {
     	MIPlayerListener.plugin = plugin;
@@ -50,14 +51,9 @@ public class MIPlayerListener implements Listener{
         if(player.hasPermission("multiinv.exempt")) {
         	return;
         }
-        //Let's see if the player is in a world that doesn't exist anymore...
-        if(MIYamlFiles.logoutworld.containsKey(player.getName())) {
-            if(getGroup(player.getWorld()) != MIYamlFiles.logoutworld.get(player.getName())) {
-            	//If they aren't in the same world they logged out of let's save their current inventory
-            	//and switch them to the correct inventory for this world.
-            	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new DeferredInvSwitch(player, this), 1);
-            }
-        }
+        
+        //Let's set a task to run once they get switched to the proper world by bukkit.
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new DeferredWorldCheck(player, this), 1);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

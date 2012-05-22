@@ -45,6 +45,20 @@ public class MultiInv extends JavaPlugin {
         MIYamlFiles.loadConfig();
         MIYamlFiles.loadGroups();
         MIYamlFiles.loadPlayerLogoutWorlds();
+        
+        //An easy way to set the default logging levels
+        if(MIYamlFiles.config.contains("loglevel")) {
+        	try {
+            	log.setLogLevel(MILogger.Level.valueOf(MIYamlFiles.config.getString("loglevel").toUpperCase()));
+        	}catch(Exception e) {
+        		log.warning("Log level value invalid! Valid values are: NONE, SEVERE, WARNING, INFO and DEBUG.");
+        		log.warning("Setting log level to INFO.");
+            	log.setLogLevel(MILogger.Level.INFO);
+        	}
+        }else {
+        	//Set a sane level for logging
+        	log.setLogLevel(MILogger.Level.INFO);
+        }
 
         // Initialize listeners
         playerListener = new MIPlayerListener(this);
