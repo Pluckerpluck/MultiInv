@@ -78,6 +78,11 @@ public class MIYamlFiles {
                 for (String world : worlds){
                     creativegroups.put(world, "creative");
                 }
+                String allowenderchests = config.getString("allowEnderChestPlacement");
+                if(allowenderchests == null || allowenderchests.equals("")) {
+                	config.set("allowEnderChestPlacement", true);
+                	saveYamlFile(config, "config.yml");
+                }
                 if(config.getBoolean("useSQL", false)) {
                     try {
                     	String url = "jdbc:mysql://" + config.getString("sql.host", "localhost") + ":" + config.getString("sql.port", "3306") + "/" + config.getString("sql.database", "database") + "?autoReconnect=true";
@@ -88,6 +93,7 @@ public class MIYamlFiles {
                         MultiInv.log.warning("Could not establish connection to the database! User inventories won't be saved!");
                     }
                 }
+                
         	}
         }
     }

@@ -142,6 +142,11 @@ public class MIPlayer{
     public void loadExperience(String group){
         if (MIYamlFiles.config.getBoolean("useSQL")){
         	//player.setLevel(MIYamlFiles.con.getLevel(player.getName(), group));
+        	//clear the levels
+        	//player.setLevel(0);
+        	//player.setExp(0);
+        	//since the set total experience has a bug, let's just do it this way...
+        	//player.giveExp(MIYamlFiles.con.getTotalExperience(player.getName(), group));
             player.setTotalExperience(MIYamlFiles.con.getTotalExperience(player.getName(), group));
             //player.setExp(MIYamlFiles.con.getExperience(player.getName(), group));
         }else{

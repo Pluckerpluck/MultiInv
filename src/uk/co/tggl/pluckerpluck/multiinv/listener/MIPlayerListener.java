@@ -12,7 +12,6 @@ import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
-import uk.co.tggl.pluckerpluck.multiinv.player.DeferredInvSwitch;
 import uk.co.tggl.pluckerpluck.multiinv.player.DeferredWorldCheck;
 import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayer;
 
