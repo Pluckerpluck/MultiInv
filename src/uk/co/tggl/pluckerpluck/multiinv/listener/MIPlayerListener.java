@@ -39,14 +39,14 @@ public class MIPlayerListener implements Listener{
     public static void reloadPlayersMap(){
         players.clear();
         for (Player player:Bukkit.getServer().getOnlinePlayers()){
-            players.put(player.getName(), new MIPlayer(player));
+            players.put(player.getName(), new MIPlayer(player, plugin));
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerLogin(PlayerLoginEvent event){
         Player player = event.getPlayer();
-        players.put(player.getName(), new MIPlayer(player));
+        players.put(player.getName(), new MIPlayer(player, plugin));
         if(player.hasPermission("multiinv.exempt")) {
         	return;
         }

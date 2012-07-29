@@ -4,6 +4,7 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
+import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 
 /**
@@ -14,12 +15,14 @@ public class MIPlayer{
     // Initialize final variables that define the MIPlayer
     final Player player;
     final PlayerInventory inventory;
+    MultiInv plugin;
 
     // Initialize (and assign) variables containing the initial state of an MIPlayer
     private boolean ignored = false;
 
-    public MIPlayer(Player player) {
+    public MIPlayer(Player player, MultiInv plugin) {
         this.player = player;
+        this.plugin = plugin;
         inventory = player.getInventory();
     }
 
@@ -143,11 +146,14 @@ public class MIPlayer{
         if (MIYamlFiles.config.getBoolean("useSQL")){
         	//player.setLevel(MIYamlFiles.con.getLevel(player.getName(), group));
         	//clear the levels
-        	//player.setLevel(0);
-        	//player.setExp(0);
         	//since the set total experience has a bug, let's just do it this way...
-        	//player.giveExp(MIYamlFiles.con.getTotalExperience(player.getName(), group));
-            player.setTotalExperience(MIYamlFiles.con.getTotalExperience(player.getName(), group));
+        	int[] levels = plugin.getXP(MIYamlFiles.con.getTotalExperience(player.getName(), group));
+            plugin.log.debug("Setting player level to: " + levels[0]);
+        	player.setLevel(levels[0]);
+        	player.setTotalExperience(MIYamlFiles.con.getTotalExperience(player.getName(), group));
+            plugin.log.debug("Setting player xp to: " + levels[1]);
+        	player.setExp((float)((float)levels[1]/(float)levels[2]));
+            //player.setTotalExperience(MIYamlFiles.con.getTotalExperience(player.getName(), group));
             //player.setExp(MIYamlFiles.con.getExperience(player.getName(), group));
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);

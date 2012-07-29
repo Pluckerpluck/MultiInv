@@ -25,7 +25,7 @@ public class MultiInv extends JavaPlugin {
 
     // Initialize logger (auto implements enable/disable messages to console)
     public static MILogger log;
-    public boolean usenewxp = false;
+    public int xpversion = 0;
 
     // Listeners
     MIPlayerListener playerListener;
@@ -76,21 +76,48 @@ public class MultiInv extends JavaPlugin {
         	int minorversion = Integer.parseInt(versionstring[1].trim());
         	if(majorversion == 1) {
         		if(minorversion > 2) {
-        			usenewxp = true;
+        			xpversion = 1;
         		}
         	}else if(majorversion > 1) {
-        		usenewxp = true;
+        		xpversion = 1;
         	}
         }catch (Exception e) {
-        	
+        	log.severe("[MultiInv] Unable to get server version! Inaccurate XP handling may occurr!");
         }
-        //System.out.println("[MultiInv] Server Version: " + getServer().getVersion());
 
     }
     
-    //public int[] getXP(int totalxp) {
-    	
-    //}
+    public int[] getXP(int totalxp) {
+    	int level = 0;
+    	int leftoverexp = totalxp;
+    	int xpneededforlevel = 0;
+    	if(xpversion == 1) {
+    		xpneededforlevel = 17;
+    		while(leftoverexp >= xpneededforlevel) {
+    			level++;
+    			leftoverexp -= xpneededforlevel;
+    			if(level >= 16) {
+    				xpneededforlevel += 3;
+    			}
+    		}
+    		//We only have 2 versions at the moment
+    	}else {
+    		xpneededforlevel = 7;
+        	boolean odd = true;
+        	while(leftoverexp >= xpneededforlevel) {
+        		level++;
+        		leftoverexp -= xpneededforlevel;
+        		if(odd) {
+        			xpneededforlevel += 3;
+        			odd = false;
+        		}else {
+        			xpneededforlevel += 4;
+        			odd = true;
+        		}
+        	}
+    	}
+    	return new int[]{level, leftoverexp, xpneededforlevel};
+    }
 
     public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
         MICommand.command(args, sender);
