@@ -70,19 +70,24 @@ public class MultiInv extends JavaPlugin {
         pm.registerEvents(new MIEnderChest(this), this);
         pm.registerEvents(playerListener, this);
         String[] cbversionstring = getServer().getVersion().split(":");
-        String[] versionstring = cbversionstring[1].split(".");
+        String[] versionstring = cbversionstring[1].split("\\.");
         try{
         	int majorversion = Integer.parseInt(versionstring[0].trim());
         	int minorversion = Integer.parseInt(versionstring[1].trim());
         	if(majorversion == 1) {
         		if(minorversion > 2) {
         			xpversion = 1;
+        			log.info("MC 1.3 or above found, enabling version 2 XP handling.");
+        		}else {
+        			log.info("MC 1.2 or below found, enabling version 1 XP handling.");
         		}
         	}else if(majorversion > 1) {
         		xpversion = 1;
+    			log.info("MC 1.3 or above found, enabling version 2 XP handling.");
         	}
         }catch (Exception e) {
-        	log.severe("[MultiInv] Unable to get server version! Inaccurate XP handling may occurr!");
+        	log.severe("Unable to get server version! Inaccurate XP handling may occurr!");
+        	log.severe("Server Version String: " + getServer().getVersion());
         }
 
     }
