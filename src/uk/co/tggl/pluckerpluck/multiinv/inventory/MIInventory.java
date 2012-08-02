@@ -84,6 +84,14 @@ public class MIInventory implements Serializable{
             inventory.setArmorContents(armourContents);
         }
     }
+    
+    public MIItemStack[] getInventoryContents() {
+    	return MIInventoryContents;
+    }
+    
+    public MIItemStack[] getArmorContents() {
+    	return MIArmourContents;
+    }
 
 
     public String toString(){

@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
+import uk.co.tggl.pluckerpluck.multiinv.inventory.MIItemStack;
 import uk.co.tggl.pluckerpluck.multiinv.listener.MIPlayerListener;
 import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayer;
 import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayerFile;
@@ -213,6 +214,130 @@ public class MultiInvAPI {
 	        	return true;
 	        }else{
 	        	MIPlayerFile config = new MIPlayerFile(giveplayer, MIPlayerListener.getGroup(world));
+	            config.saveInventory(inventory, inventoryName);
+	            return true;
+	        }
+		}
+	}
+	
+	/**
+	 * Adds a single item to the player's inventory.
+	 * @param player The player's name
+	 * @param world The world to add it to.
+	 * @param gm The game mode
+	 * @param itemstack The item to add.
+	 * @return true upon successful adding, false if the inventory was full or player not found.
+	 */
+	public boolean addItemToInventory(String player, String world, GameMode gm, MIItemStack itemstack) {
+		Player giveplayer = plugin.getServer().getPlayer(player);
+		String currentworld = "";
+		boolean offlineplayer = false;
+		if(giveplayer != null && giveplayer.isOnline()) {
+			currentworld = giveplayer.getWorld().getName();
+		}else {
+			giveplayer = getOfflinePlayer(player);
+			if(giveplayer == null) {
+				return false;
+			}
+			currentworld = MIYamlFiles.logoutworld.get(player);
+			offlineplayer = true;
+		}
+		if((!offlineplayer && MIPlayerListener.getGroup(currentworld).equalsIgnoreCase(MIPlayerListener.getGroup(world))) || 
+				(offlineplayer && currentworld.equalsIgnoreCase(MIPlayerListener.getGroup(world)))) {
+			if(MIYamlFiles.config.getBoolean("separateGamemodeInventories", true) && (giveplayer.getGameMode() != gm)) {
+				String inventoryName = "CREATIVE";
+				if(GameMode.SURVIVAL == gm) {
+		    		inventoryName = "SURVIVAL";
+		    	}
+		        if (MIYamlFiles.config.getBoolean("useSQL")){
+		        	MIInventory inventory = MIYamlFiles.con.getInventory(giveplayer.getName(), MIPlayerListener.getGroup(world), inventoryName);
+		        	//now let's find an empty slot...
+		        	boolean noempty = true;
+		        	MIItemStack[] items = inventory.getInventoryContents();
+		        	for(int i = 0; i < items.length && noempty; i++) {
+		        		MIItemStack is = items[i];
+		        		if(is.getItemStack() == null) {
+		        			items[i] = itemstack;
+		        			noempty = false;
+		        		}
+		        	}
+		        	if(noempty) {
+		        		return false;
+		        	}
+		        	MIYamlFiles.con.saveInventory(giveplayer.getName(), MIPlayerListener.getGroup(world), inventory, inventoryName);
+		        	return true;
+		        }else{
+		            MIPlayerFile config = new MIPlayerFile(giveplayer, MIPlayerListener.getGroup(world));
+		            MIInventory inventory = config.getInventory(inventoryName);
+		            //now let's find an empty slot...
+		        	boolean noempty = true;
+		        	MIItemStack[] items = inventory.getInventoryContents();
+		        	for(int i = 0; i < items.length && noempty; i++) {
+		        		MIItemStack is = items[i];
+		        		if(is.getItemStack() == null) {
+		        			items[i] = itemstack;
+		        			noempty = false;
+		        		}
+		        	}
+		        	if(noempty) {
+		        		return false;
+		        	}
+		            config.saveInventory(inventory, inventoryName);
+		            return true;
+		        }
+		        //If they are currently using the inventory, let's set it...
+			}else {
+				if(giveplayer.getInventory().firstEmpty() == -1) {
+					return false;
+				}
+				giveplayer.getInventory().addItem(itemstack.getItemStack());
+				if(offlineplayer) {
+					giveplayer.saveData();
+				}
+				return true;
+			}
+			//They aren't in the same world, so let's just save the inventory.
+		}else {
+			String inventoryName = "CREATIVE";
+			if(GameMode.SURVIVAL == gm) {
+	    		inventoryName = "SURVIVAL";
+	    	}
+			if(!MIYamlFiles.config.getBoolean("separateGamemodeInventories", true)) {
+	    		inventoryName = "SURVIVAL";
+	    	}
+	        if (MIYamlFiles.config.getBoolean("useSQL")){
+	        	MIInventory inventory = MIYamlFiles.con.getInventory(giveplayer.getName(), MIPlayerListener.getGroup(world), inventoryName);
+	        	//now let's find an empty slot...
+	        	boolean noempty = true;
+	        	MIItemStack[] items = inventory.getInventoryContents();
+	        	for(int i = 0; i < items.length && noempty; i++) {
+	        		MIItemStack is = items[i];
+	        		if(is.getItemStack() == null) {
+	        			items[i] = itemstack;
+	        			noempty = false;
+	        		}
+	        	}
+	        	if(noempty) {
+	        		return false;
+	        	}
+	        	MIYamlFiles.con.saveInventory(giveplayer.getName(), MIPlayerListener.getGroup(world), inventory, inventoryName);
+	        	return true;
+	        }else{
+	        	MIPlayerFile config = new MIPlayerFile(giveplayer, MIPlayerListener.getGroup(world));
+	            MIInventory inventory = config.getInventory(inventoryName);
+	            //now let's find an empty slot...
+	        	boolean noempty = true;
+	        	MIItemStack[] items = inventory.getInventoryContents();
+	        	for(int i = 0; i < items.length && noempty; i++) {
+	        		MIItemStack is = items[i];
+	        		if(is.getItemStack() == null) {
+	        			items[i] = itemstack;
+	        			noempty = false;
+	        		}
+	        	}
+	        	if(noempty) {
+	        		return false;
+	        	}
 	            config.saveInventory(inventory, inventoryName);
 	            return true;
 	        }
