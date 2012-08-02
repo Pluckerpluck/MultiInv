@@ -134,7 +134,7 @@ public class MIPlayerFile {
     }
 
     public float getSaturation(){
-        double saturationDouble = playerFile.getDouble("saturation", 0);
+        double saturationDouble = playerFile.getDouble("saturation", 5);
         float saturation = (float)saturationDouble;
         return saturation;
     }
