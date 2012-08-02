@@ -15,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 import uk.co.tggl.pluckerpluck.multiinv.listener.MIPlayerListener;
+import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayer;
 import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayerFile;
 
 public class MultiInvAPI {
@@ -151,6 +152,103 @@ public class MultiInvAPI {
 		}
 		return null;
 		
+	}
+	
+	/**
+	 * Sets the player's inventory using a MIInventory
+	 * @param player The player's name
+	 * @param world The world name that you want to set the inventory in
+	 * @param gm Gamemode
+	 * @param inventory The inventory
+	 * @return True upon success, false upon error.
+	 */
+	public boolean setPlayerInventory(String player, String world, GameMode gm, MIInventory inventory) {
+		Player giveplayer = plugin.getServer().getPlayer(player);
+		String currentworld = "";
+		boolean offlineplayer = false;
+		if(giveplayer != null && giveplayer.isOnline()) {
+			currentworld = giveplayer.getWorld().getName();
+		}else {
+			giveplayer = getOfflinePlayer(player);
+			if(giveplayer == null) {
+				return false;
+			}
+			currentworld = MIYamlFiles.logoutworld.get(player);
+			offlineplayer = true;
+		}
+		if((!offlineplayer && MIPlayerListener.getGroup(currentworld).equalsIgnoreCase(MIPlayerListener.getGroup(world))) || 
+				(offlineplayer && currentworld.equalsIgnoreCase(MIPlayerListener.getGroup(world)))) {
+			if(MIYamlFiles.config.getBoolean("separateGamemodeInventories", true) && (giveplayer.getGameMode() != gm)) {
+				String inventoryName = "CREATIVE";
+				if(GameMode.SURVIVAL == gm) {
+		    		inventoryName = "SURVIVAL";
+		    	}
+		        if (MIYamlFiles.config.getBoolean("useSQL")){
+		        	MIYamlFiles.con.saveInventory(giveplayer.getName(), MIPlayerListener.getGroup(world), inventory, inventoryName);
+		        	return true;
+		        }else{
+		            MIPlayerFile config = new MIPlayerFile(giveplayer, MIPlayerListener.getGroup(world));
+		            config.saveInventory(inventory, inventoryName);
+		            return true;
+		        }
+		        //If they are currently using the inventory, let's set it...
+			}else {
+				inventory.loadIntoInventory(giveplayer.getInventory());
+				if(offlineplayer) {
+					giveplayer.saveData();
+				}
+				return true;
+			}
+			//They aren't in the same world, so let's just save the inventory.
+		}else {
+			String inventoryName = "CREATIVE";
+			if(GameMode.SURVIVAL == gm) {
+	    		inventoryName = "SURVIVAL";
+	    	}
+			if(!MIYamlFiles.config.getBoolean("separateGamemodeInventories", true)) {
+	    		inventoryName = "SURVIVAL";
+	    	}
+	        if (MIYamlFiles.config.getBoolean("useSQL")){
+	        	MIYamlFiles.con.saveInventory(giveplayer.getName(), MIPlayerListener.getGroup(world), inventory, inventoryName);
+	        	return true;
+	        }else{
+	        	MIPlayerFile config = new MIPlayerFile(giveplayer, MIPlayerListener.getGroup(world));
+	            config.saveInventory(inventory, inventoryName);
+	            return true;
+	        }
+		}
+	}
+	
+	private Player getOfflinePlayer(String player) {
+		Player pplayer = null;
+		try {
+			//See if the player has data files
+
+			// Find the player folder
+			File playerfolder = new File(Bukkit.getWorlds().get(0).getWorldFolder(), "players");
+
+			// Find player name
+			for (File playerfile : playerfolder.listFiles()) {
+				String filename = playerfile.getName();
+				String playername = filename.substring(0, filename.length() - 4);
+
+				if(playername.trim().equalsIgnoreCase(player)) {
+					//This player plays on the server!
+					MinecraftServer server = ((CraftServer)this.plugin.getServer()).getServer();
+					EntityPlayer entity = new EntityPlayer(server, server.getWorldServer(0), playername, new ItemInWorldManager(server.getWorldServer(0)));
+					Player target = (entity == null) ? null : (Player) entity.getBukkitEntity();
+					if(target != null) {
+						target.loadData();
+						return target;
+					}
+				}
+			}
+		}
+		catch(Exception e) {
+			plugin.log.warning("Error while retrieving offline player data for player " + player + "!");
+			return null;
+		}
+		return pplayer;
 	}
 
 }
