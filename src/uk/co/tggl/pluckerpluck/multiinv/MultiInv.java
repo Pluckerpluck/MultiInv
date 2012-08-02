@@ -26,6 +26,7 @@ public class MultiInv extends JavaPlugin {
     // Initialize logger (auto implements enable/disable messages to console)
     public static MILogger log;
     public int xpversion = 0;
+    private MultiInvAPI api;
 
     // Listeners
     MIPlayerListener playerListener;
@@ -90,6 +91,11 @@ public class MultiInv extends JavaPlugin {
         	log.severe("Server Version String: " + getServer().getVersion());
         }
 
+        api = new MultiInvAPI(this);
+    }
+    
+    public MultiInvAPI getAPI() {
+    	return api;
     }
     
     public int[] getXP(int totalxp) {

@@ -136,12 +136,16 @@ public class MIPlayerListener implements Listener{
         miPlayer.loadExperience(group);
         miPlayer.loadInventory(group, player.getGameMode().toString());
     }
-
-    public String getGroup(World world){
-        String group = world.getName();
-        if (MIYamlFiles.groups.containsKey(group)){
+    
+    public static String getGroup(String world) {
+    	String group = world;
+    	if (MIYamlFiles.groups.containsKey(group)){
             group =  MIYamlFiles.groups.get(group);
         }
         return group;
+    }
+
+    public static String getGroup(World world){
+        return getGroup(world.getName());
     }
 }
