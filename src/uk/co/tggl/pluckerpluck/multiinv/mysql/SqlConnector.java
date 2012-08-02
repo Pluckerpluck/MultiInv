@@ -182,7 +182,7 @@ public class SqlConnector {
     }
 
     public float getSaturation(String player, String group){
-        double saturationDouble = 0;
+        double saturationDouble = 5;
         try {
         	Statement st = con.createStatement();
 	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
