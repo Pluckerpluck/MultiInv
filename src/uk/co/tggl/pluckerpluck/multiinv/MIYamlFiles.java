@@ -80,7 +80,7 @@ public class MIYamlFiles {
                 }
                 String allowenderchests = config.getString("allowEnderChestPlacement");
                 if(allowenderchests == null || allowenderchests.equals("")) {
-                	config.set("allowEnderChestPlacement", true);
+                	config.set("allowEnderChestPlacement", false);
                 	saveYamlFile(config, "config.yml");
                 }
                 if(config.getBoolean("useSQL", false)) {
