@@ -139,7 +139,7 @@ public class MIYamlFiles {
 
     }
 
-    private static void parseGroups(Configuration config){
+    public static void parseGroups(Configuration config){
     	worldgroups.clear();
         Set<String> keys = config.getKeys(false);
         for (String group : keys){
@@ -150,7 +150,7 @@ public class MIYamlFiles {
         }
     }
 
-    private static void saveYamlFile(YamlConfiguration yamlFile, String fileLocation){
+    public static void saveYamlFile(YamlConfiguration yamlFile, String fileLocation){
         File dataFolder =  Bukkit.getServer().getPluginManager().getPlugin(DefaultVals.pluginName).getDataFolder();
         File file = new File(dataFolder, fileLocation);
 
@@ -160,7 +160,7 @@ public class MIYamlFiles {
             e.printStackTrace();
         }
     }
-    private static YamlConfiguration loadYamlFile(String file){
+    public static YamlConfiguration loadYamlFile(String file){
         File dataFolder =  Bukkit.getServer().getPluginManager().getPlugin(DefaultVals.pluginName).getDataFolder();
         File yamlFile = new File(dataFolder, file);
 

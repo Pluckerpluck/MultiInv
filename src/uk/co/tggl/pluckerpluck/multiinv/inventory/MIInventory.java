@@ -36,6 +36,15 @@ public class MIInventory implements Serializable{
             MIArmourContents[i] = new MIItemStack(armourContents[i]);
         }
     }
+    
+    public MIInventory (ItemStack[] inventory, ItemStack[] armor) {
+    	for(int i = 0; i < inventory.length && i < 36; i++) {
+    		MIInventoryContents[i] = new MIItemStack(inventory[i]);
+    	}
+    	for(int i = 0; i < armor.length && i < 4; i++) {
+    		MIArmourContents[i] = new MIItemStack(armor[i]);
+    	}
+    }
 
     // Create an MIInventory from a string containing inventory data
     public MIInventory (String inventoryString){

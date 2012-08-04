@@ -49,9 +49,6 @@ public class MIPlayerFile {
             }
         }else{
             save();
-
-            // Why is this here?
-            System.out.println("Saved?");
         }
     }
 
