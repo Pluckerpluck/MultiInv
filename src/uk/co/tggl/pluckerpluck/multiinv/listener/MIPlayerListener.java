@@ -139,8 +139,8 @@ public class MIPlayerListener implements Listener{
     
     public static String getGroup(String world) {
     	String group = world;
-    	if (MIYamlFiles.groups.containsKey(group)){
-            group =  MIYamlFiles.groups.get(group);
+    	if (MIYamlFiles.getGroups().containsKey(group)){
+            group =  MIYamlFiles.getGroups().get(group);
         }
         return group;
     }

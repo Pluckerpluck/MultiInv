@@ -1,6 +1,7 @@
 package uk.co.tggl.pluckerpluck.multiinv;
 
 import java.io.File;
+import java.util.HashMap;
 
 import net.minecraft.server.EntityPlayer;
 import net.minecraft.server.ItemInWorldManager;
@@ -342,6 +343,10 @@ public class MultiInvAPI {
 	            return true;
 	        }
 		}
+	}
+	
+	public HashMap<String, String> getGroups() {
+		return MIYamlFiles.getGroups();
 	}
 	
 	private Player getOfflinePlayer(String player) {

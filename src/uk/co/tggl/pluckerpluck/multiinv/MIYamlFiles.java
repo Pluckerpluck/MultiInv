@@ -28,7 +28,7 @@ import java.sql.SQLException;
 public class MIYamlFiles {
     public static YamlConfiguration config;
     public static YamlConfiguration playerlogoutmap;
-    public static HashMap<String, String> groups = new HashMap<String, String>();
+    private static HashMap<String, String> groups = new HashMap<String, String>();
     public static HashMap<String, String> creativegroups = new HashMap<String, String>();
     public static ConcurrentHashMap<String, String> logoutworld = new ConcurrentHashMap<String, String>();
     
@@ -96,6 +96,10 @@ public class MIYamlFiles {
                 
         	}
         }
+    }
+    
+    public static HashMap<String, String> getGroups() {
+    	return groups;
     }
     
     public static void loadPlayerLogoutWorlds() {
