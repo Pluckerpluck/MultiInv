@@ -131,7 +131,7 @@ public class MultiInv extends JavaPlugin {
     }
 
     public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
-        MICommand.command(args, sender);
+        MICommand.command(args, sender, this);
         return true;
     }
 

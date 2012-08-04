@@ -33,13 +33,13 @@ import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayerFile;
  */
 public class MICommand {
 	
-	static MultiInv plugin;
+	MultiInv plugin;
 	
 	public MICommand(MultiInv plugin) {
-		MICommand.plugin = plugin;
+		plugin = plugin;
 	}
 
-    public static void command(String[] strings, CommandSender sender){
+    public static void command(String[] strings, CommandSender sender, MultiInv plugin){
     	Player player = null;
     	if(sender instanceof Player) {
     		player = (Player)sender;
@@ -69,7 +69,7 @@ public class MICommand {
             	}
             	
             }else if(command.equalsIgnoreCase("mvimport")) {
-            	Plugin p = MICommand.plugin.getServer().getPluginManager().getPlugin("Multiverse-Inventories");
+            	Plugin p = plugin.getServer().getPluginManager().getPlugin("Multiverse-Inventories");
         		if(p == null){
             		sender.sendMessage(ChatColor.DARK_RED + "I'm sorry, Multiverse-Inventories isn't loaded... Import aborted.");
         		} else {
