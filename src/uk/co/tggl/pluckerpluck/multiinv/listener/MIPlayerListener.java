@@ -59,6 +59,10 @@ public class MIPlayerListener implements Listener{
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerChangedWorld(PlayerChangedWorldEvent event){
+    	//No need to run this twice!
+    	if(MIYamlFiles.config.getBoolean("compatibilityMode")) {
+    		return;
+    	}
         // Get player objects
         Player player = event.getPlayer();
         if(player.hasPermission("multiinv.exempt")) {
