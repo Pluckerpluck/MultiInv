@@ -95,7 +95,7 @@ public class MIPlayerListener implements Listener{
     	}
     	//Only do this if they have problem plugins.
     	if(MIYamlFiles.config.getBoolean("compatibilityMode")) {
-    		if(event.getFrom().getWorld() == event.getTo().getWorld()) {
+    		if(event.getFrom().getWorld() != event.getTo().getWorld()) {
     			// Get player objects
     	        Player player = event.getPlayer();
     	        if(player.hasPermission("multiinv.exempt")) {
