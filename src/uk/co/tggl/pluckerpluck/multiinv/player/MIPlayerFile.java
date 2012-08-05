@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventoryOld;
-import uk.co.tggl.pluckerpluck.multiinv.spout.AdminPopup;
 
 import java.io.File;
 

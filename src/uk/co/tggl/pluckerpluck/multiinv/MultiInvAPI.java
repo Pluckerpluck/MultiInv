@@ -8,16 +8,13 @@ import net.minecraft.server.ItemInWorldManager;
 import net.minecraft.server.MinecraftServer;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIItemStack;
 import uk.co.tggl.pluckerpluck.multiinv.listener.MIPlayerListener;
-import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayer;
 import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayerFile;
 
 public class MultiInvAPI {
@@ -123,7 +120,7 @@ public class MultiInvAPI {
 									return new MIInventory(target.getInventory());
 								}
 							}else {
-								plugin.log.warning(playername + " not found!");
+								MultiInv.log.warning(playername + " not found!");
 								return null;
 							}
 							//They aren't in the same world group, so let's just grab it from the file.
@@ -148,7 +145,7 @@ public class MultiInvAPI {
 				}
 			}
 			catch(Exception e) {
-				plugin.log.warning("Error while retrieving offline player data for player " + player + "!");
+				MultiInv.log.warning("Error while retrieving offline player data for player " + player + "!");
 				return null;
 			}
 		}
@@ -379,7 +376,7 @@ public class MultiInvAPI {
 			}
 		}
 		catch(Exception e) {
-			plugin.log.warning("Error while retrieving offline player data for player " + player + "!");
+			MultiInv.log.warning("Error while retrieving offline player data for player " + player + "!");
 			return null;
 		}
 		return pplayer;

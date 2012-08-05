@@ -22,12 +22,12 @@ public class DeferredWorldCheck implements Runnable  {
 			//Let's see if the player is in a world that doesn't exist anymore...
 	        if(MIYamlFiles.logoutworld.containsKey(player.getName())) {
 	        	 MultiInv.log.debug(player.getName() + " has logged in in world " + player.getWorld().getName() + ". Logout world was: " + MIYamlFiles.logoutworld.get(player.getName()));
-	            if(listener.getGroup(player.getWorld()) != MIYamlFiles.logoutworld.get(player.getName())) {
+	            if(MIPlayerListener.getGroup(player.getWorld()) != MIYamlFiles.logoutworld.get(player.getName())) {
 	            	//If they aren't in the same world they logged out of let's save their current inventory
 	    	    	listener.savePlayerState(player, MIYamlFiles.logoutworld.get(player.getName()));
 	    	    	//and switch them to the correct inventory for this world.
-	    	    	listener.loadPlayerState(player, listener.getGroup(player.getWorld()));
-	    	    	MIYamlFiles.savePlayerLogoutWorld(player.getName(), listener.getGroup(player.getWorld()));
+	    	    	listener.loadPlayerState(player, MIPlayerListener.getGroup(player.getWorld()));
+	    	    	MIYamlFiles.savePlayerLogoutWorld(player.getName(), MIPlayerListener.getGroup(player.getWorld()));
 	            }
 	        }
 		}

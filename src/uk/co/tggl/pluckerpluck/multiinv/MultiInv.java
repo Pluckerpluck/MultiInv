@@ -1,18 +1,13 @@
 package uk.co.tggl.pluckerpluck.multiinv;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import uk.co.tggl.pluckerpluck.multiinv.command.MICommand;
 import uk.co.tggl.pluckerpluck.multiinv.listener.MIEnderChest;
 import uk.co.tggl.pluckerpluck.multiinv.listener.MIPlayerListener;
 import uk.co.tggl.pluckerpluck.multiinv.logger.MILogger;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Created by IntelliJ IDEA.
@@ -40,9 +35,6 @@ public class MultiInv extends JavaPlugin {
     public void onEnable() {
         // Initialize Logger
         log = new MILogger();
-
-        // Get the description file containing plugin information
-        PluginDescriptionFile pdfFile = this.getDescription();
 
         // Load yaml files
         MIYamlFiles.loadConfig();

@@ -21,8 +21,8 @@ public class DeferredInvSwitch implements Runnable {
 			//If they aren't in the same world they logged out of let's save their current inventory
 	    	listener.savePlayerState(player, MIYamlFiles.logoutworld.get(player.getName()));
 	    	//and switch them to the correct inventory for this world.
-	    	listener.loadPlayerState(player, listener.getGroup(player.getWorld()));
-	    	MIYamlFiles.savePlayerLogoutWorld(player.getName(), listener.getGroup(player.getWorld()));
+	    	listener.loadPlayerState(player, MIPlayerListener.getGroup(player.getWorld()));
+	    	MIYamlFiles.savePlayerLogoutWorld(player.getName(), MIPlayerListener.getGroup(player.getWorld()));
 		}
 	}
 }

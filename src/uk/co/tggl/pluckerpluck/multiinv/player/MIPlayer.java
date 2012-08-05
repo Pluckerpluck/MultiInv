@@ -148,10 +148,10 @@ public class MIPlayer{
         	//clear the levels
         	//since the set total experience has a bug, let's just do it this way...
         	int[] levels = plugin.getXP(MIYamlFiles.con.getTotalExperience(player.getName(), group));
-            plugin.log.debug("Setting player level to: " + levels[0]);
+            MultiInv.log.debug("Setting player level to: " + levels[0]);
         	player.setLevel(levels[0]);
         	player.setTotalExperience(MIYamlFiles.con.getTotalExperience(player.getName(), group));
-            plugin.log.debug("Setting player xp to: " + levels[1]);
+            MultiInv.log.debug("Setting player xp to: " + levels[1]);
         	player.setExp((float)((float)levels[1]/(float)levels[2]));
             //player.setTotalExperience(MIYamlFiles.con.getTotalExperience(player.getName(), group));
             //player.setExp(MIYamlFiles.con.getExperience(player.getName(), group));
