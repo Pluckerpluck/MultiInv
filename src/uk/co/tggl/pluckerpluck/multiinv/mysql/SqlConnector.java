@@ -7,6 +7,7 @@ import java.sql.Statement;
 
 import org.bukkit.GameMode;
 
+import uk.co.tggl.pluckerpluck.multiinv.inventory.MIEnderchestInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 
 public class SqlConnector {
@@ -24,6 +25,22 @@ public class SqlConnector {
 		try {
 			st = con.createStatement();
 	        ResultSet rs = st.executeQuery("show tables like '" + prefix + "multiinv'");
+	        if(rs.next()) {
+	        	return true;
+	        }else {
+	        	return false;
+	        }
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public boolean chestTableExists() {
+		Statement st;
+		try {
+			st = con.createStatement();
+	        ResultSet rs = st.executeQuery("show tables like '" + prefix + "enderchestinv'");
 	        if(rs.next()) {
 	        	return true;
 	        }else {
@@ -59,6 +76,43 @@ public class SqlConnector {
 		}
 	}
 	
+	public boolean createChestTable() {
+		Statement st;
+		try {
+			st = con.createStatement();
+	        st.executeUpdate("CREATE TABLE `" + prefix + "enderchestinv` (" +
+	        		"`inv_id` INT( 11 ) NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
+	        		"`inv_group` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL COMMENT 'Inventory group.', " +
+	        		"`chest_player` VARCHAR( 16 ) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL COMMENT 'Minecraft player name.', " +
+	        		"`chest_survival` text NOT NULL, " +
+	        		"`chest_creative` text NOT NULL, " +
+	        		"`chest_adventure` text NOT NULL, " +
+	        		"UNIQUE KEY `unique_player_group` ( `chest_player` , `inv_group` ) ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
+	        return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+
+	
+	public MIEnderchestInventory getEnderchestInventory(String player, String group, String inventoryName) {
+        // Get stored string from configuration file
+        MIEnderchestInventory inventory = new MIEnderchestInventory((String)null);
+        try {
+        	Statement st = con.createStatement();
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "enderchestinv WHERE chest_player='" + player + "' AND inv_group='" + group + "'");
+	        if(rs.next()) {
+	        	String inventoryString = rs.getString("chest_" + inventoryName.toLowerCase());
+	            inventory = new MIEnderchestInventory(inventoryString);
+	        }
+		} catch (SQLException e) {
+			//e.printStackTrace();
+		}
+		return inventory;
+    }
+	
 	public MIInventory getInventory(String player, String group, String inventoryName) {
         // Get stored string from configuration file
         MIInventory inventory = new MIInventory((String)null);
@@ -74,8 +128,6 @@ public class SqlConnector {
 		}
 		return inventory;
     }
-	
-
 
     public void saveInventory(String player, String group, MIInventory inventory, String inventoryName){
         String inventoryString = inventory.toString();
@@ -84,6 +136,18 @@ public class SqlConnector {
         try {
         	Statement st = con.createStatement();
 	        st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_" + inventoryName.toLowerCase() + "='" + inventoryString + "' WHERE inv_player='"+ player + "' AND inv_group='" + group + "'");
+	    } catch (SQLException e) {
+			e.printStackTrace();
+		}
+    }
+
+    public void saveEnderchestInventory(String player, String group, MIEnderchestInventory inventory, String inventoryName){
+        String inventoryString = inventory.toString();
+        //Call this just to make sure the player record has been created.
+        createRecord(player, group);
+        try {
+        	Statement st = con.createStatement();
+	        st.executeUpdate("UPDATE " + prefix + "enderchestinv SET inv_" + inventoryName.toLowerCase() + "='" + inventoryString + "' WHERE chest_player='"+ player + "' AND inv_group='" + group + "'");
 	    } catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -99,6 +163,22 @@ public class SqlConnector {
 	        if(!rs.next()) {
 	        	st.executeUpdate("INSERT INTO " + prefix + "multiinv (inv_player, inv_group, inv_gamemode, inv_health, inv_hunger, inv_saturation, inv_level, inv_experience, inv_survival, inv_creative) " +
 	        			"VALUES('" + player + "', '" + group + "', 'SURVIVAL', 20, 20, 5, 0, 0, '', '')");
+	        }
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    }
+    
+    public void createChestRecord(String player, String group) {
+    	if(!chestTableExists()) {
+    		createChestTable();
+    	}
+    	try {
+        	Statement st = con.createStatement();
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "enderchestinv WHERE chest_player='" + player + "' AND inv_group='" + group + "'");
+	        if(!rs.next()) {
+	        	st.executeUpdate("INSERT INTO " + prefix + "enderchestinv (chest_player, inv_group, chest_survival, chest_creative) " +
+	        			"VALUES('" + player + "', '" + group + "', '', '')");
 	        }
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -220,35 +300,6 @@ public class SqlConnector {
 		}
         return experience;
     }
-
-    /*public int getLevel(String player, String group){
-    	int level = 0;
-    	try {
-        	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM '" + prefix + "multiinv' WHERE inv_player='" + player + "', inv_group='" + group + "'");
-	        if(rs.next()) {
-	        	level = rs.getInt("inv_level");
-	        }
-		} catch (SQLException e) {
-			//e.printStackTrace();
-		}
-        return level;
-    }
-
-    public float getExperience(String player, String group){
-        double expDouble = 0;
-        try {
-        	Statement st = con.createStatement();
-	        ResultSet rs = st.executeQuery("SELECT * FROM '" + prefix + "multiinv' WHERE inv_player='" + player + "', inv_group='" + group + "'");
-	        if(rs.next()) {
-	        	expDouble = rs.getDouble("inv_exp");
-	        }
-		} catch (SQLException e) {
-			//e.printStackTrace();
-		}
-        float exp = (float)expDouble;
-        return exp;
-    }*/
 
     public void saveExperience(String player, String group, int experience){
     	//Call this just to make sure the player record has been created.
