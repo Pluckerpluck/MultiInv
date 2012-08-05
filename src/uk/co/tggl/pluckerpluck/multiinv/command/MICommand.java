@@ -160,6 +160,8 @@ public class MICommand {
     	            MIYamlFiles.parseGroups(groups);
     	            //Once the import is done let's disable MultiVerse-Inventories.
     	            Bukkit.getPluginManager().disablePlugin(mvinventories);
+            		sender.sendMessage(ChatColor.DARK_GREEN + "Multiverse-Inventories inventories imported successfuly!");
+            		sender.sendMessage(ChatColor.DARK_GREEN + "Please disable/delete Multiverse-Inventories now.");
         		}
             }
     	}
