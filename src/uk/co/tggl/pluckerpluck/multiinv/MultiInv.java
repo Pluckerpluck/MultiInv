@@ -131,6 +131,39 @@ public class MultiInv extends JavaPlugin {
     	}
     	return new int[]{level, leftoverexp, xpneededforlevel};
     }
+    
+    public int getTotalXP(int level, float xp) {
+    	int atlevel = 0;
+    	int totalxp = 0;
+    	int xpneededforlevel = 0;
+    	if(xpversion == 1) {
+    		xpneededforlevel = 17;
+    		while(atlevel < level) {
+    			level++;
+    			totalxp += xpneededforlevel;
+    			if(level >= 16) {
+    				xpneededforlevel += 3;
+    			}
+    		}
+    		//We only have 2 versions at the moment
+    	}else {
+    		xpneededforlevel = 7;
+        	boolean odd = true;
+        	while(atlevel < level) {
+        		level++;
+        		totalxp += xpneededforlevel;
+        		if(odd) {
+        			xpneededforlevel += 3;
+        			odd = false;
+        		}else {
+        			xpneededforlevel += 4;
+        			odd = true;
+        		}
+        	}
+    	}
+    	totalxp += (xp*xpneededforlevel);
+    	return totalxp;
+    }
 
     public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
         MICommand.command(args, sender, this);

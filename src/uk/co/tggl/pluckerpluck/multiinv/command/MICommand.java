@@ -1,9 +1,18 @@
 package uk.co.tggl.pluckerpluck.multiinv.command;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+import me.drayshak.WorldInventories.Group;
+import me.drayshak.WorldInventories.WIPlayerInventory;
+import me.drayshak.WorldInventories.WIPlayerStats;
+import me.drayshak.WorldInventories.WorldInventories;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -163,8 +172,218 @@ public class MICommand {
             		sender.sendMessage(ChatColor.DARK_GREEN + "Multiverse-Inventories inventories imported successfuly!");
             		sender.sendMessage(ChatColor.DARK_GREEN + "Please disable/delete Multiverse-Inventories now.");
         		}
+            }else if(command.equalsIgnoreCase("miimport")) {
+            	Plugin p = plugin.getServer().getPluginManager().getPlugin("WorldInventories");
+        		if(p == null){
+            		sender.sendMessage(ChatColor.DARK_RED + "I'm sorry, WorldInventories isn't loaded... Import aborted.");
+        		} else {
+        			WorldInventories mvinventories;
+        			try {
+        				mvinventories = (WorldInventories)p;
+        			}catch (Exception e) {
+        				MultiInv.log.severe("Unable to import inventories from WorldInventories.");
+                		sender.sendMessage(ChatColor.DARK_RED + "I'm sorry, something funky happened... Import aborted.");
+                		return;
+        			}
+        			ArrayList<Group> mvgroups = mvinventories.groups;
+    	            YamlConfiguration groups = new YamlConfiguration();
+    	            MIYamlFiles.getGroups().clear();
+        			for(Group mvgroup : mvgroups) {
+        				List<String> mvworlds = mvgroup.getWorlds();
+        				ArrayList<String> exampleGroup = new ArrayList<String>();
+        				for(String world : mvworlds) {
+            	            exampleGroup.add(world);
+            	            MIYamlFiles.getGroups().put(world, mvgroup.getName());
+        				}
+        				String group = mvgroup.getName();
+        	            groups.set(group, exampleGroup);
+        	            MIYamlFiles.saveYamlFile(groups, "groups.yml");
+        	            for (OfflinePlayer player1 : Bukkit.getServer().getOfflinePlayers()) {
+        	            	WIPlayerInventory playerdata = loadWorldInventoryPlayerInventory(player1, mvgroup, mvinventories);
+        	            	WIPlayerStats playerstats = loadWorldInventoryPlayerStats(player1, mvgroup, mvinventories);
+            	            if(playerdata != null) {
+            	            	ItemStack[] inventory = playerdata.getItems();
+            	            	ItemStack[] armor = playerdata.getArmour();
+            	            	int health = 20;
+            	            	int hunger = 20;
+            	            	float saturation = 5;
+            	            	int totalexp = 0;
+            	            	int level = 0;
+            	            	float exp = 0;
+            	            	if(playerstats != null) {
+                	            	health = playerstats.getHealth();
+                	            	hunger = playerstats.getFoodLevel();
+                	            	saturation = playerstats.getSaturation();
+                	            	level = playerstats.getLevel();
+                	            	exp = playerstats.getExp();
+                	            	totalexp = plugin.getTotalXP(level, exp);
+            	            	}
+            	            	 if (MIYamlFiles.config.getBoolean("useSQL")){
+            	            		 MIYamlFiles.con.saveInventory(player.getName(), group, new MIInventory(inventory, armor), "SURVIVAL");
+            	            		 MIYamlFiles.con.saveHealth(player.getName(), group, health);
+            	            		 MIYamlFiles.con.saveHunger(player.getName(), group, hunger);
+            	            		 MIYamlFiles.con.saveSaturation(player.getName(), group, saturation);
+            	            		 MIYamlFiles.con.saveExperience(player.getName(), group, totalexp);
+            	            	 }else {
+            	            		 MIPlayerFile config = new MIPlayerFile(player1.getName(), group);
+            	                     config.saveInventory(new MIInventory(inventory, armor), "SURVIVAL");
+            	                     config.saveHealth(health);
+            	                     config.saveHunger(hunger);
+            	                     config.saveSaturation(saturation);
+            	                     config.saveExperience(totalexp, level, exp);
+            	            	 }
+            	            }
+        	            }
+        			}
+        			
+        			//Now to emulate WorldInventories behavior with worlds not in a group.
+    				ArrayList<String> exampleGroup = new ArrayList<String>();
+        			for (World world : Bukkit.getWorlds()) {
+                        String worldName = world.getName();
+                        if(!MIYamlFiles.getGroups().containsKey(worldName)) {
+                        	exampleGroup.add(worldName);
+            	            MIYamlFiles.getGroups().put(worldName, "default");
+                        }
+                    }
+        			//If there are no worlds that aren't in a group, just go ahead and skip this.
+        			if(!exampleGroup.isEmpty()) {
+        				String group = "default";
+            			groups.set("default", exampleGroup);
+        	            MIYamlFiles.saveYamlFile(groups, "groups.yml");
+        	            for (OfflinePlayer player1 : Bukkit.getServer().getOfflinePlayers()) {
+        	            	WIPlayerInventory playerdata = loadWorldInventoryPlayerInventory(player1, null, mvinventories);
+        	            	WIPlayerStats playerstats = loadWorldInventoryPlayerStats(player1, null, mvinventories);
+            	            if(playerdata != null) {
+            	            	ItemStack[] inventory = playerdata.getItems();
+            	            	ItemStack[] armor = playerdata.getArmour();
+            	            	int health = 20;
+            	            	int hunger = 20;
+            	            	float saturation = 5;
+            	            	int totalexp = 0;
+            	            	int level = 0;
+            	            	float exp = 0;
+            	            	if(playerstats != null) {
+                	            	health = playerstats.getHealth();
+                	            	hunger = playerstats.getFoodLevel();
+                	            	saturation = playerstats.getSaturation();
+                	            	level = playerstats.getLevel();
+                	            	exp = playerstats.getExp();
+                	            	totalexp = plugin.getTotalXP(level, exp);
+            	            	}
+            	            	 if (MIYamlFiles.config.getBoolean("useSQL")){
+            	            		 MIYamlFiles.con.saveInventory(player.getName(), group, new MIInventory(inventory, armor), "SURVIVAL");
+            	            		 MIYamlFiles.con.saveHealth(player.getName(), group, health);
+            	            		 MIYamlFiles.con.saveHunger(player.getName(), group, hunger);
+            	            		 MIYamlFiles.con.saveSaturation(player.getName(), group, saturation);
+            	            		 MIYamlFiles.con.saveExperience(player.getName(), group, totalexp);
+            	            	 }else {
+            	            		 MIPlayerFile config = new MIPlayerFile(player1.getName(), group);
+            	                     config.saveInventory(new MIInventory(inventory, armor), "SURVIVAL");
+            	                     config.saveHealth(health);
+            	                     config.saveHunger(hunger);
+            	                     config.saveSaturation(saturation);
+            	                     config.saveExperience(totalexp, level, exp);
+            	            	 }
+            	            }
+        	            }
+        			}
+        			//Once the groups are loaded, let's load them into MultiInv
+    	            MIYamlFiles.parseGroups(groups);
+    	            //Once the import is done let's disable WorldInventories.
+    	            Bukkit.getPluginManager().disablePlugin(mvinventories);
+            		sender.sendMessage(ChatColor.DARK_GREEN + "WorldInventories inventories imported successfuly!");
+            		sender.sendMessage(ChatColor.DARK_GREEN + "Please disable/delete WorldInventories now.");
+        		}
             }
     	}
+    }
+    
+    private static WIPlayerInventory loadWorldInventoryPlayerInventory(OfflinePlayer player, Group group, WorldInventories plugin) {
+        WIPlayerInventory playerInventory = null;
+
+        FileInputStream fIS = null;
+        ObjectInputStream obIn = null;
+
+        String path = File.separator;
+
+        // Use default group
+        if (group == null) {
+            path += "default";
+        } else {
+            path += group.getName();
+        }
+
+        path = plugin.getDataFolder().getAbsolutePath() + path + File.separator + player.getName() + ".inventory";;
+
+        File file = new File(path);
+        if (file == null) {
+            return null;
+        }
+        try {
+            fIS = new FileInputStream(file);
+            obIn = new ObjectInputStream(fIS);
+            playerInventory = (WIPlayerInventory) obIn.readObject();
+        } catch (Exception ignore) {
+        } finally {
+            if (obIn != null) {
+                try {
+                    obIn.close();
+                } catch (IOException ignore) {
+                }
+            }
+            if (fIS != null) {
+                try {
+                    fIS.close();
+                } catch (IOException ignore) {
+                }
+            }
+        }
+
+        return playerInventory;
+    }
+    
+    private static WIPlayerStats loadWorldInventoryPlayerStats(OfflinePlayer player, Group group, WorldInventories plugin) {
+        WIPlayerStats playerstats = null;
+
+        FileInputStream fIS = null;
+        ObjectInputStream obIn = null;
+
+        String path = File.separator;
+
+        // Use default group
+        if (group == null) {
+            path += "default";
+        } else {
+            path += group.getName();
+        }
+
+        path = plugin.getDataFolder().getAbsolutePath() + path + File.separator + player.getName() + ".stats";;
+
+        File file = new File(path);
+        if (file == null) {
+            return null;
+        }
+        try {
+            fIS = new FileInputStream(file);
+            obIn = new ObjectInputStream(fIS);
+            playerstats = (WIPlayerStats) obIn.readObject();
+        } catch (Exception ignore) {
+        } finally {
+            if (obIn != null) {
+                try {
+                    obIn.close();
+                } catch (IOException ignore) {
+                }
+            }
+            if (fIS != null) {
+                try {
+                    fIS.close();
+                } catch (IOException ignore) {
+                }
+            }
+        }
+
+        return playerstats;
     }
 
 	private static boolean importInventories() {
