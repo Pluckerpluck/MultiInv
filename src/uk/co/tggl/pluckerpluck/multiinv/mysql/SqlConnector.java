@@ -99,7 +99,7 @@ public class SqlConnector {
 	
 	public MIEnderchestInventory getEnderchestInventory(String player, String group, String inventoryName) {
         // Get stored string from configuration file
-        MIEnderchestInventory inventory = new MIEnderchestInventory((String)null);
+        MIEnderchestInventory inventory = null;
         try {
         	Statement st = con.createStatement();
 	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "enderchestinv WHERE chest_player='" + player + "' AND inv_group='" + group + "'");
@@ -144,10 +144,10 @@ public class SqlConnector {
     public void saveEnderchestInventory(String player, String group, MIEnderchestInventory inventory, String inventoryName){
         String inventoryString = inventory.toString();
         //Call this just to make sure the player record has been created.
-        createRecord(player, group);
+        createChestRecord(player, group);
         try {
         	Statement st = con.createStatement();
-	        st.executeUpdate("UPDATE " + prefix + "enderchestinv SET inv_" + inventoryName.toLowerCase() + "='" + inventoryString + "' WHERE chest_player='"+ player + "' AND inv_group='" + group + "'");
+	        st.executeUpdate("UPDATE " + prefix + "enderchestinv SET chest_" + inventoryName.toLowerCase() + "='" + inventoryString + "' WHERE chest_player='"+ player + "' AND inv_group='" + group + "'");
 	    } catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -177,8 +177,8 @@ public class SqlConnector {
         	Statement st = con.createStatement();
 	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "enderchestinv WHERE chest_player='" + player + "' AND inv_group='" + group + "'");
 	        if(!rs.next()) {
-	        	st.executeUpdate("INSERT INTO " + prefix + "enderchestinv (chest_player, inv_group, chest_survival, chest_creative) " +
-	        			"VALUES('" + player + "', '" + group + "', '', '')");
+	        	st.executeUpdate("INSERT INTO " + prefix + "enderchestinv (chest_player, inv_group, chest_survival, chest_creative, chest_adventure) " +
+	        			"VALUES('" + player + "', '" + group + "', '', '', '')");
 	        }
 		} catch (SQLException e) {
 			e.printStackTrace();
