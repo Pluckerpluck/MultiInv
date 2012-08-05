@@ -83,6 +83,11 @@ public class MIYamlFiles {
                 	config.set("allowEnderChestPlacement", false);
                 	saveYamlFile(config, "config.yml");
                 }
+                String compatibilitymode = config.getString("compatibilityMode");
+                if(compatibilitymode == null || compatibilitymode.equals("")) {
+                	config.set("compatibilityMode", false);
+                	saveYamlFile(config, "config.yml");
+                }
                 if(config.getBoolean("useSQL", false)) {
                     try {
                     	String url = "jdbc:mysql://" + config.getString("sql.host", "localhost") + ":" + config.getString("sql.port", "3306") + "/" + config.getString("sql.database", "database") + "?autoReconnect=true";

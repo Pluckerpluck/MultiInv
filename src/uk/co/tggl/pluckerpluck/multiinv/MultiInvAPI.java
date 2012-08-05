@@ -345,6 +345,10 @@ public class MultiInvAPI {
 		}
 	}
 	
+	/**
+	 * Returns a hashmap of worlds and what group they are in. Format: ( world, group).
+	 * @return All worlds and their assigned groups.
+	 */
 	public HashMap<String, String> getGroups() {
 		return MIYamlFiles.getGroups();
 	}

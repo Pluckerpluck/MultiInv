@@ -10,6 +10,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 import uk.co.tggl.pluckerpluck.multiinv.player.DeferredWorldCheck;
@@ -84,6 +86,45 @@ public class MIPlayerListener implements Listener{
             //Save the player's current world
             MIYamlFiles.savePlayerLogoutWorld(player.getName(), groupTo);
         }
+    }
+    
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+    	if(event.isCancelled()) {
+    		return;
+    	}
+    	//Only do this if they have problem plugins.
+    	if(MIYamlFiles.config.getBoolean("compatibilityMode")) {
+    		if(event.getFrom().getWorld() == event.getTo().getWorld()) {
+    			// Get player objects
+    	        Player player = event.getPlayer();
+    	        if(player.hasPermission("multiinv.exempt")) {
+    	        	return;
+    	        }
+    	        MIPlayer miPlayer = players.get(player.getName());
+
+    	        // Get world objects
+    	        World worldTo = event.getTo().getWorld();
+    	        World worldFrom = event.getFrom().getWorld();
+
+    	        // Get corresponding groups
+    	        String groupTo = getGroup(worldTo);
+    	        String groupFrom = getGroup(worldFrom);
+
+    	        MultiInv.log.debug(player.getName() + " moved from " + groupFrom + " to " + groupTo);
+
+    	        if (!groupTo.equals(groupFrom) && !miPlayer.isIgnored()){
+    	        	//Let's put this player in the pool of players that switched worlds, that way we don't dupe the inventory.
+    	        	playerchangeworlds.put(player.getName(), new Boolean(true));
+    	        	//Let's schedule it so that we take the player out soon afterwards.
+    	        	player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemovePlayer(player.getName(), playerchangeworlds), 1);
+    	            savePlayerState(player, groupFrom);
+    	            loadPlayerState(player, groupTo);
+    	            //Save the player's current world
+    	            MIYamlFiles.savePlayerLogoutWorld(player.getName(), groupTo);
+    	        }
+    		}
+    	}
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
