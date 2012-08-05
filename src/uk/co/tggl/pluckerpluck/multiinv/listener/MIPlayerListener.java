@@ -2,14 +2,17 @@ package uk.co.tggl.pluckerpluck.multiinv.listener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
@@ -128,6 +131,28 @@ public class MIPlayerListener implements Listener{
     	            MIYamlFiles.savePlayerLogoutWorld(player.getName(), groupTo);
     	        }
     		}
+    	}
+    }
+    
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerDeath(PlayerRespawnEvent event) {
+    	if(!MIYamlFiles.config.getBoolean("compatibilityMode")) {
+    		return;
+    	}
+    	Location respawn = event.getRespawnLocation();
+    	Player player = event.getPlayer();
+    	if(respawn.getWorld() != player.getWorld()) {
+    		String groupTo = getGroup(respawn.getWorld());
+	        String groupFrom = getGroup(player.getWorld());
+	        MIPlayer miPlayer = players.get(player.getName());
+	        miPlayer.saveInventory(groupFrom, player.getGameMode().toString());
+	        miPlayer.saveFakeHealth(groupFrom, 20);
+	        miPlayer.saveFakeHunger(groupFrom, 20, 5);
+	        miPlayer.saveGameMode(groupFrom);
+	        miPlayer.saveExperience(groupFrom);
+            loadPlayerState(player, groupTo);
+            //Save the player's current world
+            MIYamlFiles.savePlayerLogoutWorld(player.getName(), groupTo);
     	}
     }
 

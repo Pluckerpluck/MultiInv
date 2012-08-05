@@ -81,6 +81,23 @@ public class MIPlayer{
             player.setHealth(config.getHealth());
         }
     }
+    
+    /* This is needed because of the new compatibility mode.
+     * The death teleport event has the health set to -980 or
+     * so making it throw an error.
+     */
+    public void saveFakeHealth(String group, int value) {
+    	if (MIYamlFiles.config.getBoolean("useSQL")){
+        	if(value < 0) {
+        		MIYamlFiles.con.saveHealth(player.getName(), group, 0);
+        	}else {
+            	MIYamlFiles.con.saveHealth(player.getName(), group, value);
+        	}
+        }else{
+            MIPlayerFile config = new MIPlayerFile(player, group);
+            config.saveHealth(value);
+        }
+    }
 
     public void saveHealth(String group){
         if (MIYamlFiles.config.getBoolean("useSQL")){
@@ -131,6 +148,17 @@ public class MIPlayer{
         }
     }
 
+    public void saveFakeHunger(String group, int hunger, float saturation){
+        if (MIYamlFiles.config.getBoolean("useSQL")){
+        	MIYamlFiles.con.saveHunger(player.getName(), group, hunger);
+        	MIYamlFiles.con.saveSaturation(player.getName(), group, saturation);
+        }else{
+            MIPlayerFile config = new MIPlayerFile(player, group);
+            config.saveHunger(hunger);
+            config.saveSaturation(saturation);
+        }
+    }
+    
     public void saveHunger(String group){
         if (MIYamlFiles.config.getBoolean("useSQL")){
         	MIYamlFiles.con.saveHunger(player.getName(), group, player.getFoodLevel());
