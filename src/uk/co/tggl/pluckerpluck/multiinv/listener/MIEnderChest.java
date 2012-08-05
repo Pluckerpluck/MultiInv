@@ -23,15 +23,17 @@ import org.bukkit.inventory.ItemStack;
 
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
+import uk.co.tggl.pluckerpluck.multiinv.inventory.DeferredEnderchestSave;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIEnderchestInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
+import uk.co.tggl.pluckerpluck.multiinv.player.DeferredWorldCheck;
 
 public class MIEnderChest implements Listener {
 	
 	MultiInv plugin;
 	
 	public MIEnderChest(MultiInv plugin) {
-	    MIPlayerListener.plugin = plugin;
+	    this.plugin = plugin;
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -71,12 +73,15 @@ public class MIEnderChest implements Listener {
 		        File dataFolder =  Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder();
 		        File worldsFolder = new File(dataFolder, "Groups");
 		        File file = new File(worldsFolder, group + File.separator + player.getName() + ".ec.yml");
-		        String playername = player.getName();
 		        YamlConfiguration playerFile = new YamlConfiguration();
 		        if (file.exists()){
 		            try{
 		                playerFile.load(file);
 		                String sinventory = playerFile.getString(inventoryName, null);
+		                if(sinventory == null || sinventory == "") {
+		                	inventory.clear();
+		                	return;
+		                }
 		                inventorystring = new MIEnderchestInventory(sinventory);
 		            }catch (Exception e){
 		                e.printStackTrace();
@@ -107,10 +112,9 @@ public class MIEnderChest implements Listener {
 		if(event.isCancelled()) {
 			return;
 		}
-		if(event.getInventory().getType() == InventoryType.ENDER_CHEST /*&& event.getRawSlot() < 27*/) {
+		if(event.getInventory().getType() == InventoryType.ENDER_CHEST) {
 			HumanEntity player = event.getWhoClicked();
 			String group = MIPlayerListener.getGroup(player.getWorld());
-			MIEnderchestInventory inventorystring = null;
 			String inventoryName = "";
 			if(player.getGameMode() == GameMode.SURVIVAL) {
 				inventoryName = "SURVIVAL";
@@ -123,36 +127,8 @@ public class MIEnderChest implements Listener {
 	    		inventoryName = "SURVIVAL";
 	    	}
 			Inventory inventory = event.getInventory();
-			MIEnderchestInventory miinventory = new MIEnderchestInventory(inventory);
-			if(MIYamlFiles.config.getBoolean("useSQL")) {
-				MIYamlFiles.con.saveEnderchestInventory(player.getName(), group, miinventory, inventoryName);
-			}else {
-				// Find and load configuration file for the player's enderchest
-		        File dataFolder =  Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder();
-		        File worldsFolder = new File(dataFolder, "Groups");
-		        File file = new File(worldsFolder, group + File.separator + player.getName() + ".ec.yml");
-		        String playername = player.getName();
-		        YamlConfiguration playerFile = new YamlConfiguration();
-		        if (file.exists()){
-		            try{
-		                playerFile.load(file);
-		            }catch (Exception e){
-		                e.printStackTrace();
-		                //To avoid problems where inventories inadvertently cross on error, wipe chest contents.
-		                event.getInventory().clear();
-		                return;
-		            }
-		        }
-		        String inventoryString = inventory.toString();
-                playerFile.set(inventoryName, inventoryString);
-                String folder = file.getParentFile().getName();
-                MultiInv.log.debug("Saving " + playername + "'s " + inventoryName + " Enderchest inventory to " + folder);
-                try {
-					playerFile.save(file);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+			//For some reason, we get the inventory before the interaction, but we need it afterwards, so let's delay it one tick.
+			plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new DeferredEnderchestSave(inventory, player, group, inventoryName), 1);
 		}
 	}
 	
@@ -189,12 +165,10 @@ public class MIEnderChest implements Listener {
 		                playerFile.load(file);
 		            }catch (Exception e){
 		                e.printStackTrace();
-		                //To avoid problems where inventories inadvertently cross on error, wipe chest contents.
-		                event.getInventory().clear();
 		                return;
 		            }
 		        }
-		        String inventoryString = inventory.toString();
+		        String inventoryString = new MIEnderchestInventory(inventory).toString();
                 playerFile.set(inventoryName, inventoryString);
                 String folder = file.getParentFile().getName();
                 MultiInv.log.debug("Saving " + playername + "'s " + inventoryName + " Enderchest inventory to " + folder);
