@@ -1,5 +1,7 @@
 package uk.co.tggl.pluckerpluck.multiinv;
 
+import java.io.IOException;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginManager;
@@ -40,6 +42,14 @@ public class MultiInv extends JavaPlugin {
         MIYamlFiles.loadConfig();
         MIYamlFiles.loadGroups();
         MIYamlFiles.loadPlayerLogoutWorlds();
+        
+        //Adding in metrics
+        try {
+            Metrics metrics = new Metrics(this);
+            metrics.start();
+        } catch (IOException e) {
+            // Failed to submit the stats :-(
+        }
         
         //An easy way to set the default logging levels
         if(MIYamlFiles.config.contains("loglevel")) {
