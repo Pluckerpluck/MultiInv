@@ -38,11 +38,23 @@ public class MIInventory implements Serializable{
     }
     
     public MIInventory (ItemStack[] inventory, ItemStack[] armor) {
-    	for(int i = 0; i < inventory.length && i < 36; i++) {
-    		MIInventoryContents[i] = new MIItemStack(inventory[i]);
+    	if(inventory != null) {
+        	for(int i = 0; i < inventory.length && i < 36; i++) {
+        		MIInventoryContents[i] = new MIItemStack(inventory[i]);
+        	}
+    	}else {
+    		for(int i = 0; i < MIInventoryContents.length; i++) {
+        		MIInventoryContents[i] = new MIItemStack("");
+        	}
     	}
-    	for(int i = 0; i < armor.length && i < 4; i++) {
-    		MIArmourContents[i] = new MIItemStack(armor[i]);
+    	if(armor != null) {
+        	for(int i = 0; i < armor.length && i < 4; i++) {
+        		MIArmourContents[i] = new MIItemStack(armor[i]);
+        	}
+    	}else {
+    		for(int i = 0; i < MIArmourContents.length; i++) {
+        		MIArmourContents[i] = new MIItemStack("");
+        	}
     	}
     }
 

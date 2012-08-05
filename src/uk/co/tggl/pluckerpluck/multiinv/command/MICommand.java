@@ -8,6 +8,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -17,6 +18,7 @@ import org.bukkit.plugin.Plugin;
 import com.onarandombox.multiverseinventories.MultiverseInventories;
 import com.onarandombox.multiverseinventories.api.profile.PlayerProfile;
 import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
+import com.onarandombox.multiverseinventories.api.profile.WorldProfile;
 import com.onarandombox.multiverseinventories.api.share.Sharables;
 
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
@@ -36,7 +38,7 @@ public class MICommand {
 	MultiInv plugin;
 	
 	public MICommand(MultiInv plugin) {
-		plugin = plugin;
+		this.plugin = plugin;
 	}
 
     public static void command(String[] strings, CommandSender sender, MultiInv plugin){
@@ -97,7 +99,7 @@ public class MICommand {
         	            MIYamlFiles.saveYamlFile(groups, "groups.yml");
         	            for (OfflinePlayer player1 : Bukkit.getServer().getOfflinePlayers()) {
             	            PlayerProfile playerdata = mvgroup.getPlayerData(player1);
-            	            if(playerdata != null) {
+            	            if(playerdata != null && playerdata.get(Sharables.INVENTORY) != null) {
             	            	ItemStack[] inventory = playerdata.get(Sharables.INVENTORY);
             	            	ItemStack[] armor = playerdata.get(Sharables.ARMOR);
             	            	Integer health = playerdata.get(Sharables.HEALTH);
@@ -122,6 +124,38 @@ public class MICommand {
             	            }
         	            }
         			}
+        			for (World world : Bukkit.getWorlds()) {
+                        String worldName = world.getName();
+                        if(!MIYamlFiles.getGroups().containsKey(worldName)) {
+                        	WorldProfile worldprofile = mvinventories.getWorldManager().getWorldProfile(worldName);
+                        	for (OfflinePlayer player1 : Bukkit.getServer().getOfflinePlayers()) {
+                	            PlayerProfile playerdata = worldprofile.getPlayerData(player1);
+                	            if(playerdata != null && playerdata.get(Sharables.INVENTORY) != null) {
+                	            	ItemStack[] inventory = playerdata.get(Sharables.INVENTORY);
+                	            	ItemStack[] armor = playerdata.get(Sharables.ARMOR);
+                	            	Integer health = playerdata.get(Sharables.HEALTH);
+                	            	Integer hunger = playerdata.get(Sharables.FOOD_LEVEL);
+                	            	Float saturation = playerdata.get(Sharables.SATURATION);
+                	            	Integer totalexp = playerdata.get(Sharables.TOTAL_EXPERIENCE);
+                	            	 if (MIYamlFiles.config.getBoolean("useSQL")){
+                	            		 MIYamlFiles.con.saveInventory(player.getName(), worldName, new MIInventory(inventory, armor), "SURVIVAL");
+                	            		 MIYamlFiles.con.saveHealth(player.getName(), worldName, health);
+                	            		 MIYamlFiles.con.saveHunger(player.getName(), worldName, hunger);
+                	            		 MIYamlFiles.con.saveSaturation(player.getName(), worldName, saturation);
+                	            		 MIYamlFiles.con.saveExperience(player.getName(), worldName, totalexp);
+                	            	 }else {
+                	            		 MIPlayerFile config = new MIPlayerFile(player1.getName(), worldName);
+                	                     config.saveInventory(new MIInventory(inventory, armor), "SURVIVAL");
+                	                     config.saveHealth(health);
+                	                     config.saveHunger(hunger);
+                	                     config.saveSaturation(saturation);
+                	                     int[] levels = plugin.getXP(totalexp);
+                	                     config.saveExperience(totalexp, levels[0], (float)((float)levels[1]/(float)levels[2]));
+                	            	 }
+                	            }
+            	            }
+                        }
+                    }
         			//Once the groups are loaded, let's load them into MultiInv
     	            MIYamlFiles.parseGroups(groups);
     	            //Once the import is done let's disable MultiVerse-Inventories.
