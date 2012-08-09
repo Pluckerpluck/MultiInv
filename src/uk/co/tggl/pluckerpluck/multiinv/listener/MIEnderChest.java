@@ -115,6 +115,9 @@ public class MIEnderChest implements Listener {
 		if(event.isCancelled()) {
 			return;
 		}
+		if(event.getWhoClicked().hasPermission("multiinv.enderchestexempt")) {
+			return;
+		}
 		if(event.getInventory().getType() == InventoryType.ENDER_CHEST) {
 			HumanEntity player = event.getWhoClicked();
 			String group = MIPlayerListener.getGroup(player.getWorld());
@@ -138,6 +141,9 @@ public class MIEnderChest implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void enderchestClosed(InventoryCloseEvent event) {
 		if(event.getInventory().getType() == InventoryType.ENDER_CHEST) {
+			if(event.getPlayer().hasPermission("multiinv.enderchestexempt")) {
+				return;
+			}
 			HumanEntity player = event.getPlayer();
 			String group = MIPlayerListener.getGroup(player.getWorld());
 			MIEnderchestInventory inventorystring = null;
