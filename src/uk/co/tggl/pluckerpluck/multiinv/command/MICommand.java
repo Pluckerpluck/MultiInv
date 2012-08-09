@@ -32,6 +32,7 @@ import com.onarandombox.multiverseinventories.api.share.Sharables;
 
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
+import uk.co.tggl.pluckerpluck.multiinv.books.MIBook;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayerFile;
 
@@ -432,6 +433,19 @@ public class MICommand {
 	    			}
 	    		}
 	    	}
+	    	String booksdir = Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder().getAbsolutePath() + File.separator + "books";
+			File fbooksdir = new File(booksdir);
+			if(fbooksdir.exists()) {
+				System.out.println("books directory found, importing books.");
+				File[] thebooks = fbooksdir.listFiles();
+				for(File fdir : thebooks) {
+					if(fdir.isFile() && fdir.getName().endsWith(".yml")) {
+						System.out.println("Importing book " + fdir.getName());
+						MIBook thebook = new MIBook(fdir);
+						MIYamlFiles.con.saveBook(thebook);
+					}
+				}
+			}
 	    	return true;
 		}
 		return false;
