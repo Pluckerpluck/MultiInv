@@ -1,6 +1,6 @@
 name: MultiInv
 main: uk.co.tggl.pluckerpluck.multiinv.MultiInv
-version: 3.1.1
+version: 3.1.2-dev
 website: http://www.tggl.co.uk
 author: Pluckerpluck
 authors: [Tux2]
