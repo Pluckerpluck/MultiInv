@@ -1,12 +1,20 @@
 package uk.co.tggl.pluckerpluck.multiinv.mysql;
 
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.math.BigInteger;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.bukkit.GameMode;
 
+import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
+import uk.co.tggl.pluckerpluck.multiinv.books.MIBook;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIEnderchestInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 
@@ -41,6 +49,22 @@ public class SqlConnector {
 		try {
 			st = con.createStatement();
 	        ResultSet rs = st.executeQuery("show tables like '" + prefix + "enderchestinv'");
+	        if(rs.next()) {
+	        	return true;
+	        }else {
+	        	return false;
+	        }
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public boolean bookTableExists() {
+		Statement st;
+		try {
+			st = con.createStatement();
+	        ResultSet rs = st.executeQuery("show tables like '" + prefix + "books'");
 	        if(rs.next()) {
 	        	return true;
 	        }else {
@@ -95,7 +119,77 @@ public class SqlConnector {
 		}
 	}
 	
-
+	public boolean createBookTable() {
+		Statement st;
+		try {
+			st = con.createStatement();
+	        st.executeUpdate("CREATE TABLE `" + prefix + "books` (" +
+	        		"`book_hash` VARCHAR( 37 ) NOT NULL PRIMARY KEY, " +
+	        		"`book_author` VARCHAR( 16 ) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL COMMENT 'The book author', " +
+	        		"`book_title` VARCHAR( 16 ) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL COMMENT 'Book title.', " +
+	        		"`book_contents` text NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
+	        return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public void saveBook(MIBook book) {
+		if(!bookTableExists()) {
+    		createBookTable();
+    	}
+    	try {
+        	Statement st = con.createStatement();
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "books WHERE book_hash='book_" + book.getHashcode() + "'");
+	        if(!rs.next()) {
+	    		ByteArrayOutputStream os = new ByteArrayOutputStream();
+	    		XMLEncoder xml = new XMLEncoder(os);
+	    		xml.writeObject(book.getPages());
+	    		xml.close();
+	    		PreparedStatement addbook = null;
+	    		con.setAutoCommit(false);
+	            addbook = con.prepareStatement("INSERT INTO " + prefix + "books (book_hash, book_author, book_title, book_contents) " +
+	        			"VALUES('book_" + book.getHashcode() + "', ?, ?, ?)");
+	            addbook.setString(1, book.getAuthor());
+	            addbook.setString(2, book.getTitle());
+	            addbook.setString(3, new String(os.toByteArray()));
+	            addbook.executeUpdate();
+	            con.commit();
+	            con.setAutoCommit(true);
+	        }
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public MIBook getBook(String bookhash, boolean bookprefix) {
+		if(!bookTableExists()) {
+    		createBookTable();
+    	}
+		if(bookprefix == false) {
+			bookhash = "book_" + bookhash;
+		}
+		try {
+        	Statement st = con.createStatement();
+	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "books WHERE book_hash='" + bookhash + "'");
+	        if(rs.next()) {
+	        	String bookcontentsxml = rs.getString("book_contents");
+	    		ByteArrayInputStream os = new ByteArrayInputStream(bookcontentsxml.getBytes());
+	    		XMLDecoder xml = new XMLDecoder(os);
+	    		String[] pages = (String[])xml.readObject();
+	    		xml.close();
+	    		String author = rs.getString("book_author");
+	    		String title = rs.getString("book_title");
+	    		String hashcode = rs.getString("book_hash").substring(5);
+	    		MIBook book = new MIBook(hashcode, author, title, pages);
+	        	return book;
+	        }
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
 	public MIEnderchestInventory getEnderchestInventory(String player, String group, String inventoryName) {
         // Get stored string from configuration file

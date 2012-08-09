@@ -11,6 +11,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 
 
@@ -34,12 +35,17 @@ public class MIBook {
 		this.author = author;
 		this.title = title;
 		this.pages = pages;
-		file = new File(dataFolder.getAbsolutePath() + File.separator + "books" + File.separator + "book_" + hashcode + ".yml");
-		if(file.exists()) {
-			ybookfile = new YamlConfiguration();
-	        load();
+		if (MIYamlFiles.config.getBoolean("useSQL")) {
+			//If we are using mySQL let's assume we are getting this loaded from the mySQL connector...
+			//So we shouldn't have to do anything. :D (There should be no other way this is called anyways.)
 		}else {
-			save();
+			file = new File(dataFolder.getAbsolutePath() + File.separator + "books" + File.separator + "book_" + hashcode + ".yml");
+			if(file.exists()) {
+				ybookfile = new YamlConfiguration();
+		        load();
+			}else {
+				save();
+			}
 		}
 	}
 	
@@ -56,12 +62,22 @@ public class MIBook {
 			this.author = author;
 			this.title = title;
 			this.pages = pages;
-			file = new File(dataFolder.getAbsolutePath() + File.separator + "books" + File.separator + "book_" + hashcode + ".yml");
-			if(file.exists()) {
-				ybookfile = new YamlConfiguration();
-		        load();
+			if (MIYamlFiles.config.getBoolean("useSQL")) {
+				MIBook newbook = MIYamlFiles.con.getBook(hashcode, false);
+				if(newbook == null) {
+					MIYamlFiles.con.saveBook(this);
+				}else {
+					//We don't need to do anything if there is a result.
+					//It should all be exactly the same.
+				}
 			}else {
-				save();
+				file = new File(dataFolder.getAbsolutePath() + File.separator + "books" + File.separator + "book_" + hashcode + ".yml");
+				if(file.exists()) {
+					ybookfile = new YamlConfiguration();
+			        load();
+				}else {
+					save();
+				}
 			}
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
@@ -74,7 +90,6 @@ public class MIBook {
 		this(new File(Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder() + File.separator + 
 				"books" + File.separator + "book_" + hashcode + ".yml"));
 	}
-	
 	
 	public MIBook(File bookfile) {
 		file = bookfile;

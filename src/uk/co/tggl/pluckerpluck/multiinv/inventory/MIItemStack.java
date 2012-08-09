@@ -11,6 +11,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 
+import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 import uk.co.tggl.pluckerpluck.multiinv.books.MIBook;
 
@@ -143,8 +144,12 @@ public class MIItemStack {
     	//if books ever have enchantments, that will be the end of me...
     	//Hijack this function to import book data...
     	if(enchantmentString.startsWith("book_")) {
-    		book = new MIBook(new File(Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder() + File.separator + 
-    				"books" + File.separator + enchantmentString + ".yml"));
+    		if (MIYamlFiles.config.getBoolean("useSQL")) {
+    			book = MIYamlFiles.con.getBook(enchantmentString, true);
+    		}else {
+        		book = new MIBook(new File(Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder() + File.separator + 
+        				"books" + File.separator + enchantmentString + ".yml"));
+    		}
     	}else if (!"0".equals(enchantmentString)){
             String[] enchantments = enchantmentString.split("#");
             for (String enchantment : enchantments){
