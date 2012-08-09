@@ -49,6 +49,9 @@ public class MIEnderChest implements Listener {
 		if(event.isCancelled()) {
 			return;
 		}
+		if(event.getPlayer().hasPermission("multiinv.enderchestexempt")) {
+			return;
+		}
 		MultiInv.log.debug("An inventory was opened, and it was a " + event.getInventory().getType() + " inventory.");
 		if(event.getInventory().getType() == InventoryType.ENDER_CHEST) {
 			HumanEntity player = event.getPlayer();

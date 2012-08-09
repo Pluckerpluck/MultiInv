@@ -26,3 +26,6 @@ permissions:
     multiinv.exempt:
         description: exempts a player from world inventory changes.
         default: false
+    multiinv.enderchestexempt:
+        description: exempts a player from enderchest inventory changes.
+        default: false
