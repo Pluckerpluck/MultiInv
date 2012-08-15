@@ -72,9 +72,15 @@ public class MIInventory implements Serializable{
             }
 
             // Fill MIArmourContents
-            String[] armourData = data[1].split(";");
-            for (int i = 0; i < armourData.length; i++) {
-                MIArmourContents[i] = new MIItemStack(armourData[i]);
+            if(data.length > 1) {
+                String[] armourData = data[1].split(";");
+                for (int i = 0; i < armourData.length; i++) {
+                    MIArmourContents[i] = new MIItemStack(armourData[i]);
+                }
+            }else {
+            	for (int i = 0; i < 4; i++) {
+                    MIArmourContents[i] = new MIItemStack("");
+                }
             }
         }
     }
