@@ -78,7 +78,11 @@ public class MIPlayer{
             player.setHealth(MIYamlFiles.con.getHealth(player.getName(), group));
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);
-            player.setHealth(config.getHealth());
+            int health = config.getHealth();
+            if(health < 0) {
+            	health = 0;
+            }
+            player.setHealth(health);
         }
     }
     
