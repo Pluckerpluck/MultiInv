@@ -19,6 +19,7 @@ import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 import uk.co.tggl.pluckerpluck.multiinv.player.DeferredWorldCheck;
 import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayer;
+import uk.co.tggl.pluckerpluck.multiinv.workarounds.SetXP;
 
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -129,6 +130,7 @@ public class MIPlayerListener implements Listener{
     	            loadPlayerState(player, groupTo);
     	            //Save the player's current world
     	            MIYamlFiles.savePlayerLogoutWorld(player.getName(), groupTo);
+    	            
     	        }
     		}
     	}
@@ -203,8 +205,25 @@ public class MIPlayerListener implements Listener{
         }
         miPlayer.loadHealth(group);
         miPlayer.loadHunger(group);
+      //If we have the xp bug, let's "set" the xp several times. Seems like the client doesn't update the
+      //xp properly if it's still loading the world... so let's just send it the current xp several times.
         miPlayer.loadExperience(group);
+        if(MIYamlFiles.config.getBoolean("xpfix", true)) {
+        	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 5);
+        	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 15);
+        	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 25);
+        	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 35);
+        	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 75);
+        	//Last one sets those really laggy clients 30 seconds after world change. If you have any more
+        	//lag than this, you have problems!
+        	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 600);
+        }
         miPlayer.loadInventory(group, player.getGameMode().toString());
+    }
+
+    public void loadPlayerXP(Player player, String group){
+        MIPlayer miPlayer = players.get(player.getName());
+        miPlayer.loadExperience(group);
     }
     
     public static String getGroup(String world) {

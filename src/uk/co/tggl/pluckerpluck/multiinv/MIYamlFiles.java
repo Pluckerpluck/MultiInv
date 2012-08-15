@@ -88,6 +88,11 @@ public class MIYamlFiles {
                 	config.set("compatibilityMode", false);
                 	saveYamlFile(config, "config.yml");
                 }
+                String xpfix = config.getString("xpfix");
+                if(xpfix == null || xpfix.equals("")) {
+                	config.set("xpfix", false);
+                	saveYamlFile(config, "config.yml");
+                }
                 if(config.getBoolean("useSQL", false)) {
                     try {
                     	String url = "jdbc:mysql://" + config.getString("sql.host", "localhost") + ":" + config.getString("sql.port", "3306") + "/" + config.getString("sql.database", "database") + "?autoReconnect=true";
