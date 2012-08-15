@@ -76,6 +76,34 @@ public class SqlConnector {
 		}
 	}
 	
+	public boolean inventoryColumnExists(String gamemode) {
+		Statement st;
+		try {
+			st = con.createStatement();
+	        ResultSet rs = st.executeQuery("SHOW COLUMNS FROM `" + prefix + "multiinv` LIKE 'inv_" + gamemode + "';");
+	        if(rs.next()) {
+	        	return true;
+	        }else {
+	        	return false;
+	        }
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public boolean addInventoryColumn(String gamemode) {
+		Statement st;
+		try {
+			st = con.createStatement();
+	        st.executeUpdate("ALTER TABLE `" + prefix + "multiinv` ADD `inv_" + gamemode + "` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+	        return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
 	public boolean createTable() {
 		Statement st;
 		try {
@@ -92,6 +120,7 @@ public class SqlConnector {
 	        		"`inv_experience` INT( 11 ) NOT NULL, " +
 	        		"`inv_survival` text NOT NULL, " +
 	        		"`inv_creative` text NOT NULL, " +
+	        		"`inv_adventure` text NOT NULL, " +
 	        		"UNIQUE KEY `unique_player_group` ( `inv_player` , `inv_group` ) ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
 	        return true;
 		} catch (SQLException e) {
@@ -210,6 +239,10 @@ public class SqlConnector {
 	public MIInventory getInventory(String player, String group, String inventoryName) {
         // Get stored string from configuration file
         MIInventory inventory = new MIInventory((String)null);
+        //Let's add inventory gamemode columns dynamically for newer versions of minecraft
+        if(!inventoryColumnExists(inventoryName)) {
+        	addInventoryColumn(inventoryName);
+        }
         try {
         	Statement st = con.createStatement();
 	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
@@ -227,6 +260,10 @@ public class SqlConnector {
         String inventoryString = inventory.toString();
         //Call this just to make sure the player record has been created.
         createRecord(player, group);
+        //Let's add inventory gamemode columns dynamically for newer versions of minecraft
+        if(!inventoryColumnExists(inventoryName)) {
+        	addInventoryColumn(inventoryName);
+        }
         try {
         	Statement st = con.createStatement();
 	        st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_" + inventoryName.toLowerCase() + "='" + inventoryString + "' WHERE inv_player='"+ player + "' AND inv_group='" + group + "'");
