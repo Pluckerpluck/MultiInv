@@ -125,8 +125,8 @@ public class SqlConnector {
 			st = con.createStatement();
 	        st.executeUpdate("CREATE TABLE `" + prefix + "books` (" +
 	        		"`book_hash` VARCHAR( 37 ) NOT NULL PRIMARY KEY, " +
-	        		"`book_author` VARCHAR( 16 ) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL COMMENT 'The book author', " +
-	        		"`book_title` VARCHAR( 16 ) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL COMMENT 'Book title.', " +
+	        		"`book_author` VARCHAR( 35 ) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL COMMENT 'The book author', " +
+	        		"`book_title` VARCHAR( 35 ) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL COMMENT 'Book title.', " +
 	        		"`book_contents` text NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
 	        return true;
 		} catch (SQLException e) {
