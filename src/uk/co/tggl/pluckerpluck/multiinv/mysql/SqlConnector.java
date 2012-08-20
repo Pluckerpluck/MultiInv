@@ -96,7 +96,7 @@ public class SqlConnector {
 		Statement st;
 		try {
 			st = con.createStatement();
-	        st.executeUpdate("ALTER TABLE `" + prefix + "multiinv` ADD `inv_" + gamemode + "` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+	        st.executeUpdate("ALTER TABLE `" + prefix + "multiinv` ADD `inv_" + gamemode + "` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT ''");
 	        return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -288,12 +288,15 @@ public class SqlConnector {
     	if(!tableExists()) {
     		createTable();
     	}
+    	if(!inventoryColumnExists("ADVENTURE")) {
+    		addInventoryColumn("ADVENTURE");
+    	}
     	try {
         	Statement st = con.createStatement();
 	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
 	        if(!rs.next()) {
-	        	st.executeUpdate("INSERT INTO " + prefix + "multiinv (inv_player, inv_group, inv_gamemode, inv_health, inv_hunger, inv_saturation, inv_level, inv_experience, inv_survival, inv_creative) " +
-	        			"VALUES('" + player + "', '" + group + "', 'SURVIVAL', 20, 20, 5, 0, 0, '', '')");
+	        	st.executeUpdate("INSERT INTO " + prefix + "multiinv (inv_player, inv_group, inv_gamemode, inv_health, inv_hunger, inv_saturation, inv_level, inv_experience, inv_survival, inv_creative, inv_ADVENTURE) " +
+	        			"VALUES('" + player + "', '" + group + "', 'SURVIVAL', 20, 20, 5, 0, 0, '', '', '')");
 	        }
 		} catch (SQLException e) {
 			e.printStackTrace();
