@@ -139,9 +139,9 @@ public class MultiInv extends JavaPlugin {
     	if(xpversion == 1) {
     		xpneededforlevel = 17;
     		while(atlevel < level) {
-    			level++;
+    			atlevel++;
     			totalxp += xpneededforlevel;
-    			if(level >= 16) {
+    			if(atlevel >= 16) {
     				xpneededforlevel += 3;
     			}
     		}
@@ -150,7 +150,7 @@ public class MultiInv extends JavaPlugin {
     		xpneededforlevel = 7;
         	boolean odd = true;
         	while(atlevel < level) {
-        		level++;
+        		atlevel++;
         		totalxp += xpneededforlevel;
         		if(odd) {
         			xpneededforlevel += 3;
@@ -161,7 +161,7 @@ public class MultiInv extends JavaPlugin {
         		}
         	}
     	}
-    	totalxp += (xp*xpneededforlevel);
+    	totalxp = (int) (totalxp + (xp*xpneededforlevel));
     	return totalxp;
     }
 

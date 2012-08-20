@@ -197,7 +197,10 @@ public class MIPlayer{
 
     public void saveExperience(String group){
         if (MIYamlFiles.config.getBoolean("useSQL")){
-        	MIYamlFiles.con.saveExperience(player.getName(), group, player.getTotalExperience());
+        	int totalxp = plugin.getTotalXP(player.getLevel(), player.getExp());
+        	MultiInv.log.debug("XP Level and xp is: " + player.getLevel() + " " + player.getExp() + " for player " + player.getName());
+        	MultiInv.log.debug("Total xp is: " + totalxp);
+        	MIYamlFiles.con.saveExperience(player.getName(), group, totalxp);
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);
             config.saveExperience(player.getTotalExperience(), player.getLevel(), player.getExp());
