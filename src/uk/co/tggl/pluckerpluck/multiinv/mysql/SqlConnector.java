@@ -96,7 +96,7 @@ public class SqlConnector {
 		Statement st;
 		try {
 			st = con.createStatement();
-	        st.executeUpdate("ALTER TABLE `" + prefix + "multiinv` ADD `inv_" + gamemode + "` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT ''");
+	        st.executeUpdate("ALTER TABLE `" + prefix + "multiinv` ADD `inv_" + gamemode + "` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
 	        return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
