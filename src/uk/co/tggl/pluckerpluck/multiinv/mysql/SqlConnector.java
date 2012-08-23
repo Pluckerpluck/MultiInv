@@ -96,8 +96,8 @@ public class SqlConnector {
 		Statement st;
 		try {
 			st = con.createStatement();
-	        st.executeUpdate("ALTER TABLE `" + prefix + "multiinv` ADD `inv_" + gamemode + "` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
-	        return true;
+			st.executeUpdate("ALTER TABLE `" + prefix + "multiinv` ADD `inv_" + gamemode.toLowerCase() + "` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
@@ -112,7 +112,7 @@ public class SqlConnector {
 	        		"`inv_id` INT( 11 ) NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
 	        		"`inv_group` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL COMMENT 'Inventory group.', " +
 	        		"`inv_player` VARCHAR( 16 ) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL COMMENT 'Minecraft player name.', " +
-	        		"`inv_gamemode` ENUM('CREATIVE','SURVIVAL') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL COMMENT 'CREATIVE or SURVIVAL game mode.', " +
+	        		"`inv_gamemode` ENUM('ADVENTURE','CREATIVE','SURVIVAL') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL COMMENT 'ADVENTURE, CREATIVE or SURVIVAL game mode.', " +
 	        		"`inv_health` TINYINT( 4 ) NOT NULL COMMENT 'Valid values are 0 to 20.', " +
 	        		"`inv_hunger` TINYINT( 4 ) NOT NULL COMMENT 'Valid values are 0 to 20.', " +
 	        		"`inv_saturation` DOUBLE NOT NULL COMMENT 'Valid values are 0.0 to 20.0.', " +
