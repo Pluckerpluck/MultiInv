@@ -48,10 +48,12 @@ public class MIPlayer{
         if (MIYamlFiles.config.getBoolean("useSQL")){
         	MIInventory inventory = MIYamlFiles.con.getInventory(player.getName(), group, inventoryName);
         	inventory.loadIntoInventory(this.inventory);
+        	inventory.setPotionEffects(player);
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);
             MIInventory inventory = config.getInventory(inventoryName);
             inventory.loadIntoInventory(this.inventory);
+        	inventory.setPotionEffects(player);
         }
     }
 
@@ -59,8 +61,9 @@ public class MIPlayer{
     	if(!MIYamlFiles.config.getBoolean("separateGamemodeInventories", true)) {
     		inventoryName = "SURVIVAL";
     	}
-        MIInventory inventory = new MIInventory(this.inventory);
+        MIInventory inventory = new MIInventory(player);
         if (MIYamlFiles.config.getBoolean("useSQL")){
+        	MIYamlFiles.con.refreshConnection();
         	MIYamlFiles.con.saveInventory(player.getName(), group, inventory, inventoryName);
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);
@@ -75,6 +78,7 @@ public class MIPlayer{
 
     public void loadHealth(String group){
         if (MIYamlFiles.config.getBoolean("useSQL")){
+        	MIYamlFiles.con.refreshConnection();
             player.setHealth(MIYamlFiles.con.getHealth(player.getName(), group));
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);
@@ -118,6 +122,7 @@ public class MIPlayer{
 
     public void loadGameMode(String group){
         if (MIYamlFiles.config.getBoolean("useSQL")){
+        	MIYamlFiles.con.refreshConnection();
         	GameMode gameMode = MIYamlFiles.con.getGameMode(player.getName(), group);
             if (gameMode != null) {
                 player.setGameMode(gameMode);

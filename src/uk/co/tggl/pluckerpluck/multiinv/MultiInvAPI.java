@@ -55,7 +55,7 @@ public class MultiInvAPI {
 			        }
 			        //If they are currently using the inventory, let's just grab it...
 				}else {
-					return new MIInventory(giveplayer.getInventory());
+					return new MIInventory(giveplayer);
 				}
 				//If we are getting an inventory from another world let's just load it.
 			}else {
@@ -117,7 +117,7 @@ public class MultiInvAPI {
 							        }
 							        //If they are currently using the inventory, let's just grab it...
 								}else {
-									return new MIInventory(target.getInventory());
+									return new MIInventory(target);
 								}
 							}else {
 								MultiInv.log.warning(playername + " not found!");

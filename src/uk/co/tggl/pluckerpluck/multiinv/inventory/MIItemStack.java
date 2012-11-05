@@ -5,17 +5,17 @@ import net.minecraft.server.NBTTagList;
 import net.minecraft.server.NBTTagString;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 import uk.co.tggl.pluckerpluck.multiinv.books.MIBook;
 
-import java.awt.print.Book;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +31,8 @@ public class MIItemStack {
     private Map<Enchantment, Integer>  enchantments = new HashMap<Enchantment, Integer>();
     private String bookid = "";
     private MIBook book = null;
+    NBTTagCompound nbttags = null;
+    XStream xstream = new XStream(new StaxDriver());
 
     public MIItemStack(ItemStack itemStack){
         if (itemStack != null){
@@ -60,6 +62,11 @@ public class MIItemStack {
             		}
             		book = new MIBook(author, title, pagestrings);
             	}
+            }else if(itemStack instanceof CraftItemStack) {
+            	net.minecraft.server.ItemStack stack = ((CraftItemStack)itemStack).getHandle();
+            	if(stack != null && stack.tag != null) {
+                	nbttags = stack.tag;
+            	}
             }
         }
     }
@@ -67,11 +74,15 @@ public class MIItemStack {
     // Constructor to create an MIItemStack from a string containing its data
     public MIItemStack(String dataString){
         String[] data = dataString.split(",");
-        if (data.length == 4) {
+        if (data.length >= 4) {
             itemID = Integer.parseInt(data[0]);
             quantity = Integer.parseInt(data[1]);
             durability = Short.parseShort(data[2]);
             getEnchantments(data[3]);
+            if(data.length > 4) {
+            	String unserialized = new String(javax.xml.bind.DatatypeConverter.parseBase64Binary(data[4]));
+	    		nbttags = (NBTTagCompound)xstream.fromXML(unserialized);
+            }
         }
     }
 
@@ -112,6 +123,11 @@ public class MIItemStack {
             	}
             	MultiInv.log.debug("Returning craftitemstack.");
             	return cs;
+            }else if(nbttags != null) {
+            	CraftItemStack cs = new CraftItemStack(itemStack);
+            	net.minecraft.server.ItemStack stack = cs.getHandle();
+            	stack.tag = nbttags;
+            	return cs;
             }
         }
         return itemStack;
@@ -120,10 +136,20 @@ public class MIItemStack {
     public String toString() {
         // TODO: Add compatibility with old inventories
         // return itemID + "," + quantity + "," + data + "," + durability;
-        return itemID + "," + quantity + "," + durability + "," + getEnchantmentString();
+    	if(nbttags != null) {
+            return itemID + "," + quantity + "," + durability + "," + getEnchantmentString() + "," + getNBTserialized();
+    	}else {
+            return itemID + "," + quantity + "," + durability + "," + getEnchantmentString();
+    	}
     }
 
-    private String getEnchantmentString(){
+    private String getNBTserialized() {
+    	String xml = xstream.toXML(nbttags);
+		String serialized = javax.xml.bind.DatatypeConverter.printBase64Binary(xml.getBytes());
+		return serialized;
+	}
+
+	private String getEnchantmentString(){
     	if(book != null) {
     		return "book_" + book.getHashcode();
     	}else {

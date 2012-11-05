@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import me.drayshak.WorldInventories.Group;
 import me.drayshak.WorldInventories.WIPlayerInventory;
@@ -23,8 +25,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.potion.PotionEffect;
 
 import com.onarandombox.multiverseinventories.MultiverseInventories;
+import com.onarandombox.multiverseinventories.ProfileTypes;
 import com.onarandombox.multiverseinventories.api.profile.PlayerProfile;
 import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
 import com.onarandombox.multiverseinventories.api.profile.WorldProfile;
@@ -98,7 +102,7 @@ public class MICommand {
     	            YamlConfiguration groups = new YamlConfiguration();
     	            MIYamlFiles.getGroups().clear();
         			for(WorldGroupProfile mvgroup : mvgroups) {
-        				HashSet<String> mvworlds = mvgroup.getWorlds();
+        				Set<String> mvworlds = mvgroup.getWorlds();
         				ArrayList<String> exampleGroup = new ArrayList<String>();
         				for(String world : mvworlds) {
             	            exampleGroup.add(world);
@@ -108,7 +112,7 @@ public class MICommand {
         	            groups.set(group, exampleGroup);
         	            MIYamlFiles.saveYamlFile(groups, "groups.yml");
         	            for (OfflinePlayer player1 : Bukkit.getServer().getOfflinePlayers()) {
-            	            PlayerProfile playerdata = mvgroup.getPlayerData(player1);
+            	            PlayerProfile playerdata = mvgroup.getPlayerData(ProfileTypes.SURVIVAL, player1);
             	            if(playerdata != null && playerdata.get(Sharables.INVENTORY) != null) {
             	            	ItemStack[] inventory = playerdata.get(Sharables.INVENTORY);
             	            	ItemStack[] armor = playerdata.get(Sharables.ARMOR);
@@ -116,20 +120,41 @@ public class MICommand {
             	            	Integer hunger = playerdata.get(Sharables.FOOD_LEVEL);
             	            	Float saturation = playerdata.get(Sharables.SATURATION);
             	            	Integer totalexp = playerdata.get(Sharables.TOTAL_EXPERIENCE);
+            	            	PotionEffect[] potioneffects = playerdata.get(Sharables.POTIONS);
+            	            	LinkedList<PotionEffect> effects = new LinkedList<PotionEffect>();
+            	            	for(int i = 0; i < potioneffects.length; i++ ) {
+            	            		effects.add(potioneffects[i]);
+            	            	}
             	            	 if (MIYamlFiles.config.getBoolean("useSQL")){
-            	            		 MIYamlFiles.con.saveInventory(player.getName(), group, new MIInventory(inventory, armor), "SURVIVAL");
+            	            		 MIYamlFiles.con.saveInventory(player.getName(), group, new MIInventory(inventory, armor, effects), "SURVIVAL");
             	            		 MIYamlFiles.con.saveHealth(player.getName(), group, health);
             	            		 MIYamlFiles.con.saveHunger(player.getName(), group, hunger);
             	            		 MIYamlFiles.con.saveSaturation(player.getName(), group, saturation);
             	            		 MIYamlFiles.con.saveExperience(player.getName(), group, totalexp);
             	            	 }else {
             	            		 MIPlayerFile config = new MIPlayerFile(player1.getName(), group);
-            	                     config.saveInventory(new MIInventory(inventory, armor), "SURVIVAL");
+            	                     config.saveInventory(new MIInventory(inventory, armor, effects), "SURVIVAL");
             	                     config.saveHealth(health);
             	                     config.saveHunger(hunger);
             	                     config.saveSaturation(saturation);
             	                     int[] levels = plugin.getXP(totalexp);
             	                     config.saveExperience(totalexp, levels[0], (float)((float)levels[1]/(float)levels[2]));
+            	            	 }
+            	            }
+            	            PlayerProfile adventureplayerdata = mvgroup.getPlayerData(ProfileTypes.ADVENTURE, player1);
+            	            if(adventureplayerdata != null && adventureplayerdata.get(Sharables.INVENTORY) != null) {
+            	            	ItemStack[] inventory = adventureplayerdata.get(Sharables.INVENTORY);
+            	            	ItemStack[] armor = adventureplayerdata.get(Sharables.ARMOR);
+            	            	PotionEffect[] potioneffects = adventureplayerdata.get(Sharables.POTIONS);
+            	            	LinkedList<PotionEffect> effects = new LinkedList<PotionEffect>();
+            	            	for(int i = 0; i < potioneffects.length; i++ ) {
+            	            		effects.add(potioneffects[i]);
+            	            	}
+            	            	 if (MIYamlFiles.config.getBoolean("useSQL")){
+            	            		 MIYamlFiles.con.saveInventory(player.getName(), group, new MIInventory(inventory, armor, effects), "ADVENTURE");
+            	            	 }else {
+            	            		 MIPlayerFile config = new MIPlayerFile(player1.getName(), group);
+            	                     config.saveInventory(new MIInventory(inventory, armor, effects), "ADVENTURE");
             	            	 }
             	            }
         	            }
@@ -139,7 +164,7 @@ public class MICommand {
                         if(!MIYamlFiles.getGroups().containsKey(worldName)) {
                         	WorldProfile worldprofile = mvinventories.getWorldManager().getWorldProfile(worldName);
                         	for (OfflinePlayer player1 : Bukkit.getServer().getOfflinePlayers()) {
-                	            PlayerProfile playerdata = worldprofile.getPlayerData(player1);
+                	            PlayerProfile playerdata = worldprofile.getPlayerData(ProfileTypes.SURVIVAL, player1);
                 	            if(playerdata != null && playerdata.get(Sharables.INVENTORY) != null) {
                 	            	ItemStack[] inventory = playerdata.get(Sharables.INVENTORY);
                 	            	ItemStack[] armor = playerdata.get(Sharables.ARMOR);
@@ -147,20 +172,41 @@ public class MICommand {
                 	            	Integer hunger = playerdata.get(Sharables.FOOD_LEVEL);
                 	            	Float saturation = playerdata.get(Sharables.SATURATION);
                 	            	Integer totalexp = playerdata.get(Sharables.TOTAL_EXPERIENCE);
+                	            	PotionEffect[] potioneffects = playerdata.get(Sharables.POTIONS);
+                	            	LinkedList<PotionEffect> effects = new LinkedList<PotionEffect>();
+                	            	for(int i = 0; i < potioneffects.length; i++ ) {
+                	            		effects.add(potioneffects[i]);
+                	            	}
                 	            	 if (MIYamlFiles.config.getBoolean("useSQL")){
-                	            		 MIYamlFiles.con.saveInventory(player.getName(), worldName, new MIInventory(inventory, armor), "SURVIVAL");
+                	            		 MIYamlFiles.con.saveInventory(player.getName(), worldName, new MIInventory(inventory, armor, effects), "SURVIVAL");
                 	            		 MIYamlFiles.con.saveHealth(player.getName(), worldName, health);
                 	            		 MIYamlFiles.con.saveHunger(player.getName(), worldName, hunger);
                 	            		 MIYamlFiles.con.saveSaturation(player.getName(), worldName, saturation);
                 	            		 MIYamlFiles.con.saveExperience(player.getName(), worldName, totalexp);
                 	            	 }else {
                 	            		 MIPlayerFile config = new MIPlayerFile(player1.getName(), worldName);
-                	                     config.saveInventory(new MIInventory(inventory, armor), "SURVIVAL");
+                	                     config.saveInventory(new MIInventory(inventory, armor, effects), "SURVIVAL");
                 	                     config.saveHealth(health);
                 	                     config.saveHunger(hunger);
                 	                     config.saveSaturation(saturation);
                 	                     int[] levels = plugin.getXP(totalexp);
                 	                     config.saveExperience(totalexp, levels[0], (float)((float)levels[1]/(float)levels[2]));
+                	            	 }
+                	            }
+                	            PlayerProfile adventureplayerdata = worldprofile.getPlayerData(ProfileTypes.ADVENTURE, player1);
+                	            if(adventureplayerdata != null && adventureplayerdata.get(Sharables.INVENTORY) != null) {
+                	            	ItemStack[] inventory = adventureplayerdata.get(Sharables.INVENTORY);
+                	            	ItemStack[] armor = adventureplayerdata.get(Sharables.ARMOR);
+                	            	PotionEffect[] potioneffects = adventureplayerdata.get(Sharables.POTIONS);
+                	            	LinkedList<PotionEffect> effects = new LinkedList<PotionEffect>();
+                	            	for(int i = 0; i < potioneffects.length; i++ ) {
+                	            		effects.add(potioneffects[i]);
+                	            	}
+                	            	 if (MIYamlFiles.config.getBoolean("useSQL")){
+                	            		 MIYamlFiles.con.saveInventory(player.getName(), worldName, new MIInventory(inventory, armor, effects), "ADVENTURE");
+                	            	 }else {
+                	            		 MIPlayerFile config = new MIPlayerFile(player1.getName(), worldName);
+                	                     config.saveInventory(new MIInventory(inventory, armor, effects), "ADVENTURE");
                 	            	 }
                 	            }
             	            }
@@ -220,14 +266,14 @@ public class MICommand {
                 	            	totalexp = plugin.getTotalXP(level, exp);
             	            	}
             	            	 if (MIYamlFiles.config.getBoolean("useSQL")){
-            	            		 MIYamlFiles.con.saveInventory(player.getName(), group, new MIInventory(inventory, armor), "SURVIVAL");
+            	            		 MIYamlFiles.con.saveInventory(player.getName(), group, new MIInventory(inventory, armor, new LinkedList<PotionEffect>()), "SURVIVAL");
             	            		 MIYamlFiles.con.saveHealth(player.getName(), group, health);
             	            		 MIYamlFiles.con.saveHunger(player.getName(), group, hunger);
             	            		 MIYamlFiles.con.saveSaturation(player.getName(), group, saturation);
             	            		 MIYamlFiles.con.saveExperience(player.getName(), group, totalexp);
             	            	 }else {
             	            		 MIPlayerFile config = new MIPlayerFile(player1.getName(), group);
-            	                     config.saveInventory(new MIInventory(inventory, armor), "SURVIVAL");
+            	                     config.saveInventory(new MIInventory(inventory, armor, new LinkedList<PotionEffect>()), "SURVIVAL");
             	                     config.saveHealth(health);
             	                     config.saveHunger(hunger);
             	                     config.saveSaturation(saturation);
@@ -272,14 +318,14 @@ public class MICommand {
                 	            	totalexp = plugin.getTotalXP(level, exp);
             	            	}
             	            	 if (MIYamlFiles.config.getBoolean("useSQL")){
-            	            		 MIYamlFiles.con.saveInventory(player.getName(), group, new MIInventory(inventory, armor), "SURVIVAL");
+            	            		 MIYamlFiles.con.saveInventory(player.getName(), group, new MIInventory(inventory, armor, new LinkedList<PotionEffect>()), "SURVIVAL");
             	            		 MIYamlFiles.con.saveHealth(player.getName(), group, health);
             	            		 MIYamlFiles.con.saveHunger(player.getName(), group, hunger);
             	            		 MIYamlFiles.con.saveSaturation(player.getName(), group, saturation);
             	            		 MIYamlFiles.con.saveExperience(player.getName(), group, totalexp);
             	            	 }else {
             	            		 MIPlayerFile config = new MIPlayerFile(player1.getName(), group);
-            	                     config.saveInventory(new MIInventory(inventory, armor), "SURVIVAL");
+            	                     config.saveInventory(new MIInventory(inventory, armor, new LinkedList<PotionEffect>()), "SURVIVAL");
             	                     config.saveHealth(health);
             	                     config.saveHunger(hunger);
             	                     config.saveSaturation(saturation);

@@ -20,7 +20,7 @@ public class DeferredWorldCheck implements Runnable  {
 		//Seems banned players generate an exception... make sure they are actually logged in...
 		if(player != null && player.isOnline()) {
 			//Let's see if the player is in a world that doesn't exist anymore...
-	        if(MIYamlFiles.logoutworld.containsKey(player.getName())) {
+	        if(MIYamlFiles.logoutworld.containsKey(player.getName()) && MIYamlFiles.logoutworld.get(player.getName()) != null) {
 	        	 MultiInv.log.debug(player.getName() + " has logged in in world " + player.getWorld().getName() + ". Logout world was: " + MIYamlFiles.logoutworld.get(player.getName()));
 	            if(MIPlayerListener.getGroup(player.getWorld()) != MIYamlFiles.logoutworld.get(player.getName())) {
 	            	//If they aren't in the same world they logged out of let's save their current inventory

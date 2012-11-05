@@ -1,6 +1,7 @@
 package uk.co.tggl.pluckerpluck.multiinv.inventory;
 
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -14,7 +15,7 @@ public class MIInventoryOld extends MIInventory{
 	 */
 	private static final long serialVersionUID = -9035556692410143450L;
 
-	public MIInventoryOld(PlayerInventory inventory) {
+	public MIInventoryOld(Player inventory) {
         super(inventory);
     }
 

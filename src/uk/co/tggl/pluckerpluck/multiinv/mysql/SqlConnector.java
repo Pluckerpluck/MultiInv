@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,10 +23,29 @@ public class SqlConnector {
 	
 	private Connection con;
 	private String prefix = "multiinv_";
+	private String url;
+	private String username;
+	private String password;
 	
-	public SqlConnector(Connection con, String prefix) {
+	public SqlConnector(Connection con, String prefix, String url, String username, String password) {
 		this.con = con;
 		this.prefix = prefix;
+		this.url = url;
+		this.username = username;
+		this.password = password;
+	}
+	
+	public void refreshConnection() {
+		try {
+			con.close();
+		} catch (SQLException e) {
+			// We don't need to do anything if the connection isn't there...
+		}
+		try {
+			con = DriverManager.getConnection(url, username, password);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public boolean tableExists() {
