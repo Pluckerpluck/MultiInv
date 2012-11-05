@@ -221,6 +221,9 @@ public class MIPlayerListener implements Listener{
                 miPlayer.loadGameMode(group);
         	}
         }
+        miPlayer.loadInventory(group, player.getGameMode().toString());
+        
+        //Due to a dupe exploit this has to come after loading inventory
         miPlayer.loadHealth(group);
         miPlayer.loadHunger(group);
       //If we have the xp bug, let's "set" the xp several times. Seems like the client doesn't update the
@@ -236,7 +239,6 @@ public class MIPlayerListener implements Listener{
         	//lag than this, you have problems!
         	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 600);
         }
-        miPlayer.loadInventory(group, player.getGameMode().toString());
     }
 
     public void loadPlayerXP(Player player, String group){
