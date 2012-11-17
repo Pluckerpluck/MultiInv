@@ -122,8 +122,10 @@ public class MICommand {
             	            	Integer totalexp = playerdata.get(Sharables.TOTAL_EXPERIENCE);
             	            	PotionEffect[] potioneffects = playerdata.get(Sharables.POTIONS);
             	            	LinkedList<PotionEffect> effects = new LinkedList<PotionEffect>();
-            	            	for(int i = 0; i < potioneffects.length; i++ ) {
-            	            		effects.add(potioneffects[i]);
+            	            	if(potioneffects != null) {
+                	            	for(int i = 0; i < potioneffects.length; i++ ) {
+                	            		effects.add(potioneffects[i]);
+                	            	}
             	            	}
             	            	 if (MIYamlFiles.config.getBoolean("useSQL")){
             	            		 MIYamlFiles.con.saveInventory(player.getName(), group, new MIInventory(inventory, armor, effects), "SURVIVAL");
@@ -147,8 +149,10 @@ public class MICommand {
             	            	ItemStack[] armor = adventureplayerdata.get(Sharables.ARMOR);
             	            	PotionEffect[] potioneffects = adventureplayerdata.get(Sharables.POTIONS);
             	            	LinkedList<PotionEffect> effects = new LinkedList<PotionEffect>();
-            	            	for(int i = 0; i < potioneffects.length; i++ ) {
-            	            		effects.add(potioneffects[i]);
+            	            	if(potioneffects != null) {
+                	            	for(int i = 0; i < potioneffects.length; i++ ) {
+                	            		effects.add(potioneffects[i]);
+                	            	}
             	            	}
             	            	 if (MIYamlFiles.config.getBoolean("useSQL")){
             	            		 MIYamlFiles.con.saveInventory(player.getName(), group, new MIInventory(inventory, armor, effects), "ADVENTURE");
@@ -174,8 +178,10 @@ public class MICommand {
                 	            	Integer totalexp = playerdata.get(Sharables.TOTAL_EXPERIENCE);
                 	            	PotionEffect[] potioneffects = playerdata.get(Sharables.POTIONS);
                 	            	LinkedList<PotionEffect> effects = new LinkedList<PotionEffect>();
-                	            	for(int i = 0; i < potioneffects.length; i++ ) {
-                	            		effects.add(potioneffects[i]);
+                	            	if(potioneffects != null) {
+                    	            	for(int i = 0; i < potioneffects.length; i++ ) {
+                    	            		effects.add(potioneffects[i]);
+                    	            	}
                 	            	}
                 	            	 if (MIYamlFiles.config.getBoolean("useSQL")){
                 	            		 MIYamlFiles.con.saveInventory(player.getName(), worldName, new MIInventory(inventory, armor, effects), "SURVIVAL");
@@ -199,8 +205,10 @@ public class MICommand {
                 	            	ItemStack[] armor = adventureplayerdata.get(Sharables.ARMOR);
                 	            	PotionEffect[] potioneffects = adventureplayerdata.get(Sharables.POTIONS);
                 	            	LinkedList<PotionEffect> effects = new LinkedList<PotionEffect>();
-                	            	for(int i = 0; i < potioneffects.length; i++ ) {
-                	            		effects.add(potioneffects[i]);
+                	            	if(potioneffects != null) {
+                    	            	for(int i = 0; i < potioneffects.length; i++ ) {
+                    	            		effects.add(potioneffects[i]);
+                    	            	}
                 	            	}
                 	            	 if (MIYamlFiles.config.getBoolean("useSQL")){
                 	            		 MIYamlFiles.con.saveInventory(player.getName(), worldName, new MIInventory(inventory, armor, effects), "ADVENTURE");
