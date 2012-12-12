@@ -1,19 +1,13 @@
 package uk.co.tggl.pluckerpluck.multiinv.inventory;
 
-import net.minecraft.server.NBTTagCompound;
-import net.minecraft.server.NBTTagList;
-import net.minecraft.server.NBTTagString;
-
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.StaxDriver;
+import Tux2.TuxTwoLib.BookItem;
+import Tux2.TuxTwoLib.TuxTwoNBTData;
 
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
-import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 import uk.co.tggl.pluckerpluck.multiinv.books.MIBook;
 
 import java.io.File;
@@ -29,10 +23,8 @@ public class MIItemStack {
     private int quantity = 0;
     private short durability = 0;
     private Map<Enchantment, Integer>  enchantments = new HashMap<Enchantment, Integer>();
-    private String bookid = "";
     private MIBook book = null;
-    NBTTagCompound nbttags = null;
-    XStream xstream = new XStream(new StaxDriver());
+    String nbttags = null;
 
     public MIItemStack(ItemStack itemStack){
         if (itemStack != null){
@@ -41,32 +33,13 @@ public class MIItemStack {
             durability = itemStack.getDurability();
             enchantments = itemStack.getEnchantments();
             if(itemID == 386 || itemID == 387) {
-            	if(itemStack instanceof CraftItemStack) {
-            		net.minecraft.server.ItemStack stack = ((CraftItemStack)itemStack).getHandle();
-            		NBTTagCompound tags = stack.getTag();
-            		if(tags == null) {
-            			return;
-            		}
-            		NBTTagList pages = tags.getList("pages");
-            		String[] pagestrings = new String[pages.size()];
-            		for(int i = 0; i < pages.size(); i++) {
-            			pagestrings[i] = pages.get(i).toString();
-            		}
-            		String author = tags.getString("author");
-            		String title = tags.getString("title");
-            		if(author == null) {
-            			author = "";
-            		}
-            		if(title == null) {
-            			title = "";
-            		}
-            		book = new MIBook(author, title, pagestrings);
+            	BookItem bi = new BookItem(itemStack);
+            	//Make sure we don't use this on an empty book!
+            	if(bi.getPages() != null) {
+            		book = new MIBook(bi.getAuthor(), bi.getTitle(), bi.getPages());
             	}
-            }else if(itemStack instanceof CraftItemStack) {
-            	net.minecraft.server.ItemStack stack = ((CraftItemStack)itemStack).getHandle();
-            	if(stack != null && stack.tag != null) {
-                	nbttags = stack.tag;
-            	}
+            }else {
+            	nbttags = TuxTwoNBTData.readOutNBTString(itemStack);
             }
         }
     }
@@ -81,7 +54,10 @@ public class MIItemStack {
             getEnchantments(data[3]);
             if(data.length > 4) {
             	String unserialized = new String(javax.xml.bind.DatatypeConverter.parseBase64Binary(data[4]));
-	    		nbttags = (NBTTagCompound)xstream.fromXML(unserialized);
+            	//Don't read in the old format.
+            	if(!unserialized.startsWith("<?")) {
+            		nbttags = data[4];
+            	}
             }
         }
     }
@@ -96,58 +72,25 @@ public class MIItemStack {
             itemStack = new ItemStack(itemID, quantity, durability);
             itemStack.addUnsafeEnchantments(enchantments);
             if((itemID == 386 || itemID == 387) && book != null) {
-            	MultiInv.log.debug("We've got a book in the inventory!");
-            	CraftItemStack cs = new CraftItemStack(itemStack);
-            	net.minecraft.server.ItemStack stack = cs.getHandle();
-            	NBTTagCompound tags = stack.tag;
-                if (tags == null) {
-                    tags = stack.tag = new NBTTagCompound();
-                }
-            	NBTTagList pages = new NBTTagList("pages");
-            	//we don't want to throw any errors if the book is blank!
-            	if(book.getPages().length == 0) {
-            		return cs;
-            	}
-            	for(int i = 0; i < book.getPages().length; i++) {
-            		MultiInv.log.debug("Loading page " + i + ": " + book.getPages()[i]);
-            		pages.add(new NBTTagString("" + i + "", book.getPages()[i]));
-            	}
-            	tags.set("pages", pages);
-            	if(!book.getAuthor().equals("")) {
-            		MultiInv.log.debug("Setting author to: " + book.getAuthor());
-                	tags.setString("author", book.getAuthor());
-            	}
-            	if(!book.getTitle().equals("")) {
-            		MultiInv.log.debug("Setting title to: " + book.getTitle());
-                	tags.setString("title", book.getTitle());
-            	}
-            	MultiInv.log.debug("Returning craftitemstack.");
-            	return cs;
+            	BookItem bi = new BookItem(itemStack);
+            	bi.setAuthor(book.getAuthor());
+            	bi.setTitle(book.getTitle());
+            	bi.setPages(book.getPages());
+            	return bi.getItemStack();
             }else if(nbttags != null) {
-            	CraftItemStack cs = new CraftItemStack(itemStack);
-            	net.minecraft.server.ItemStack stack = cs.getHandle();
-            	stack.tag = nbttags;
-            	return cs;
+            	return TuxTwoNBTData.readInNBTString(itemStack, nbttags);
             }
         }
         return itemStack;
     }
 
     public String toString() {
-        // TODO: Add compatibility with old inventories
-        // return itemID + "," + quantity + "," + data + "," + durability;
     	if(nbttags != null) {
-            return itemID + "," + quantity + "," + durability + "," + getEnchantmentString() + "," + getNBTserialized();
+            return itemID + "," + quantity + "," + durability + "," + getEnchantmentString() + "," + nbttags;
     	}else {
             return itemID + "," + quantity + "," + durability + "," + getEnchantmentString();
     	}
     }
-
-    private String getNBTserialized() {
-    	String xml = xstream.toXML(nbttags);
-		String serialized = javax.xml.bind.DatatypeConverter.printBase64Binary(xml.getBytes());
-		return serialized;
-	}
 
 	private String getEnchantmentString(){
     	if(book != null) {

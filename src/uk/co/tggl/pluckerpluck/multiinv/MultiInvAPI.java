@@ -3,14 +3,11 @@ package uk.co.tggl.pluckerpluck.multiinv;
 import java.io.File;
 import java.util.HashMap;
 
-import net.minecraft.server.EntityPlayer;
-import net.minecraft.server.ItemInWorldManager;
-import net.minecraft.server.MinecraftServer;
-
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
+
+import Tux2.TuxTwoLib.TuxTwoPlayer;
 
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIItemStack;
@@ -96,9 +93,7 @@ public class MultiInvAPI {
 						//actual player file.
 						if(MIYamlFiles.logoutworld.get(playername).equals(MIPlayerListener.getGroup(world))) {
 							//Create an entity to load the player data
-							MinecraftServer server = ((CraftServer)this.plugin.getServer()).getServer();
-							EntityPlayer entity = new EntityPlayer(server, server.getWorldServer(0), playername, new ItemInWorldManager(server.getWorldServer(0)));
-							Player target = (entity == null) ? null : (Player) entity.getBukkitEntity();
+							Player target = TuxTwoPlayer.getOfflinePlayer(playername);
 							if(target != null) {
 								target.loadData();
 								//Now let's check the gamemode!
@@ -168,7 +163,7 @@ public class MultiInvAPI {
 		if(giveplayer != null && giveplayer.isOnline()) {
 			currentworld = giveplayer.getWorld().getName();
 		}else {
-			giveplayer = getOfflinePlayer(player);
+			giveplayer = TuxTwoPlayer.getOfflinePlayer(player);
 			if(giveplayer == null) {
 				return false;
 			}
@@ -233,7 +228,7 @@ public class MultiInvAPI {
 		if(giveplayer != null && giveplayer.isOnline()) {
 			currentworld = giveplayer.getWorld().getName();
 		}else {
-			giveplayer = getOfflinePlayer(player);
+			giveplayer = TuxTwoPlayer.getOfflinePlayer(player);
 			if(giveplayer == null) {
 				return false;
 			}
@@ -350,6 +345,7 @@ public class MultiInvAPI {
 		return MIYamlFiles.getGroups();
 	}
 	
+	/*
 	private Player getOfflinePlayer(String player) {
 		Player pplayer = null;
 		try {
@@ -380,6 +376,6 @@ public class MultiInvAPI {
 			return null;
 		}
 		return pplayer;
-	}
+	}*/
 
 }
