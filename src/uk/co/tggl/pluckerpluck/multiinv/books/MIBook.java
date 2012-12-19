@@ -85,6 +85,45 @@ public class MIBook {
 			e.printStackTrace();
 		}
 	}
+	
+	public MIBook(String author, String title, List<String> pages) {
+		String allpages = title + ";author;" + author;
+		String[] spages = new String[pages.size()];
+		for(int i = 0; i < pages.size(); i++) {
+			allpages = allpages + ";newpage;" + pages.get(i);
+			spages[i] = pages.get(i);
+		}
+		try {
+			MessageDigest md5 = MessageDigest.getInstance("MD5");
+			byte[] hashbytes = md5.digest(allpages.getBytes("UTF-8"));
+			BigInteger bigInt = new BigInteger(1,hashbytes);
+			hashcode = bigInt.toString(16);
+			this.author = author;
+			this.title = title;
+			this.pages = spages;
+			if (MIYamlFiles.config.getBoolean("useSQL")) {
+				MIBook newbook = MIYamlFiles.con.getBook(hashcode, false);
+				if(newbook == null) {
+					MIYamlFiles.con.saveBook(this);
+				}else {
+					//We don't need to do anything if there is a result.
+					//It should all be exactly the same.
+				}
+			}else {
+				file = new File(dataFolder.getAbsolutePath() + File.separator + "books" + File.separator + "book_" + hashcode + ".yml");
+				if(file.exists()) {
+					ybookfile = new YamlConfiguration();
+			        load();
+				}else {
+					save();
+				}
+			}
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public MIBook(String hashcode) {
 		this(new File(Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder() + File.separator + 
@@ -98,7 +137,7 @@ public class MIBook {
 	        load();
 		}
 	}
-	
+
 	public String getHashcode() {
 		return hashcode;
 	}

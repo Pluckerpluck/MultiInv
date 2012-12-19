@@ -1,17 +1,23 @@
 package uk.co.tggl.pluckerpluck.multiinv.inventory;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
-
-import Tux2.TuxTwoLib.BookItem;
-import Tux2.TuxTwoLib.TuxTwoNBTData;
+import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.inventory.meta.Repairable;
+import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.potion.PotionEffect;
 
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.books.MIBook;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,13 +39,13 @@ public class MIItemStack {
             durability = itemStack.getDurability();
             enchantments = itemStack.getEnchantments();
             if(itemID == 386 || itemID == 387) {
-            	BookItem bi = new BookItem(itemStack);
+            	BookMeta meta = (BookMeta)itemStack.getItemMeta();
             	//Make sure we don't use this on an empty book!
-            	if(bi.getPages() != null) {
-            		book = new MIBook(bi.getAuthor(), bi.getTitle(), bi.getPages());
+            	if(meta.getPages() != null) {
+            		book = new MIBook(meta.getAuthor(), meta.getTitle(), meta.getPages());
             	}
-            }else {
-            	nbttags = TuxTwoNBTData.readOutNBTString(itemStack);
+            }else if(itemStack.hasItemMeta()) {
+            	nbttags = getItemMetaSerialized(itemStack.getItemMeta());
             }
         }
     }
@@ -54,9 +60,10 @@ public class MIItemStack {
             getEnchantments(data[3]);
             if(data.length > 4) {
             	String unserialized = new String(javax.xml.bind.DatatypeConverter.parseBase64Binary(data[4]));
-            	//Don't read in the old format.
-            	if(!unserialized.startsWith("<?")) {
-            		nbttags = data[4];
+            	//New format starts with a #
+            	if(unserialized.startsWith("#")) {
+            		//Chop off the beginning "#" sign...
+            		nbttags = data[4].substring(1);
             	}
             }
         }
@@ -72,13 +79,14 @@ public class MIItemStack {
             itemStack = new ItemStack(itemID, quantity, durability);
             itemStack.addUnsafeEnchantments(enchantments);
             if((itemID == 386 || itemID == 387) && book != null) {
-            	BookItem bi = new BookItem(itemStack);
+            	BookMeta bi = (BookMeta)itemStack.getItemMeta();
             	bi.setAuthor(book.getAuthor());
             	bi.setTitle(book.getTitle());
             	bi.setPages(book.getPages());
-            	return bi.getItemStack();
+            	return itemStack;
             }else if(nbttags != null) {
-            	return TuxTwoNBTData.readInNBTString(itemStack, nbttags);
+            	//TODO: add item meta
+            	//return TuxTwoNBTData.readInNBTString(itemStack, nbttags);
             }
         }
         return itemStack;
@@ -86,7 +94,7 @@ public class MIItemStack {
 
     public String toString() {
     	if(nbttags != null) {
-            return itemID + "," + quantity + "," + durability + "," + getEnchantmentString() + "," + nbttags;
+            return itemID + "," + quantity + "," + durability + "," + getEnchantmentString() + "," + "#" + nbttags;
     	}else {
             return itemID + "," + quantity + "," + durability + "," + getEnchantmentString();
     	}
@@ -130,5 +138,59 @@ public class MIItemStack {
             }
         }
     }
+    
+    private String getItemMetaSerialized(ItemMeta meta) {
+    	StringBuilder smeta = new StringBuilder();
+    	smeta.append(base64Encode(meta.getDisplayName()) + "#");
+    	smeta.append(base64Encode(encodeLore(meta.getLore())) + "#");
+    	if(meta instanceof SkullMeta) {
+    		SkullMeta skullmeta = (SkullMeta)meta;
+    		if(((SkullMeta) meta).hasOwner()) {
+        		smeta.append(skullmeta.getOwner());
+    		}
+    	}else if(meta instanceof LeatherArmorMeta) {
+    		Color color = ((LeatherArmorMeta)meta).getColor();
+    		smeta.append(String.valueOf(color.asRGB()) + "#");
+    	}else if(meta instanceof PotionMeta) {
+    		if(((PotionMeta)meta).hasCustomEffects()) {
+    			List<PotionEffect> effects = ((PotionMeta)meta).getCustomEffects();
+    			for(PotionEffect effect : effects) {
+    				smeta.append(effect.getType().getName() + "-" + effect.getAmplifier() + "-" + effect.getDuration() + "#");
+    			}
+    		}
+    	}
+    	if(meta instanceof Repairable) {
+    		Repairable rmeta = (Repairable)meta;
+    		smeta.append(rmeta.getRepairCost());
+    	}
+    	return smeta.toString();
+    }
 
+    private String base64Encode(String encode) {
+    	return javax.xml.bind.DatatypeConverter.printBase64Binary(encode.getBytes());
+    }
+    
+    private String base64Decode(String encoded) {
+    	byte[] bytes = javax.xml.bind.DatatypeConverter.parseBase64Binary(encoded);
+    	return new String(bytes);
+    }
+    
+    private String encodeLore(List<String> lore) {
+    	StringBuilder slore = new StringBuilder();
+    	for(int i = 0; i < lore.size(); i++) {
+    		if(i > 0) {
+    			slore.append("-");
+    		}
+    		slore.append(base64Encode(lore.get(i)));
+    	}
+    	return slore.toString();
+    }
+    
+    private String[] decodeLore(String lore) {
+    	String[] slore = lore.split("-");
+    	for(int i = 0; i < slore.length; i++) {
+    		slore[i] = base64Decode(slore[i]);
+    	}
+    	return slore;
+    }
 }
