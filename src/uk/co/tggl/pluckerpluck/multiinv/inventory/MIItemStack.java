@@ -164,14 +164,14 @@ public class MIItemStack {
         	}else if(ismeta instanceof PotionMeta) {
         		if(msplit.length > repairableindex) {
         			boolean ispotion = true;
-        			if(msplit[repairableindex].contains("-")) {
+        			if(msplit[repairableindex].contains("+")) {
         				PotionMeta pmeta = (PotionMeta)ismeta;
             			for(; repairableindex < msplit.length && ispotion; repairableindex++) {
-            				if(msplit[repairableindex].contains("-")) {
-                				String[] potion = msplit[repairableindex].split("-");
+            				if(msplit[repairableindex].contains("+")) {
+                				String[] potion = msplit[repairableindex].split("\\+");
                 				PotionEffectType type = PotionEffectType.getByName(potion[0]);
-                				int duration = Integer.parseInt(potion[1]);
-                				int amplifier = Integer.parseInt(potion[2]);
+                				int amplifier = Integer.parseInt(potion[1]);
+                				int duration = Integer.parseInt(potion[2]);
                 				PotionEffect pe = new PotionEffect(type, duration, amplifier);
                 				pmeta.addCustomEffect(pe, true);
             				}else {
@@ -208,7 +208,7 @@ public class MIItemStack {
     		if(((PotionMeta)meta).hasCustomEffects()) {
     			List<PotionEffect> effects = ((PotionMeta)meta).getCustomEffects();
     			for(PotionEffect effect : effects) {
-    				smeta.append(effect.getType().getName() + "-" + effect.getAmplifier() + "-" + effect.getDuration() + "#");
+    				smeta.append(effect.getType().getName() + "+" + effect.getAmplifier() + "+" + effect.getDuration() + "#");
     			}
     		}
     	}
