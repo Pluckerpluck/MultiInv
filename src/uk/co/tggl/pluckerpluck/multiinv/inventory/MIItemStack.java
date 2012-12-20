@@ -11,12 +11,14 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.Repairable;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.books.MIBook;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -59,9 +61,8 @@ public class MIItemStack {
             durability = Short.parseShort(data[2]);
             getEnchantments(data[3]);
             if(data.length > 4) {
-            	String unserialized = new String(javax.xml.bind.DatatypeConverter.parseBase64Binary(data[4]));
             	//New format starts with a #
-            	if(unserialized.startsWith("#")) {
+            	if(data[4].startsWith("#")) {
             		//Chop off the beginning "#" sign...
             		nbttags = data[4].substring(1);
             	}
@@ -85,8 +86,7 @@ public class MIItemStack {
             	bi.setPages(book.getPages());
             	return itemStack;
             }else if(nbttags != null) {
-            	//TODO: add item meta
-            	//return TuxTwoNBTData.readInNBTString(itemStack, nbttags);
+            	return addItemMeta(itemStack, nbttags);
             }
         }
         return itemStack;
@@ -139,10 +139,59 @@ public class MIItemStack {
         }
     }
     
+    private ItemStack addItemMeta(ItemStack is, String meta) {
+    	ItemMeta ismeta = is.getItemMeta();
+    	String[] msplit = meta.split("#");
+    	int repairableindex = 2;
+    	if(msplit.length > 1) {
+    		if(!msplit[0].equals("")) {
+        		ismeta.setDisplayName(base64Decode(msplit[0]));
+    		}
+    		if(!msplit[1].equals("")) {
+        		ismeta.setLore(decodeLore(msplit[1]));
+    		}
+    		if(ismeta instanceof SkullMeta) {
+    			if(!msplit[2].isEmpty()) {
+                	((SkullMeta)ismeta).setOwner(base64Decode(msplit[2]));
+    			}
+            	repairableindex = 3;
+        	}else if(ismeta instanceof LeatherArmorMeta) {
+        		if(!msplit[2].equals("")) {
+            		int color = Integer.parseInt(msplit[2]);
+            		((LeatherArmorMeta) ismeta).setColor(Color.fromRGB(color));
+        		}
+            	repairableindex = 3;
+        	}else if(ismeta instanceof PotionMeta) {
+        		if(msplit.length > repairableindex) {
+        			boolean ispotion = true;
+        			if(msplit[repairableindex].contains("-")) {
+        				PotionMeta pmeta = (PotionMeta)ismeta;
+            			for(; repairableindex < msplit.length && ispotion; repairableindex++) {
+            				String[] potion = msplit[repairableindex].split("-");
+            				PotionEffectType type = PotionEffectType.getByName(potion[0]);
+            				int duration = Integer.parseInt(potion[1]);
+            				int amplifier = Integer.parseInt(potion[2]);
+            				PotionEffect pe = new PotionEffect(type, duration, amplifier);
+            				pmeta.addCustomEffect(pe, true);
+            			}
+        			}
+        		}
+        	}
+        	if(ismeta instanceof Repairable) {
+        		if(msplit.length > repairableindex) {
+            		Repairable rmeta = (Repairable)ismeta;
+            		rmeta.setRepairCost(Integer.parseInt(msplit[repairableindex]));
+        		}
+        	}
+    	}
+    	is.setItemMeta(ismeta);
+    	return is;
+    }
+    
     private String getItemMetaSerialized(ItemMeta meta) {
     	StringBuilder smeta = new StringBuilder();
     	smeta.append(base64Encode(meta.getDisplayName()) + "#");
-    	smeta.append(base64Encode(encodeLore(meta.getLore())) + "#");
+    	smeta.append(encodeLore(meta.getLore()) + "#");
     	if(meta instanceof SkullMeta) {
     		SkullMeta skullmeta = (SkullMeta)meta;
     		if(((SkullMeta) meta).hasOwner()) {
@@ -167,16 +216,25 @@ public class MIItemStack {
     }
 
     private String base64Encode(String encode) {
+    	if(encode == null) {
+    		return "";
+    	}
     	return javax.xml.bind.DatatypeConverter.printBase64Binary(encode.getBytes());
     }
     
     private String base64Decode(String encoded) {
+    	if(encoded.isEmpty()) {
+    		return "";
+    	}
     	byte[] bytes = javax.xml.bind.DatatypeConverter.parseBase64Binary(encoded);
     	return new String(bytes);
     }
     
     private String encodeLore(List<String> lore) {
     	StringBuilder slore = new StringBuilder();
+    	if(lore == null) {
+    		return "";
+    	}
     	for(int i = 0; i < lore.size(); i++) {
     		if(i > 0) {
     			slore.append("-");
@@ -186,11 +244,12 @@ public class MIItemStack {
     	return slore.toString();
     }
     
-    private String[] decodeLore(String lore) {
+    private LinkedList<String> decodeLore(String lore) {
     	String[] slore = lore.split("-");
+    	LinkedList<String> lstring = new LinkedList<String>();
     	for(int i = 0; i < slore.length; i++) {
-    		slore[i] = base64Decode(slore[i]);
+    		lstring.add(base64Decode(slore[i]));
     	}
-    	return slore;
+    	return lstring;
     }
 }
