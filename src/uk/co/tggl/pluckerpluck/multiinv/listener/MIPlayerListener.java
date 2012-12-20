@@ -52,12 +52,10 @@ public class MIPlayerListener implements Listener{
     public void onPlayerLogin(PlayerLoginEvent event){
         Player player = event.getPlayer();
         players.put(player.getName(), new MIPlayer(player, plugin));
-        if(player.hasPermission("multiinv.exempt")) {
-        	return;
+        if(!player.hasPermission("multiinv.exempt") || !player.hasPermission("multiinv.enderchestexempt")) {
+            //Let's set a task to run once they get switched to the proper world by bukkit.
+            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new DeferredWorldCheck(player, this), 1);
         }
-        
-        //Let's set a task to run once they get switched to the proper world by bukkit.
-        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new DeferredWorldCheck(player, this), 4);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
