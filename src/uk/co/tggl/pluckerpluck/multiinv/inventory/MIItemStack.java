@@ -167,12 +167,16 @@ public class MIItemStack {
         			if(msplit[repairableindex].contains("-")) {
         				PotionMeta pmeta = (PotionMeta)ismeta;
             			for(; repairableindex < msplit.length && ispotion; repairableindex++) {
-            				String[] potion = msplit[repairableindex].split("-");
-            				PotionEffectType type = PotionEffectType.getByName(potion[0]);
-            				int duration = Integer.parseInt(potion[1]);
-            				int amplifier = Integer.parseInt(potion[2]);
-            				PotionEffect pe = new PotionEffect(type, duration, amplifier);
-            				pmeta.addCustomEffect(pe, true);
+            				if(msplit[repairableindex].contains("-")) {
+                				String[] potion = msplit[repairableindex].split("-");
+                				PotionEffectType type = PotionEffectType.getByName(potion[0]);
+                				int duration = Integer.parseInt(potion[1]);
+                				int amplifier = Integer.parseInt(potion[2]);
+                				PotionEffect pe = new PotionEffect(type, duration, amplifier);
+                				pmeta.addCustomEffect(pe, true);
+            				}else {
+            					ispotion = false;
+            				}
             			}
         			}
         		}
