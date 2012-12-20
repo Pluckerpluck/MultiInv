@@ -5,6 +5,7 @@ import org.bukkit.GameMode;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
+import uk.co.tggl.pluckerpluck.multiinv.inventory.MIEnderchestInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventoryOld;
 
@@ -16,16 +17,20 @@ import java.io.File;
 public class MIPlayerFile {
     //final private Configuration playerFile;
     final private YamlConfiguration playerFile;
+    final private YamlConfiguration enderchestFile;
     final private File file;
+    final private File enderfile;
     final private String playername;
 
     public MIPlayerFile(Player player, String group) {
         // Find and load configuration file for the player
         File dataFolder =  Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder();
         File worldsFolder = new File(dataFolder, "Groups");
-        file = new File(worldsFolder, group + File.separator + player.getName() + ".yml");
         playername = player.getName();
+        file = new File(worldsFolder, group + File.separator + playername + ".yml");
+        enderfile = new File(worldsFolder, group + File.separator + playername + ".ec.yml");
         playerFile = new YamlConfiguration();
+        enderchestFile = new YamlConfiguration();
         load();
     }
     
@@ -34,8 +39,10 @@ public class MIPlayerFile {
         File dataFolder =  Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder();
         File worldsFolder = new File(dataFolder, "Groups");
         file = new File(worldsFolder, group + File.separator + player + ".yml");
+        enderfile = new File(worldsFolder, group + File.separator + player + ".ec.yml");
         playername = player;
         playerFile = new YamlConfiguration();
+        enderchestFile = new YamlConfiguration();
         load();
     }
 
@@ -49,11 +56,21 @@ public class MIPlayerFile {
         }else{
             save();
         }
+        if (enderfile.exists()){
+            try{
+                enderchestFile.load(enderfile);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }else{
+            save();
+        }
     }
 
     private void save(){
         try{
             playerFile.save(file);
+            enderchestFile.save(enderfile);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -89,6 +106,24 @@ public class MIPlayerFile {
         String folder = file.getParentFile().getName();
         MultiInv.log.debug("Saving " + playername + "'s " + inventoryName + " inventory to " + folder);
 
+        save();
+    }
+
+    // Load particular enderchest inventory for specified player from specified group
+    public MIEnderchestInventory getEnderchestInventory(String inventoryName){
+        // Get stored string from configuration file
+        MIEnderchestInventory inventory;
+        String inventoryString = enderchestFile.getString(inventoryName, null);
+
+        String folder = file.getParentFile().getName();
+        MultiInv.log.debug("Loading " + playername + "'s " + inventoryName + " inventory from " + folder);
+        inventory = new MIEnderchestInventory(inventoryString);
+        return inventory;
+    }
+
+    public void saveEnderchestInventory(MIEnderchestInventory inventory, String inventoryName){
+        String inventoryString = inventory.toString();
+        enderchestFile.set(inventoryName, inventoryString);
         save();
     }
 

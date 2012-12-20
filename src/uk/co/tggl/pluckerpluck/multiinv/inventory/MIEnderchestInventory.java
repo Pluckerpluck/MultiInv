@@ -1,5 +1,6 @@
 package uk.co.tggl.pluckerpluck.multiinv.inventory;
 
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -35,8 +36,12 @@ public class MIEnderchestInventory implements Serializable{
             }
         }
     }
+    
+    public MIEnderchestInventory(Player player) {
+    	this(player.getEnderChest());
+    }
 
-    public MIEnderchestInventory() {
+	public MIEnderchestInventory() {
     }
 
     public void loadIntoInventory(Inventory inventory){

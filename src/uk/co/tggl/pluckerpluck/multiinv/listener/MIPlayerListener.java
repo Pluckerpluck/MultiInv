@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
@@ -58,7 +57,7 @@ public class MIPlayerListener implements Listener{
         }
         
         //Let's set a task to run once they get switched to the proper world by bukkit.
-        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new DeferredWorldCheck(player, this), 1);
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new DeferredWorldCheck(player, this), 4);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -69,10 +68,6 @@ public class MIPlayerListener implements Listener{
     	}
         // Get player objects
         Player player = event.getPlayer();
-        if(player.hasPermission("multiinv.exempt")) {
-        	return;
-        }
-        MIPlayer miPlayer = players.get(player.getName());
 
         // Get world objects
         World worldTo = player.getWorld();
@@ -84,24 +79,22 @@ public class MIPlayerListener implements Listener{
 
         MultiInv.log.debug(player.getName() + " moved from " + groupFrom + " to " + groupTo);
 
-        if (!groupTo.equals(groupFrom) && !miPlayer.isIgnored()){
+        if (!groupTo.equals(groupFrom)){
         	//Let's put this player in the pool of players that switched worlds, that way we don't dupe the inventory.
         	playerchangeworlds.put(player.getName(), new Boolean(true));
         	//Let's schedule it so that we take the player out soon afterwards.
         	player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemovePlayer(player.getName(), playerchangeworlds), 1);
-            savePlayerState(player, groupFrom);
-            loadPlayerState(player, groupTo);
+        	
+        	if(!player.hasPermission("multiinv.enderchestexempt")) {
+    			saveEnderchestState(player, groupFrom);
+    			loadEnderchestState(player, groupTo);
+    		}
+            if(!player.hasPermission("multiinv.exempt")) {
+                savePlayerState(player, groupFrom);
+                loadPlayerState(player, groupTo);
+            }
             //Save the player's current world
             MIYamlFiles.savePlayerLogoutWorld(player.getName(), groupTo);
-        }else if(MIYamlFiles.config.getBoolean("xpfix", true)) {
-        	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 5);
-        	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 15);
-        	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 25);
-        	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 35);
-        	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 75);
-        	//Last one sets those really laggy clients 30 seconds after world change. If you have any more
-        	//lag than this, you have problems!
-        	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 600);
         }
     }
     
@@ -115,10 +108,6 @@ public class MIPlayerListener implements Listener{
     		if(event.getFrom().getWorld() != event.getTo().getWorld()) {
     			// Get player objects
     	        Player player = event.getPlayer();
-    	        if(player.hasPermission("multiinv.exempt")) {
-    	        	return;
-    	        }
-    	        MIPlayer miPlayer = players.get(player.getName());
 
     	        // Get world objects
     	        World worldTo = event.getTo().getWorld();
@@ -130,25 +119,23 @@ public class MIPlayerListener implements Listener{
 
     	        MultiInv.log.debug(player.getName() + " moved from " + groupFrom + " to " + groupTo);
 
-    	        if (!groupTo.equals(groupFrom) && !miPlayer.isIgnored()){
+    	        if (!groupTo.equals(groupFrom)){
     	        	//Let's put this player in the pool of players that switched worlds, that way we don't dupe the inventory.
     	        	playerchangeworlds.put(player.getName(), new Boolean(true));
     	        	//Let's schedule it so that we take the player out soon afterwards.
     	        	player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemovePlayer(player.getName(), playerchangeworlds), 1);
-    	            savePlayerState(player, groupFrom);
-    	            loadPlayerState(player, groupTo);
+
+    	        	if(!player.hasPermission("multiinv.enderchestexempt")) {
+    	    			saveEnderchestState(player, groupFrom);
+    	    			loadEnderchestState(player, groupTo);
+    	    		}
+    	            if(!player.hasPermission("multiinv.exempt")) {
+    	                savePlayerState(player, groupFrom);
+    	                loadPlayerState(player, groupTo);
+    	            }
     	            //Save the player's current world
     	            MIYamlFiles.savePlayerLogoutWorld(player.getName(), groupTo);
     	            
-    	        }else if(MIYamlFiles.config.getBoolean("xpfix", true)) {
-    	        	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 5);
-    	        	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 15);
-    	        	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 25);
-    	        	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 35);
-    	        	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 75);
-    	        	//Last one sets those really laggy clients 30 seconds after world change. If you have any more
-    	        	//lag than this, you have problems!
-    	        	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 600);
     	        }
     		}
     	}
@@ -180,9 +167,6 @@ public class MIPlayerListener implements Listener{
     public void onPlayerGameModeChange(PlayerGameModeChangeEvent event){
         if (!event.isCancelled() && MIYamlFiles.config.getBoolean("separateGamemodeInventories", true)){
             Player player = event.getPlayer();
-            if(player.hasPermission("multiinv.exempt")) {
-            	return;
-            }
             MIPlayer miPlayer = players.get(player.getName());
 
             // Find correct group
@@ -193,9 +177,19 @@ public class MIPlayerListener implements Listener{
 
             //We only want to save the old inventory if we didn't switch worlds in the same tick. Inventory problems otherwise.
             if(!playerchangeworlds.containsKey(player.getName())) {
-                miPlayer.saveInventory(group, player.getGameMode().toString());
+            	if(!player.hasPermission("multiinv.enderchestexempt")) {
+                	miPlayer.saveEnderchestInventory(group, player.getGameMode().toString());
+        		}
+                if(!player.hasPermission("multiinv.exempt")) {
+                    miPlayer.saveInventory(group, player.getGameMode().toString());
+                }
             }
-            miPlayer.loadInventory(group, event.getNewGameMode().toString());
+            if(!player.hasPermission("multiinv.enderchestexempt")) {
+            	miPlayer.loadEnderchestInventory(group, player.getGameMode().toString());
+    		}
+            if(!player.hasPermission("multiinv.exempt")) {
+                miPlayer.loadInventory(group, player.getGameMode().toString());
+            }
         }
     }
 
@@ -239,6 +233,16 @@ public class MIPlayerListener implements Listener{
         	//lag than this, you have problems!
         	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new SetXP(player, this), 600);
         }
+    }
+    
+    public void saveEnderchestState(Player player, String group) {
+    	MIPlayer miPlayer = players.get(player.getName());
+    	miPlayer.saveEnderchestInventory(group, player.getGameMode().toString());
+    }
+    
+    public void loadEnderchestState(Player player, String group) {
+    	MIPlayer miPlayer = players.get(player.getName());
+    	miPlayer.loadEnderchestInventory(group, player.getGameMode().toString());
     }
 
     public void loadPlayerXP(Player player, String group){

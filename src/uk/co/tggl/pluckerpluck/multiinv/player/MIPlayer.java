@@ -2,9 +2,11 @@ package uk.co.tggl.pluckerpluck.multiinv.player;
 
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.PlayerInventory;
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
+import uk.co.tggl.pluckerpluck.multiinv.inventory.MIEnderchestInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 
 /**
@@ -15,24 +17,16 @@ public class MIPlayer{
     // Initialize final variables that define the MIPlayer
     final Player player;
     final PlayerInventory inventory;
+	final Inventory enderchest;
     MultiInv plugin;
 
     // Initialize (and assign) variables containing the initial state of an MIPlayer
-    private boolean ignored = false;
 
     public MIPlayer(Player player, MultiInv plugin) {
         this.player = player;
         this.plugin = plugin;
         inventory = player.getInventory();
-    }
-
-    // Getters and Setters
-    public boolean isIgnored() {
-        return ignored;
-    }
-
-    public void setIgnored(boolean ignored) {
-        this.ignored = ignored;
+        enderchest = player.getEnderChest();
     }
 
     /* --------------------
@@ -41,7 +35,7 @@ public class MIPlayer{
      */
 
     // Load methods that will load data into the game
-    public void loadInventory(String group, String inventoryName){
+    public void loadInventory(String group, String inventoryName) {
     	if(!MIYamlFiles.config.getBoolean("separateGamemodeInventories", true)) {
     		inventoryName = "SURVIVAL";
     	}
@@ -68,6 +62,41 @@ public class MIPlayer{
         }else{
             MIPlayerFile config = new MIPlayerFile(player, group);
             config.saveInventory(inventory, inventoryName);
+        }
+    }
+
+
+    /* --------------------
+     * PlayerEnderchestInventory methods
+     * --------------------
+     */
+
+    // Load methods that will load data into the game
+    public void loadEnderchestInventory(String group, String inventoryName) {
+    	if(!MIYamlFiles.config.getBoolean("separateGamemodeInventories", true)) {
+    		inventoryName = "SURVIVAL";
+    	}
+        if (MIYamlFiles.config.getBoolean("useSQL")){
+        	MIEnderchestInventory inventory = MIYamlFiles.con.getEnderchestInventory(player.getName(), group, inventoryName);
+        	inventory.loadIntoInventory(enderchest);
+        }else{
+            MIPlayerFile config = new MIPlayerFile(player, group);
+            MIEnderchestInventory inventory = config.getEnderchestInventory(inventoryName);
+            inventory.loadIntoInventory(enderchest);
+        }
+    }
+
+    public void saveEnderchestInventory(String group, String inventoryName){
+    	if(!MIYamlFiles.config.getBoolean("separateGamemodeInventories", true)) {
+    		inventoryName = "SURVIVAL";
+    	}
+        MIEnderchestInventory inventory = new MIEnderchestInventory(player);
+        if (MIYamlFiles.config.getBoolean("useSQL")){
+        	MIYamlFiles.con.refreshConnection();
+        	MIYamlFiles.con.saveEnderchestInventory(player.getName(), group, inventory, inventoryName);
+        }else{
+            MIPlayerFile config = new MIPlayerFile(player, group);
+            config.saveEnderchestInventory(inventory, inventoryName);
         }
     }
 

@@ -7,7 +7,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import uk.co.tggl.pluckerpluck.multiinv.command.MICommand;
-import uk.co.tggl.pluckerpluck.multiinv.listener.MIEnderChest;
 import uk.co.tggl.pluckerpluck.multiinv.listener.MIPlayerListener;
 import uk.co.tggl.pluckerpluck.multiinv.logger.MILogger;
 
@@ -70,7 +69,6 @@ public class MultiInv extends JavaPlugin {
 
         // Register required events
         PluginManager pm = getServer().getPluginManager();
-        pm.registerEvents(new MIEnderChest(this), this);
         pm.registerEvents(playerListener, this);
         String[] cbversionstring = getServer().getVersion().split(":");
         String[] versionstring = cbversionstring[1].split("\\.");
