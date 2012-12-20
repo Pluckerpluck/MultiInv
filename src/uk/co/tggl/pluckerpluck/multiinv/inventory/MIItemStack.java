@@ -152,7 +152,7 @@ public class MIItemStack {
     		}
     		if(ismeta instanceof SkullMeta) {
     			if(!msplit[2].isEmpty()) {
-                	((SkullMeta)ismeta).setOwner(base64Decode(msplit[2]));
+                	((SkullMeta)ismeta).setOwner(msplit[2]);
     			}
             	repairableindex = 3;
         	}else if(ismeta instanceof LeatherArmorMeta) {
@@ -176,6 +176,7 @@ public class MIItemStack {
                 				pmeta.addCustomEffect(pe, true);
             				}else {
             					ispotion = false;
+            					repairableindex--;
             				}
             			}
         			}
@@ -199,7 +200,7 @@ public class MIItemStack {
     	if(meta instanceof SkullMeta) {
     		SkullMeta skullmeta = (SkullMeta)meta;
     		if(((SkullMeta) meta).hasOwner()) {
-        		smeta.append(skullmeta.getOwner());
+        		smeta.append(skullmeta.getOwner() + "#");
     		}
     	}else if(meta instanceof LeatherArmorMeta) {
     		Color color = ((LeatherArmorMeta)meta).getColor();
