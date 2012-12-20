@@ -12,7 +12,7 @@ public class MIEnderchestInventory implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = -8407863073614592570L;
-	protected MIItemStack[] MIInventoryContents = new MIItemStack[36];
+	protected MIItemStack[] MIInventoryContents = new MIItemStack[27];
 
     // Create an MIInventory from a PlayerInventory
     public MIEnderchestInventory (Inventory inventory){

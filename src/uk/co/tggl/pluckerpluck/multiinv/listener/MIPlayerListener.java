@@ -185,10 +185,10 @@ public class MIPlayerListener implements Listener{
                 }
             }
             if(!player.hasPermission("multiinv.enderchestexempt")) {
-            	miPlayer.loadEnderchestInventory(group, player.getGameMode().toString());
+            	miPlayer.loadEnderchestInventory(group, event.getNewGameMode().toString());
     		}
             if(!player.hasPermission("multiinv.exempt")) {
-                miPlayer.loadInventory(group, player.getGameMode().toString());
+                miPlayer.loadInventory(group, event.getNewGameMode().toString());
             }
         }
     }
