@@ -78,11 +78,6 @@ public class MIYamlFiles {
                 for (String world : worlds){
                     creativegroups.put(world, "creative");
                 }
-                String allowenderchests = config.getString("allowEnderChestPlacement");
-                if(allowenderchests == null || allowenderchests.equals("")) {
-                	config.set("allowEnderChestPlacement", true);
-                	saveYamlFile(config, "config.yml");
-                }
                 String compatibilitymode = config.getString("compatibilityMode");
                 if(compatibilitymode == null || compatibilitymode.equals("")) {
                 	config.set("compatibilityMode", false);
