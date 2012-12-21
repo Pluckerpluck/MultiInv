@@ -245,7 +245,6 @@ public class MICommand {
 						sender.sendMessage(ChatColor.DARK_RED + "I'm sorry, something funky happened... Import aborted.");
 						return;
 					}
-					XStream xstream = new XStream();
 					ArrayList<Group> mvgroups = WorldInventories.groups;
 					YamlConfiguration groups = new YamlConfiguration();
 					MIYamlFiles.getGroups().clear();
@@ -260,9 +259,9 @@ public class MICommand {
 						groups.set(group, exampleGroup);
 						MIYamlFiles.saveYamlFile(groups, "groups.yml");
 						for (OfflinePlayer player1 : Bukkit.getServer().getOfflinePlayers()) {
-							PlayerInventoryHelper playerdata = WIloadPlayerInventory(player1, mvgroup, xstream, mvinventories);
-							EnderChestHelper playerenderchest = WIloadPlayerEnderChest(player1.getName(), mvgroup, xstream, mvinventories);
-							PlayerStats playerstats = WIloadPlayerStats(player1, mvgroup, xstream, mvinventories);
+							PlayerInventoryHelper playerdata = mvinventories.loadPlayerInventory(player1, mvgroup);
+							EnderChestHelper playerenderchest = mvinventories.loadPlayerEnderChest(player1.getName(), mvgroup);
+							PlayerStats playerstats = mvinventories.loadPlayerStats(player1, mvgroup);
 							if(playerdata != null) {
 								ItemStack[] inventory = playerdata.getItems();
 								ItemStack[] armor = playerdata.getArmour();
@@ -324,79 +323,6 @@ public class MICommand {
 				}
 			}
 		}
-	}
-
-	public static PlayerInventoryHelper WIloadPlayerInventory(OfflinePlayer player, Group group, XStream xstream, WorldInventories mvinventories) {
-		InventoriesLists playerInventory = null;
-
-		String path = File.separator + group.getName();
-
-		path = mvinventories.getDataFolder().getAbsolutePath() + path;
-
-		File file = new File(path);
-		if (!file.exists())
-		{
-			file.mkdir();
-		}
-
-		path += File.separator + player.getName() + ".inventory." + WorldInventories.fileVersion + ".xml";
-
-		file = new File(path);
-		if(!file.exists()) {
-
-			return null;
-		}else {
-			playerInventory = (InventoriesLists) xstream.fromXML(file);
-		}
-
-		return new PlayerInventoryHelper(playerInventory);
-	}
-
-	public static EnderChestHelper WIloadPlayerEnderChest(String player, Group group, XStream xstream, WorldInventories mvinventories) {
-		InventoriesLists playerInventory = null;
-
-		String path = File.separator + group.getName();
-
-		path = mvinventories.getDataFolder().getAbsolutePath() + path;
-
-		File file = new File(path);
-		if (!file.exists()) {
-			return null;
-		}
-
-		path += File.separator + player + ".enderchest." + WorldInventories.fileVersion + ".xml";
-
-		file = new File(path);
-		if(!file.exists()) {            
-			return null;
-		}else {
-			playerInventory = (InventoriesLists) xstream.fromXML(file);
-		}
-		return new EnderChestHelper(playerInventory);
-	}
-
-	public static PlayerStats WIloadPlayerStats(OfflinePlayer player, Group group, XStream xstream, WorldInventories mvinventories) {
-		PlayerStats playerstats = null;
-
-		String path = File.separator + group.getName();
-
-		path = mvinventories.getDataFolder().getAbsolutePath() + path;
-
-		File file = new File(path);
-		if (!file.exists()) {
-			return null;
-		}
-
-		path += File.separator + player.getName() + ".stats." + WorldInventories.fileVersion + ".xml";
-
-		file = new File(path);
-		if(!file.exists()) {
-			WorldInventories.logDebug("Player " + player.getName() + " will get a new stats file on next save (clearing now).");
-			playerstats = new PlayerStats(20, 20, 0, 0, 0, 0F, null);
-		}else {
-			playerstats = (PlayerStats) xstream.fromXML(file);
-		}
-		return playerstats;
 	}
 
 	private static boolean importInventories() {
