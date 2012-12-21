@@ -259,6 +259,7 @@ public class MICommand {
 						groups.set(group, exampleGroup);
 						MIYamlFiles.saveYamlFile(groups, "groups.yml");
 						for (OfflinePlayer player1 : Bukkit.getServer().getOfflinePlayers()) {
+							plugin.getLogger().info("Importing player " + player1.getName() + "'s inventory from group " + mvgroup.getName());
 							PlayerInventoryHelper playerdata = mvinventories.loadPlayerInventory(player1, mvgroup);
 							EnderChestHelper playerenderchest = mvinventories.loadPlayerEnderChest(player1.getName(), mvgroup);
 							PlayerStats playerstats = mvinventories.loadPlayerStats(player1, mvgroup);
