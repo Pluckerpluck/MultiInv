@@ -242,7 +242,7 @@ public class SqlConnector {
 	
 	public MIEnderchestInventory getEnderchestInventory(String player, String group, String inventoryName) {
         // Get stored string from configuration file
-        MIEnderchestInventory inventory = null;
+        MIEnderchestInventory inventory = new MIEnderchestInventory();
         try {
         	Statement st = con.createStatement();
 	        ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "enderchestinv WHERE chest_player='" + player + "' AND inv_group='" + group + "'");
