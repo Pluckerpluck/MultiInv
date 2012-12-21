@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 
 import Tux2.TuxTwoLib.TuxTwoPlayer;
 
+import uk.co.tggl.pluckerpluck.multiinv.api.MIAPIPlayer;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIItemStack;
 import uk.co.tggl.pluckerpluck.multiinv.listener.MIPlayerListener;
@@ -32,10 +33,31 @@ public class MultiInvAPI {
 	 */
 	public MIInventory getPlayerInventory(String player, String world, GameMode gm) {
 		Player giveplayer = plugin.getServer().getPlayer(player);
-		//If the player is online it's very easy.
-		if(giveplayer != null && giveplayer.isOnline()) {
+		boolean playeronline = true;
+		if((giveplayer == null || !giveplayer.isOnline())) {
+			//See if the player has data files
+
+			// Find the player folder
+			File playerfolder = new File(Bukkit.getWorlds().get(0).getWorldFolder(), "players");
+
+			// Find player name
+			for (File playerfile : playerfolder.listFiles()) {
+				String filename = playerfile.getName();
+				String playername = filename.substring(0, filename.length() - 4);
+
+				if(playername.trim().equalsIgnoreCase(player)) {
+					Player target = TuxTwoPlayer.getOfflinePlayer(playername);
+					if(target != null) {
+						target.loadData();
+						giveplayer = target;
+					}
+				}
+			}
+		}
+		if(giveplayer != null) {
 			//Let's see if the player is in the same world group.
-			if(MIPlayerListener.getGroup(giveplayer.getWorld().getName()).equalsIgnoreCase(MIPlayerListener.getGroup(world))) {
+			if((playeronline && MIPlayerListener.getGroup(giveplayer.getWorld().getName()).equalsIgnoreCase(MIPlayerListener.getGroup(world))) ||
+					(!playeronline && MIYamlFiles.logoutworld.get(giveplayer.getName()).equals(MIPlayerListener.getGroup(world)))) {
 				//If they are in the same world, yet are in the wrong game mode, let's get the inventory from the file.
 				if(MIYamlFiles.config.getBoolean("separateGamemodeInventories", true) && (giveplayer.getGameMode() != gm)) {
 					String inventoryName = "CREATIVE";
@@ -73,76 +95,6 @@ public class MultiInvAPI {
 		        }
 			}
 			//The player isn't online. Let's do it in offline mode then...
-		}else {
-			//Offline inv here...
-			try {
-				//See if the player has data files
-
-				// Find the player folder
-				File playerfolder = new File(Bukkit.getWorlds().get(0).getWorldFolder(), "players");
-
-				// Find player name
-				for (File playerfile : playerfolder.listFiles()) {
-					String filename = playerfile.getName();
-					String playername = filename.substring(0, filename.length() - 4);
-
-					if(playername.trim().equalsIgnoreCase(player)) {
-						//This player plays on the server!
-						
-						//If the player logged out in the world group this world is in we need the
-						//actual player file.
-						if(MIYamlFiles.logoutworld.get(playername).equals(MIPlayerListener.getGroup(world))) {
-							//Create an entity to load the player data
-							Player target = TuxTwoPlayer.getOfflinePlayer(playername);
-							if(target != null) {
-								target.loadData();
-								//Now let's check the gamemode!
-								if(MIYamlFiles.config.getBoolean("separateGamemodeInventories", true) && (target.getGameMode() != gm)) {
-									String inventoryName = "CREATIVE";
-									if(GameMode.SURVIVAL == gm) {
-							    		inventoryName = "SURVIVAL";
-							    	}
-							        if (MIYamlFiles.config.getBoolean("useSQL")){
-							        	MIInventory inventory = MIYamlFiles.con.getInventory(target.getName(), MIPlayerListener.getGroup(world), inventoryName);
-							        	return inventory;
-							        }else{
-							            MIPlayerFile config = new MIPlayerFile(target, MIPlayerListener.getGroup(world));
-							            MIInventory inventory = config.getInventory(inventoryName);
-							            return inventory;
-							        }
-							        //If they are currently using the inventory, let's just grab it...
-								}else {
-									return new MIInventory(target);
-								}
-							}else {
-								MultiInv.log.warning(playername + " not found!");
-								return null;
-							}
-							//They aren't in the same world group, so let's just grab it from the file.
-						}else {
-							String inventoryName = "CREATIVE";
-							if(GameMode.SURVIVAL == gm) {
-					    		inventoryName = "SURVIVAL";
-					    	}
-							if(!MIYamlFiles.config.getBoolean("separateGamemodeInventories", true)) {
-					    		inventoryName = "SURVIVAL";
-					    	}
-					        if (MIYamlFiles.config.getBoolean("useSQL")){
-					        	MIInventory inventory = MIYamlFiles.con.getInventory(playername, MIPlayerListener.getGroup(world), inventoryName);
-					        	return inventory;
-					        }else{
-					            MIPlayerFile config = new MIPlayerFile(playername, MIPlayerListener.getGroup(world));
-					            MIInventory inventory = config.getInventory(inventoryName);
-					            return inventory;
-					        }
-						}
-					}
-				}
-			}
-			catch(Exception e) {
-				MultiInv.log.warning("Error while retrieving offline player data for player " + player + "!");
-				return null;
-			}
 		}
 		return null;
 		
@@ -338,17 +290,16 @@ public class MultiInvAPI {
 	}
 	
 	/**
-	 * Returns a hashmap of worlds and what group they are in. Format: ( world, group).
-	 * @return All worlds and their assigned groups.
+	 * Gets a copy of all of a player's vital statistics. Editing stuff in this file does not directly modify the player.
+	 * @param player The player's name.
+	 * @param world The world that you want the statistics for.
+	 * @param gm What gamemode you want the statistics for.
+	 * @return A copy of the player's stats.
 	 */
-	public HashMap<String, String> getGroups() {
-		return MIYamlFiles.getGroups();
-	}
-	
-	/*
-	private Player getOfflinePlayer(String player) {
-		Player pplayer = null;
-		try {
+	public MIAPIPlayer getPlayerInstance(String player, String world, GameMode gm) {
+		Player giveplayer = plugin.getServer().getPlayer(player);
+		boolean playeronline = true;
+		if((giveplayer == null || !giveplayer.isOnline())) {
 			//See if the player has data files
 
 			// Find the player folder
@@ -360,22 +311,206 @@ public class MultiInvAPI {
 				String playername = filename.substring(0, filename.length() - 4);
 
 				if(playername.trim().equalsIgnoreCase(player)) {
-					//This player plays on the server!
-					MinecraftServer server = ((CraftServer)this.plugin.getServer()).getServer();
-					EntityPlayer entity = new EntityPlayer(server, server.getWorldServer(0), playername, new ItemInWorldManager(server.getWorldServer(0)));
-					Player target = (entity == null) ? null : (Player) entity.getBukkitEntity();
+					Player target = TuxTwoPlayer.getOfflinePlayer(playername);
 					if(target != null) {
 						target.loadData();
-						return target;
+						giveplayer = target;
 					}
 				}
 			}
 		}
-		catch(Exception e) {
-			MultiInv.log.warning("Error while retrieving offline player data for player " + player + "!");
-			return null;
+		if(giveplayer != null) {
+			//Let's see if the player is in the same world group.
+			if((playeronline && MIPlayerListener.getGroup(giveplayer.getWorld().getName()).equalsIgnoreCase(MIPlayerListener.getGroup(world))) ||
+					(!playeronline && MIYamlFiles.logoutworld.get(giveplayer.getName()).equals(MIPlayerListener.getGroup(world)))) {
+				//If they are in the same world, yet are in the wrong game mode, let's get the inventory from the file.
+				if(MIYamlFiles.config.getBoolean("separateGamemodeInventories", true) && (giveplayer.getGameMode() != gm)) {
+					String inventoryName = "CREATIVE";
+					if(GameMode.SURVIVAL == gm) {
+			    		inventoryName = "SURVIVAL";
+			    	}
+			        if (MIYamlFiles.config.getBoolean("useSQL")){
+			        	MIAPIPlayer playerfile = new MIAPIPlayer(giveplayer.getName());
+			        	String group = MIPlayerListener.getGroup(world);
+			        	String playername = giveplayer.getName();
+			        	playerfile.setInventory(MIYamlFiles.con.getInventory(playername, group, inventoryName));
+			        	playerfile.setEnderchest(MIYamlFiles.con.getEnderchestInventory(playername, group, inventoryName));
+			        	playerfile.setFoodlevel(giveplayer.getFoodLevel());
+			        	playerfile.setSaturation(giveplayer.getSaturation());
+			        	playerfile.setHealth(giveplayer.getHealth());
+			        	playerfile.setXpLevel(giveplayer.getLevel());
+			        	playerfile.setXp(giveplayer.getExp());
+			        	playerfile.setGm(gm);
+			        	return playerfile;
+			        }else{
+			            MIPlayerFile config = new MIPlayerFile(giveplayer, MIPlayerListener.getGroup(world));
+			        	MIAPIPlayer playerfile = new MIAPIPlayer(giveplayer.getName());
+			        	playerfile.setInventory(config.getInventory(gm.toString()));
+			        	playerfile.setEnderchest(config.getEnderchestInventory(gm.toString()));
+			        	playerfile.setFoodlevel(giveplayer.getFoodLevel());
+			        	playerfile.setSaturation(giveplayer.getSaturation());
+			        	playerfile.setHealth(giveplayer.getHealth());
+			        	playerfile.setXpLevel(giveplayer.getLevel());
+			        	playerfile.setXp(giveplayer.getExp());
+			        	playerfile.setGm(gm);
+			            return playerfile;
+			        }
+			        //If they are currently using the inventory, let's just grab it...
+				}else {
+		        	MIAPIPlayer playerfile = new MIAPIPlayer(giveplayer.getName());
+		        	playerfile.setInventory(playerfile.getInventory());
+		        	playerfile.setEnderchest(playerfile.getEnderchest());
+		        	playerfile.setFoodlevel(giveplayer.getFoodLevel());
+		        	playerfile.setSaturation(giveplayer.getSaturation());
+		        	playerfile.setHealth(giveplayer.getHealth());
+		        	playerfile.setXpLevel(giveplayer.getLevel());
+		        	playerfile.setXp(giveplayer.getExp());
+		        	playerfile.setGm(gm);
+		            return playerfile;
+				}
+				//If we are getting an inventory from another world let's just load it.
+			}else {
+				String inventoryName = "CREATIVE";
+				if(GameMode.SURVIVAL == gm) {
+		    		inventoryName = "SURVIVAL";
+		    	}
+				if(!MIYamlFiles.config.getBoolean("separateGamemodeInventories", true)) {
+		    		inventoryName = "SURVIVAL";
+		    	}
+				if (MIYamlFiles.config.getBoolean("useSQL")){
+		        	MIAPIPlayer playerfile = new MIAPIPlayer(giveplayer.getName());
+		        	String group = MIPlayerListener.getGroup(world);
+		        	String playername = giveplayer.getName();
+		        	playerfile.setInventory(MIYamlFiles.con.getInventory(playername, group, inventoryName));
+		        	playerfile.setEnderchest(MIYamlFiles.con.getEnderchestInventory(playername, group, inventoryName));
+		        	playerfile.setFoodlevel(MIYamlFiles.con.getHunger(playername, group));
+		        	playerfile.setSaturation(MIYamlFiles.con.getSaturation(playername, group));
+		        	playerfile.setHealth(MIYamlFiles.con.getHealth(playername, group));
+		        	int totalxp = MIYamlFiles.con.getTotalExperience(playername, group);
+		        	int[] xp = plugin.getXP(totalxp);
+		        	playerfile.setXpLevel(xp[0]);
+		        	playerfile.setXp((float)((float)xp[1]/(float)xp[2]));
+		        	playerfile.setGm(gm);
+		        	return playerfile;
+		        }else{
+		            MIPlayerFile config = new MIPlayerFile(giveplayer, MIPlayerListener.getGroup(world));
+		        	MIAPIPlayer playerfile = new MIAPIPlayer(giveplayer.getName());
+		        	playerfile.setInventory(config.getInventory(gm.toString()));
+		        	playerfile.setEnderchest(config.getEnderchestInventory(gm.toString()));
+		        	playerfile.setFoodlevel(config.getHunger());
+		        	playerfile.setSaturation(config.getSaturation());
+		        	playerfile.setHealth(config.getHealth());
+		        	playerfile.setXpLevel(config.getLevel());
+		        	playerfile.setXp(config.getExperience());
+		        	playerfile.setGm(gm);
+		            return playerfile;
+		        }
+			}
 		}
-		return pplayer;
-	}*/
+		return null;
+		
+	}
+	
+	/**
+	 * Takes a player instance and saves it.
+	 * @param player The Player instance.
+	 * @param world The world the instance is for.
+	 * @return True on success, false on failure.
+	 */
+	public boolean savePlayerInstance(MIAPIPlayer player, String world) {
+		Player giveplayer = plugin.getServer().getPlayer(player.getPlayername());
+		boolean playeronline = true;
+		if((giveplayer == null || !giveplayer.isOnline())) {
+			//See if the player has data files
 
+			// Find the player folder
+			File playerfolder = new File(Bukkit.getWorlds().get(0).getWorldFolder(), "players");
+
+			// Find player name
+			for (File playerfile : playerfolder.listFiles()) {
+				String filename = playerfile.getName();
+				String playername = filename.substring(0, filename.length() - 4);
+
+				if(playername.trim().equalsIgnoreCase(player.getPlayername())) {
+					Player target = TuxTwoPlayer.getOfflinePlayer(playername);
+					if(target != null) {
+						target.loadData();
+						giveplayer = target;
+					}
+				}
+			}
+		}
+		if(giveplayer != null) {
+			//Let's see if the player is in the same world group.
+			if((playeronline && MIPlayerListener.getGroup(giveplayer.getWorld().getName()).equalsIgnoreCase(MIPlayerListener.getGroup(world))) ||
+					(!playeronline && MIYamlFiles.logoutworld.get(giveplayer.getName()).equals(MIPlayerListener.getGroup(world)))) {
+				//If they are in the same world, yet are in the wrong game mode, let's save the player to a file.
+				if(MIYamlFiles.config.getBoolean("separateGamemodeInventories", true) && (giveplayer.getGameMode() != player.getGm())) {
+					String inventoryName = player.getGm().toString();
+			        if (MIYamlFiles.config.getBoolean("useSQL")){
+			        	String group = MIPlayerListener.getGroup(world);
+			        	String playername = giveplayer.getName();
+			        	MIYamlFiles.con.saveInventory(playername, group, player.getInventory(), inventoryName);
+			        	MIYamlFiles.con.saveEnderchestInventory(playername, group, player.getEnderchest(), inventoryName);
+			        }else{
+			            MIPlayerFile config = new MIPlayerFile(giveplayer, MIPlayerListener.getGroup(world));
+			        	config.saveInventory(player.getInventory(), player.getGm().toString());
+			        	config.saveEnderchestInventory(player.getEnderchest(), player.getGm().toString());
+			        }
+			        //If they are currently using the inventory, let's just set it...
+				}else {
+					player.getInventory().loadIntoInventory(giveplayer.getInventory());
+					player.getEnderchest().loadIntoInventory(giveplayer.getEnderChest());
+				}
+	        	giveplayer.setFoodLevel(player.getFoodlevel());
+	        	giveplayer.setSaturation(player.getSaturation());
+	        	giveplayer.setHealth(player.getHealth());
+	        	giveplayer.setLevel(player.getXpLevel());
+	        	giveplayer.setExp((float) player.getXp());
+	        	if(!playeronline) {
+	        		giveplayer.saveData();
+	        	}
+	        	return true;
+				//If we are getting an inventory from another world let's just save it.
+			}else {
+				String inventoryName = player.getGm().toString();
+				if(!MIYamlFiles.config.getBoolean("separateGamemodeInventories", true)) {
+		    		inventoryName = "SURVIVAL";
+		    	}
+				if (MIYamlFiles.config.getBoolean("useSQL")){
+		        	String group = MIPlayerListener.getGroup(world);
+		        	String playername = giveplayer.getName();
+		        	MIYamlFiles.con.saveInventory(playername, group, player.getInventory(), inventoryName);
+		        	MIYamlFiles.con.saveEnderchestInventory(playername, group, player.getEnderchest(), inventoryName);
+		        	MIYamlFiles.con.saveHunger(playername, group, player.getFoodlevel());
+		        	MIYamlFiles.con.saveSaturation(playername, group, player.getSaturation());
+		        	MIYamlFiles.con.saveHealth(playername, group, player.getHealth());
+		        	int xp = plugin.getTotalXP(player.getXpLevel(), player.getXp());
+		        	MIYamlFiles.con.saveExperience(playername, group, xp);
+		        	return true;
+		        }else{
+		            MIPlayerFile config = new MIPlayerFile(giveplayer, MIPlayerListener.getGroup(world));
+		            config.saveInventory(player.getInventory(), inventoryName);
+		            config.saveEnderchestInventory(player.getEnderchest(), inventoryName);
+		            config.saveHunger(player.getFoodlevel());
+		            config.saveSaturation(player.getSaturation());
+		            config.saveHealth(player.getHealth());
+		            config.saveExperience(plugin.getTotalXP(player.getXpLevel(), player.getXp()), player.getXpLevel(), player.getXp());
+		            return true;
+		        }
+			}
+		}
+		return false;
+		
+	}
+	
+	/**
+	 * Returns a hashmap of worlds and what group they are in. Format: ( world, group).
+	 * @return All worlds and their assigned groups.
+	 */
+	public HashMap<String, String> getGroups() {
+		return MIYamlFiles.getGroups();
+	}
+	
+	
 }
