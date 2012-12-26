@@ -84,6 +84,7 @@ public class MIItemStack {
                 bi.setAuthor(book.getAuthor());
                 bi.setTitle(book.getTitle());
                 bi.setPages(book.getPages());
+                itemStack.setItemMeta(bi);
                 return itemStack;
             } else if(nbttags != null) {
                 return addItemMeta(itemStack, nbttags);
