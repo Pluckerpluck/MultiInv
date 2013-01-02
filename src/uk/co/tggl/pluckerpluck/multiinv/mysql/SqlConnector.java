@@ -206,8 +206,17 @@ public class SqlConnector {
                 con.setAutoCommit(false);
                 addbook = con.prepareStatement("INSERT INTO " + prefix + "books (book_hash, book_author, book_title, book_contents) " +
                         "VALUES('book_" + book.getHashcode() + "', ?, ?, ?)");
-                addbook.setString(1, book.getAuthor());
-                addbook.setString(2, book.getTitle());
+                //Don't save nulls
+                if(book.getAuthor() == null) {
+                    addbook.setString(1, "");
+                }else {
+                    addbook.setString(1, book.getAuthor());
+                }
+                if(book.getTitle() == null) {
+                    addbook.setString(2, "");
+                }else {
+                    addbook.setString(2, book.getTitle());
+                }
                 addbook.setString(3, new String(os.toByteArray()));
                 addbook.executeUpdate();
                 con.commit();
@@ -235,7 +244,14 @@ public class SqlConnector {
                 String[] pages = (String[]) xml.readObject();
                 xml.close();
                 String author = rs.getString("book_author");
+                //reconvert to null
+                if(author.equals("")) {
+                    author = null;
+                }
                 String title = rs.getString("book_title");
+                if(title.equals("")) {
+                    title = null;
+                }
                 String hashcode = rs.getString("book_hash").substring(5);
                 MIBook book = new MIBook(hashcode, author, title, pages);
                 return book;
