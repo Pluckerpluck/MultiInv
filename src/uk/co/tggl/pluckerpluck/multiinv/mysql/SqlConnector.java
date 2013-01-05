@@ -52,12 +52,15 @@ public class SqlConnector {
             st = con.createStatement();
             ResultSet rs = st.executeQuery("show tables like '" + prefix + "multiinv'");
             if(rs.next()) {
+                st.close();
                 return true;
             } else {
+                st.close();
                 return false;
             }
         } catch(SQLException e) {
             e.printStackTrace();
+            st.close();
             return false;
         }
     }
@@ -68,12 +71,15 @@ public class SqlConnector {
             st = con.createStatement();
             ResultSet rs = st.executeQuery("show tables like '" + prefix + "enderchestinv'");
             if(rs.next()) {
+                st.close();
                 return true;
             } else {
+                st.close();
                 return false;
             }
         } catch(SQLException e) {
             e.printStackTrace();
+            st.close();
             return false;
         }
     }
@@ -84,12 +90,15 @@ public class SqlConnector {
             st = con.createStatement();
             ResultSet rs = st.executeQuery("show tables like '" + prefix + "books'");
             if(rs.next()) {
+                st.close();
                 return true;
             } else {
+                st.close();
                 return false;
             }
         } catch(SQLException e) {
             e.printStackTrace();
+            st.close();
             return false;
         }
     }
@@ -100,12 +109,15 @@ public class SqlConnector {
             st = con.createStatement();
             ResultSet rs = st.executeQuery("SHOW COLUMNS FROM `" + prefix + "multiinv` LIKE 'inv_" + gamemode + "';");
             if(rs.next()) {
+                st.close();
                 return true;
             } else {
+                st.close();
                 return false;
             }
         } catch(SQLException e) {
             e.printStackTrace();
+            st.close();
             return false;
         }
     }
@@ -116,9 +128,11 @@ public class SqlConnector {
             st = con.createStatement();
             st.executeUpdate("ALTER TABLE `" + prefix + "multiinv` ADD `inv_" + gamemode.toLowerCase()
                     + "` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+            st.close();
             return true;
         } catch(SQLException e) {
             e.printStackTrace();
+            st.close();
             return false;
         }
     }
@@ -148,9 +162,11 @@ public class SqlConnector {
                     "`inv_creative` text NOT NULL, " +
                     "`inv_adventure` text NOT NULL, " +
                     "UNIQUE KEY `unique_player_group` ( `inv_player` , `inv_group` ) ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
+            st.close();
             return true;
         } catch(SQLException e) {
             e.printStackTrace();
+            st.close();
             return false;
         }
     }
@@ -167,9 +183,11 @@ public class SqlConnector {
                     "`chest_creative` text NOT NULL, " +
                     "`chest_adventure` text NOT NULL, " +
                     "UNIQUE KEY `unique_player_group` ( `chest_player` , `inv_group` ) ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
+            st.close();
             return true;
         } catch(SQLException e) {
             e.printStackTrace();
+            st.close();
             return false;
         }
     }
@@ -183,9 +201,11 @@ public class SqlConnector {
                     "`book_author` VARCHAR( 35 ) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL COMMENT 'The book author', " +
                     "`book_title` VARCHAR( 35 ) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL COMMENT 'Book title.', " +
                     "`book_contents` text NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
+            st.close();
             return true;
         } catch(SQLException e) {
             e.printStackTrace();
+            st.close();
             return false;
         }
     }
@@ -194,8 +214,9 @@ public class SqlConnector {
         if(!bookTableExists()) {
             createBookTable();
         }
+        Statement st;
         try {
-            Statement st = con.createStatement();
+            st = con.createStatement();
             ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "books WHERE book_hash='book_" + book.getHashcode() + "'");
             if(!rs.next()) {
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -225,6 +246,7 @@ public class SqlConnector {
         } catch(SQLException e) {
             e.printStackTrace();
         }
+        st.close();
     }
     
     public MIBook getBook(String bookhash, boolean bookprefix) {
@@ -234,8 +256,9 @@ public class SqlConnector {
         if(bookprefix == false) {
             bookhash = "book_" + bookhash;
         }
+        Statement st;
         try {
-            Statement st = con.createStatement();
+            st = con.createStatement();
             ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "books WHERE book_hash='" + bookhash + "'");
             if(rs.next()) {
                 String bookcontentsxml = rs.getString("book_contents");
@@ -254,11 +277,13 @@ public class SqlConnector {
                 }
                 String hashcode = rs.getString("book_hash").substring(5);
                 MIBook book = new MIBook(hashcode, author, title, pages);
+                st.close();
                 return book;
             }
         } catch(SQLException e) {
             e.printStackTrace();
         }
+        st.close();
         return null;
     }
     
@@ -272,6 +297,7 @@ public class SqlConnector {
                 String inventoryString = rs.getString("chest_" + inventoryName.toLowerCase());
                 inventory = new MIEnderchestInventory(inventoryString);
             }
+            st.close();
         } catch(SQLException e) {
             // e.printStackTrace();
         }
@@ -292,6 +318,7 @@ public class SqlConnector {
                 String inventoryString = rs.getString("inv_" + inventoryName.toLowerCase());
                 inventory = new MIInventory(inventoryString);
             }
+            st.close();
         } catch(SQLException e) {
             // e.printStackTrace();
         }
@@ -310,6 +337,7 @@ public class SqlConnector {
             Statement st = con.createStatement();
             st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_" + inventoryName.toLowerCase() + "='" + inventoryString + "' WHERE inv_player='" + player
                     + "' AND inv_group='" + group + "'");
+            st.close();
         } catch(SQLException e) {
             e.printStackTrace();
         }
@@ -323,6 +351,7 @@ public class SqlConnector {
             Statement st = con.createStatement();
             st.executeUpdate("UPDATE " + prefix + "enderchestinv SET chest_" + inventoryName.toLowerCase() + "='" + inventoryString + "' WHERE chest_player='"
                     + player + "' AND inv_group='" + group + "'");
+            st.close();
         } catch(SQLException e) {
             e.printStackTrace();
         }
@@ -345,6 +374,7 @@ public class SqlConnector {
                         +
                         "VALUES('" + player + "', '" + group + "', 'SURVIVAL', 20, 20, 5, 0, 0, '', '', '')");
             }
+            st.close();
         } catch(SQLException e) {
             e.printStackTrace();
         }
@@ -361,6 +391,7 @@ public class SqlConnector {
                 st.executeUpdate("INSERT INTO " + prefix + "enderchestinv (chest_player, inv_group, chest_survival, chest_creative, chest_adventure) " +
                         "VALUES('" + player + "', '" + group + "', '', '', '')");
             }
+            st.close();
         } catch(SQLException e) {
             e.printStackTrace();
         }
@@ -374,6 +405,7 @@ public class SqlConnector {
             if(rs.next()) {
                 health = rs.getInt("inv_health");
             }
+            st.close();
         } catch(SQLException e) {
             // e.printStackTrace();
         }
@@ -389,6 +421,7 @@ public class SqlConnector {
         try {
             Statement st = con.createStatement();
             st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_health='" + health + "' WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
+            st.close();
         } catch(SQLException e) {
             e.printStackTrace();
         }
@@ -402,6 +435,7 @@ public class SqlConnector {
             if(rs.next()) {
                 gameModeString = rs.getString("inv_gamemode");
             }
+            st.close();
         } catch(SQLException e) {
             // e.printStackTrace();
         }
@@ -421,6 +455,7 @@ public class SqlConnector {
             Statement st = con.createStatement();
             st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_gamemode='" + gameMode.toString() + "' WHERE inv_player='" + player + "' AND inv_group='"
                     + group + "'");
+            st.close();
         } catch(SQLException e) {
             e.printStackTrace();
         }
@@ -434,6 +469,7 @@ public class SqlConnector {
             if(rs.next()) {
                 hunger = rs.getInt("inv_hunger");
             }
+            st.close();
         } catch(SQLException e) {
             // e.printStackTrace();
         }
@@ -451,6 +487,7 @@ public class SqlConnector {
             if(rs.next()) {
                 saturationDouble = rs.getDouble("inv_saturation");
             }
+            st.close();
         } catch(SQLException e) {
             // e.printStackTrace();
         }
@@ -465,6 +502,7 @@ public class SqlConnector {
             Statement st = con.createStatement();
             st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_saturation='" + saturation + "' WHERE inv_player='" + player + "' AND inv_group='" + group
                     + "'");
+            st.close();
         } catch(SQLException e) {
             e.printStackTrace();
         }
@@ -478,6 +516,7 @@ public class SqlConnector {
             if(rs.next()) {
                 experience = rs.getInt("inv_experience");
             }
+            st.close();
         } catch(SQLException e) {
             // e.printStackTrace();
         }
@@ -491,6 +530,7 @@ public class SqlConnector {
             Statement st = con.createStatement();
             st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_experience='" + experience + "' WHERE inv_player='" + player + "' AND inv_group='" + group
                     + "'");
+            st.close();
         } catch(SQLException e) {
             e.printStackTrace();
         }
@@ -501,6 +541,7 @@ public class SqlConnector {
         try {
             Statement st = con.createStatement();
             st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_hunger='" + hunger + "' WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
+            st.close();
         } catch(SQLException e) {
             e.printStackTrace();
         }
