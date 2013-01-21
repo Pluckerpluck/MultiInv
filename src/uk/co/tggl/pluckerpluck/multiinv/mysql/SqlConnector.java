@@ -245,11 +245,11 @@ public class SqlConnector {
                 xml.close();
                 String author = rs.getString("book_author");
                 //reconvert to null
-                if(author.equals("")) {
+                if(author != null && author.equals("")) {
                     author = null;
                 }
                 String title = rs.getString("book_title");
-                if(title.equals("")) {
+                if(title != null && title.equals("")) {
                     title = null;
                 }
                 String hashcode = rs.getString("book_hash").substring(5);
