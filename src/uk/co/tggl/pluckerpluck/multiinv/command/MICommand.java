@@ -378,6 +378,13 @@ public class MICommand {
                                     // We need to catch this for old inventory files, otherwise it goes wild... not a pretty sight to see...
                                 }
                             }
+                            if(playerfile.getEnderchestInventory("ADVENTURE") != null) {
+                                try {
+                                    MIYamlFiles.con.saveEnderchestInventory(playername, group, playerfile.getEnderchestInventory("ADVENTURE"), "ADVENTURE");
+                                } catch(NullPointerException e) {
+                                    // We need to catch this for old inventory files, otherwise it goes wild... not a pretty sight to see...
+                                }
+                            }
                             MIYamlFiles.con.saveSaturation(playername, group, playerfile.getSaturation());
                             
                         }
