@@ -333,7 +333,7 @@ public class MICommand {
                     System.out.println("In group directory " + group);
                     File[] playerfiles = fdir.listFiles();
                     for(File pfile : playerfiles) {
-                        if(pfile.getName().endsWith(".yml")) {
+                        if(pfile.getName().endsWith(".yml") && !pfile.getName().endsWith(".ec.yml")) {
                             String playername = pfile.getName().substring(0, pfile.getName().lastIndexOf("."));
                             System.out.println("Importing player " + playername);
                             MIPlayerFile playerfile = new MIPlayerFile(playername, fdir.getName());
@@ -353,6 +353,27 @@ public class MICommand {
                             if(playerfile.getInventory("CREATIVE") != null) {
                                 try {
                                     MIYamlFiles.con.saveInventory(playername, group, playerfile.getInventory("CREATIVE"), "CREATIVE");
+                                } catch(NullPointerException e) {
+                                    // We need to catch this for old inventory files, otherwise it goes wild... not a pretty sight to see...
+                                }
+                            }
+                            if(playerfile.getInventory("ADVENTURE") != null) {
+                                try {
+                                    MIYamlFiles.con.saveInventory(playername, group, playerfile.getInventory("ADVENTURE"), "ADVENTURE");
+                                } catch(NullPointerException e) {
+                                    // We need to catch this for old inventory files, otherwise it goes wild... not a pretty sight to see...
+                                }
+                            }
+                            if(playerfile.getEnderchestInventory("SURVIVAL") != null) {
+                                try {
+                                    MIYamlFiles.con.saveEnderchestInventory(playername, group, playerfile.getEnderchestInventory("SURVIVAL"), "SURVIVAL");
+                                } catch(NullPointerException e) {
+                                    // We need to catch this for old inventory files, otherwise it goes wild... not a pretty sight to see...
+                                }
+                            }
+                            if(playerfile.getEnderchestInventory("CREATIVE") != null) {
+                                try {
+                                    MIYamlFiles.con.saveEnderchestInventory(playername, group, playerfile.getEnderchestInventory("CREATIVE"), "CREATIVE");
                                 } catch(NullPointerException e) {
                                     // We need to catch this for old inventory files, otherwise it goes wild... not a pretty sight to see...
                                 }
