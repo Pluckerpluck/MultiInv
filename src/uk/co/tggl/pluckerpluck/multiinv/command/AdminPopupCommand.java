@@ -1,8 +1,8 @@
 package uk.co.tggl.pluckerpluck.multiinv.command;
 
 import org.bukkit.entity.Player;
-import org.getspout.spoutapi.SpoutManager;
-import org.getspout.spoutapi.player.SpoutPlayer;
+//import org.getspout.spoutapi.SpoutManager;
+//import org.getspout.spoutapi.player.SpoutPlayer;
 import uk.co.tggl.pluckerpluck.multiinv.spout.AdminPopup;
 
 /**
@@ -15,9 +15,10 @@ public class AdminPopupCommand {
     }
     
     public void openAdminPopup(Player player) {
+    	/*
         SpoutPlayer spoutPlayer = SpoutManager.getPlayer(player);
         AdminPopup adminPopup = new AdminPopup();
         spoutPlayer.getMainScreen().attachPopupScreen(adminPopup);
-        
+        */
     }
 }

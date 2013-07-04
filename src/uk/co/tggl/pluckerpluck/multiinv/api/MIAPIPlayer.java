@@ -13,7 +13,7 @@ public class MIAPIPlayer {
     GameMode gm;
     int xpLevel = 0;
     float xp = 0;
-    int health = 0;
+    double health = 0;
     int foodlevel = 0;
     float saturation = 5;
     
@@ -61,11 +61,11 @@ public class MIAPIPlayer {
         this.xp = xp;
     }
     
-    public int getHealth() {
+    public double getHealth() {
         return health;
     }
     
-    public void setHealth(int health) {
+    public void setHealth(double health) {
         this.health = health;
     }
     

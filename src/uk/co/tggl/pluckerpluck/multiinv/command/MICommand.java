@@ -2,13 +2,14 @@ package uk.co.tggl.pluckerpluck.multiinv.command;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import me.drayshak.WorldInventories.EnderChestHelper;
 import me.drayshak.WorldInventories.Group;
-import me.drayshak.WorldInventories.PlayerInventoryHelper;
+import me.drayshak.WorldInventories.InventoryLoadType;
+import me.drayshak.WorldInventories.InventoryStoredType;
 import me.drayshak.WorldInventories.PlayerStats;
 import me.drayshak.WorldInventories.WorldInventories;
 
@@ -248,13 +249,13 @@ public class MICommand {
                         MIYamlFiles.saveYamlFile(groups, "groups.yml");
                         for(OfflinePlayer player1 : Bukkit.getServer().getOfflinePlayers()) {
                             plugin.getLogger().info("Importing player " + player1.getName() + "'s inventory from group " + mvgroup.getName());
-                            PlayerInventoryHelper playerdata = mvinventories.loadPlayerInventory(player1, mvgroup);
-                            EnderChestHelper playerenderchest = mvinventories.loadPlayerEnderChest(player1.getName(), mvgroup);
-                            PlayerStats playerstats = mvinventories.loadPlayerStats(player1, mvgroup);
-                            if(playerdata != null) {
-                                ItemStack[] inventory = playerdata.getItems();
-                                ItemStack[] armor = playerdata.getArmour();
-                                int health = 20;
+                            HashMap<Integer, ItemStack[]> pinventory = mvinventories.loadPlayerInventory(player1.getName(), mvgroup, InventoryLoadType.INVENTORY);
+                            HashMap<Integer, ItemStack[]> playerenderchest = mvinventories.loadPlayerInventory(player1.getName(), mvgroup, InventoryLoadType.ENDERCHEST);
+                            PlayerStats playerstats = mvinventories.loadPlayerStats(player1.getName(), mvgroup);
+                            if(pinventory != null) {
+                                ItemStack[] inventory = pinventory.get(InventoryStoredType.INVENTORY);
+                                ItemStack[] armor = pinventory.get(InventoryStoredType.ARMOUR);
+                                double health = 20;
                                 int hunger = 20;
                                 float saturation = 5;
                                 int totalexp = 0;
@@ -270,7 +271,7 @@ public class MICommand {
                                 }
                                 if(MIYamlFiles.config.getBoolean("useSQL")) {
                                     if(playerenderchest != null) {
-                                        ItemStack[] enderchestinventory = playerenderchest.getItems();
+                                        ItemStack[] enderchestinventory = playerenderchest.get(InventoryStoredType.ARMOUR);
                                         MIYamlFiles.con.saveEnderchestInventory(player.getName(), group, new MIEnderchestInventory(enderchestinventory),
                                                 "SURVIVAL");
                                     }
@@ -284,7 +285,7 @@ public class MICommand {
                                     MIPlayerFile config = new MIPlayerFile(player1.getName(), group);
                                     config.saveInventory(new MIInventory(inventory, armor, new LinkedList<PotionEffect>()), "SURVIVAL");
                                     if(playerenderchest != null) {
-                                        ItemStack[] enderchestinventory = playerenderchest.getItems();
+                                        ItemStack[] enderchestinventory = playerenderchest.get(InventoryStoredType.ARMOUR);
                                         config.saveEnderchestInventory(new MIEnderchestInventory(enderchestinventory), "SURVIVAL");
                                     }
                                     config.saveHealth(health);

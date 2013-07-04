@@ -128,15 +128,15 @@ public class MIPlayerFile {
         save();
     }
     
-    public int getHealth() {
-        int health = playerFile.getInt("health", 20);
+    public double getHealth() {
+        double health = playerFile.getDouble("health", 20);
         if(health > 20) {
             health = 20;
         }
         return health;
     }
     
-    public void saveHealth(int health) {
+    public void saveHealth(double health) {
         playerFile.set("health", health);
         save();
     }

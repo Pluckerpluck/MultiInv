@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -31,6 +32,68 @@ public class SqlConnector {
         this.url = url;
         this.username = username;
         this.password = password;
+        if(!tableExists()) {
+            createTable();
+        }
+        if(!inventoryColumnExists("ADVENTURE")) {
+            addInventoryColumn("ADVENTURE");
+        }
+        if(!chestTableExists()) {
+            createChestTable();
+        }
+        if(!bookTableExists()) {
+            createBookTable();
+        }
+        if(columnPrecision("multiinv", "inv_player") < 30) {
+        	setColumnPrecision("multiinv", "inv_player", "VARCHAR", 30);
+        }
+        if(columnPrecision("enderchestinv", "chest_player") < 30) {
+        	setColumnPrecision("enderchestinv", "chest_player", "VARCHAR", 30);
+        }
+        if(!getColumnType("multiinv", "inv_health").equalsIgnoreCase("DOUBLE")) {
+        	setColumnType("multiinv", "inv_health", "DOUBLE");
+        }
+    }
+    
+    public String getColumnType(String table, String column) {
+    	Statement st;
+        try {
+            st = con.createStatement();
+            ResultSet rs = st.executeQuery("SHOW COLUMNS FROM `" + prefix + table + "` LIKE '" + column + "';");
+            if(rs.next()) {
+            	ResultSetMetaData rsmd = rs.getMetaData();
+            	return rsmd.getColumnTypeName(rs.findColumn(column));
+            } else {
+                return "";
+            }
+        } catch(SQLException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+    
+    public boolean setColumnType(String table, String column, String type) {
+    	Statement st;
+        try {
+            st = con.createStatement();
+            st.executeUpdate("ALTER TABLE `" + prefix + table + "` modify `" + column + "` " + type.toUpperCase() + " NOT NULL");
+            return true;
+        } catch(SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    public boolean setColumnPrecision(String table, String column, String type, int precision) {
+    	Statement st;
+        try {
+            st = con.createStatement();
+            st.executeUpdate("ALTER TABLE `" + prefix + table + "` modify `" + column + "` " + type.toUpperCase() + "(" + String.valueOf(precision) + ") NOT NULL");
+            return true;
+        } catch(SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
     
     public void refreshConnection() {
@@ -110,6 +173,29 @@ public class SqlConnector {
         }
     }
     
+    /**
+     * Returns the column's precision.
+     * @param table The table name, without the prefix.
+     * @param column The column name you want to check precision on.
+     * @return Precision of the column or -1 if there was an error.
+     */
+    public int columnPrecision(String table, String column) {
+        Statement st;
+        try {
+            st = con.createStatement();
+            ResultSet rs = st.executeQuery("SHOW COLUMNS FROM `" + prefix + table + "` LIKE '" + column + "';");
+            if(rs.next()) {
+            	ResultSetMetaData rsmd = rs.getMetaData();
+            	return rsmd.getPrecision(rs.findColumn(column));
+            } else {
+                return -1;
+            }
+        } catch(SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+    
     public boolean addInventoryColumn(String gamemode) {
         Statement st;
         try {
@@ -135,11 +221,11 @@ public class SqlConnector {
                     +
                     "`inv_group` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL COMMENT 'Inventory group.', "
                     +
-                    "`inv_player` VARCHAR( 16 ) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL COMMENT 'Minecraft player name.', "
+                    "`inv_player` VARCHAR( 30 ) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL COMMENT 'Minecraft player name.', "
                     +
                     "`inv_gamemode` ENUM('ADVENTURE','CREATIVE','SURVIVAL') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL COMMENT 'ADVENTURE, CREATIVE or SURVIVAL game mode.', "
                     +
-                    "`inv_health` TINYINT( 4 ) NOT NULL COMMENT 'Valid values are 0 to 20.', " +
+                    "`inv_health` DOUBLE NOT NULL COMMENT 'Valid values are 0 to 20.', " +
                     "`inv_hunger` TINYINT( 4 ) NOT NULL COMMENT 'Valid values are 0 to 20.', " +
                     "`inv_saturation` DOUBLE NOT NULL COMMENT 'Valid values are 0.0 to 20.0.', " +
                     "`inv_level` SMALLINT( 6 ) NOT NULL, " +
@@ -162,7 +248,7 @@ public class SqlConnector {
             st.executeUpdate("CREATE TABLE `" + prefix + "enderchestinv` (" +
                     "`inv_id` INT( 11 ) NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
                     "`inv_group` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL COMMENT 'Inventory group.', " +
-                    "`chest_player` VARCHAR( 16 ) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL COMMENT 'Minecraft player name.', " +
+                    "`chest_player` VARCHAR( 30 ) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL COMMENT 'Minecraft player name.', " +
                     "`chest_survival` text NOT NULL, " +
                     "`chest_creative` text NOT NULL, " +
                     "`chest_adventure` text NOT NULL, " +
@@ -191,9 +277,6 @@ public class SqlConnector {
     }
     
     public void saveBook(MIBook book) {
-        if(!bookTableExists()) {
-            createBookTable();
-        }
         try {
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "books WHERE book_hash='book_" + book.getHashcode() + "'");
@@ -329,12 +412,6 @@ public class SqlConnector {
     }
     
     public void createRecord(String player, String group) {
-        if(!tableExists()) {
-            createTable();
-        }
-        if(!inventoryColumnExists("ADVENTURE")) {
-            addInventoryColumn("ADVENTURE");
-        }
         try {
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
@@ -351,9 +428,6 @@ public class SqlConnector {
     }
     
     public void createChestRecord(String player, String group) {
-        if(!chestTableExists()) {
-            createChestTable();
-        }
         try {
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "enderchestinv WHERE chest_player='" + player + "' AND inv_group='" + group + "'");
@@ -366,13 +440,13 @@ public class SqlConnector {
         }
     }
     
-    public int getHealth(String player, String group) {
-        int health = 20;
+    public double getHealth(String player, String group) {
+        double health = 20;
         try {
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
             if(rs.next()) {
-                health = rs.getInt("inv_health");
+                health = rs.getDouble("inv_health");
             }
         } catch(SQLException e) {
             // e.printStackTrace();
@@ -383,7 +457,7 @@ public class SqlConnector {
         return health;
     }
     
-    public void saveHealth(String player, String group, int health) {
+    public void saveHealth(String player, String group, double health) {
         // Call this just to make sure the player record has been created.
         createRecord(player, group);
         try {
