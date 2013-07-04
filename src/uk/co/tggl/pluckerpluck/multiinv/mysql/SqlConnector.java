@@ -59,7 +59,7 @@ public class SqlConnector {
     	Statement st;
         try {
             st = con.createStatement();
-            ResultSet rs = st.executeQuery("SHOW COLUMNS FROM `" + prefix + table + "` LIKE '" + column + "';");
+            ResultSet rs = st.executeQuery("SELECT '" + column + "' FROM `" + prefix + table + "`;");
             if(rs.next()) {
             	ResultSetMetaData rsmd = rs.getMetaData();
             	return rsmd.getColumnTypeName(rs.findColumn(column));
@@ -183,7 +183,7 @@ public class SqlConnector {
         Statement st;
         try {
             st = con.createStatement();
-            ResultSet rs = st.executeQuery("SHOW COLUMNS FROM `" + prefix + table + "` LIKE '" + column + "';");
+            ResultSet rs = st.executeQuery("SELECT '" + column + "' FROM `" + prefix + table + "`;");
             if(rs.next()) {
             	ResultSetMetaData rsmd = rs.getMetaData();
             	return rsmd.getPrecision(rs.findColumn(column));
