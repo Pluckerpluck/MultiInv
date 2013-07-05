@@ -136,6 +136,24 @@ public class MIBook {
             ybookfile = new YamlConfiguration();
             load();
         }
+        String allpages = title + ";author;" + author;
+        for(int i = 0; i < pages.length; i++) {
+            allpages = allpages + ";newpage;" + pages[i];
+        }
+        MessageDigest md5;
+		try {
+			md5 = MessageDigest.getInstance("MD5");
+	        byte[] hashbytes = md5.digest(allpages.getBytes("UTF-8"));
+	        BigInteger bigInt = new BigInteger(1, hashbytes);
+	        hashcode = bigInt.toString(16);
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
     }
     
     public String getHashcode() {
