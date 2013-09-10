@@ -99,9 +99,11 @@ public class MIPlayerListener implements Listener {
             return;
         }
         if(playerchangeworlds.containsKey(event.getPlayer().getName())) {
-        	event.setCancelled(true);
-        	event.getPlayer().sendMessage(ChatColor.DARK_RED + "You're teleporting too fast, slow down!");
-        	return;
+        	if(!event.getFrom().getWorld().getName().equals(event.getTo().getWorld().getName())) {
+            	event.setCancelled(true);
+            	event.getPlayer().sendMessage(ChatColor.DARK_RED + "You're teleporting too fast, slow down!");
+            	return;
+        	}
         }
         // Only do this if they have problem plugins.
         if(MIYamlFiles.config.getBoolean("compatibilityMode")) {
