@@ -1,6 +1,7 @@
 package uk.co.tggl.pluckerpluck.multiinv.listener;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -77,7 +78,7 @@ public class MIPlayerListener implements Listener {
             // Let's put this player in the pool of players that switched worlds, that way we don't dupe the inventory.
             playerchangeworlds.put(player.getName(), new Boolean(true));
             // Let's schedule it so that we take the player out soon afterwards.
-            player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemovePlayer(player.getName(), playerchangeworlds), 1);
+            player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemovePlayer(player.getName(), playerchangeworlds), 2);
             
             if(!player.hasPermission("multiinv.enderchestexempt")) {
                 saveEnderchestState(player, groupFrom);
@@ -96,6 +97,11 @@ public class MIPlayerListener implements Listener {
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         if(event.isCancelled()) {
             return;
+        }
+        if(playerchangeworlds.containsKey(event.getPlayer().getName())) {
+        	event.setCancelled(true);
+        	event.getPlayer().sendMessage(ChatColor.DARK_RED + "You're teleporting too fast, slow down!");
+        	return;
         }
         // Only do this if they have problem plugins.
         if(MIYamlFiles.config.getBoolean("compatibilityMode")) {
@@ -117,7 +123,7 @@ public class MIPlayerListener implements Listener {
                     // Let's put this player in the pool of players that switched worlds, that way we don't dupe the inventory.
                     playerchangeworlds.put(player.getName(), new Boolean(true));
                     // Let's schedule it so that we take the player out soon afterwards.
-                    player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemovePlayer(player.getName(), playerchangeworlds), 1);
+                    player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemovePlayer(player.getName(), playerchangeworlds), 2);
                     
                     if(!player.hasPermission("multiinv.enderchestexempt")) {
                         saveEnderchestState(player, groupFrom);
