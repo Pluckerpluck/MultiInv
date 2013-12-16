@@ -5,6 +5,7 @@ import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.FireworkEffect.Builder;
 import org.bukkit.FireworkEffect.Type;
+import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -35,7 +36,8 @@ import java.util.Set;
  */
 public class MIItemStack {
     
-    private int itemID = 0;
+    //private int itemID = 0;
+    private Material item = Material.AIR;
     private int quantity = 0;
     private short durability = 0;
     private Map<Enchantment,Integer> enchantments = new HashMap<Enchantment,Integer>();
@@ -44,11 +46,11 @@ public class MIItemStack {
     
     public MIItemStack(ItemStack itemStack) {
         if(itemStack != null) {
-            itemID = itemStack.getTypeId();
+            item = itemStack.getType();
             quantity = itemStack.getAmount();
             durability = itemStack.getDurability();
             enchantments = itemStack.getEnchantments();
-            if(itemID == 386 || itemID == 387) {
+            if(itemStack.getItemMeta() instanceof BookMeta) {
                 BookMeta meta = (BookMeta) itemStack.getItemMeta();
                 // Make sure we don't use this on an empty book!
                 if(meta.getPages() != null) {
@@ -64,7 +66,11 @@ public class MIItemStack {
     public MIItemStack(String dataString) {
         String[] data = dataString.split(",");
         if(data.length >= 4) {
-            itemID = Integer.parseInt(data[0]);
+        	try {
+                item = Material.getMaterial(Integer.parseInt(data[0]));
+        	}catch(NumberFormatException e) {
+        		item = Material.getMaterial(data[0]);
+        	}
             quantity = Integer.parseInt(data[1]);
             durability = Short.parseShort(data[2]);
             getEnchantments(data[3]);
@@ -84,10 +90,10 @@ public class MIItemStack {
     
     public ItemStack getItemStack() {
         ItemStack itemStack = null;
-        if(itemID != 0 && quantity != 0) {
-            itemStack = new ItemStack(itemID, quantity, durability);
+        if(item != Material.AIR && quantity != 0) {
+            itemStack = new ItemStack(item, quantity, durability);
             itemStack.addUnsafeEnchantments(enchantments);
-            if((itemID == 386 || itemID == 387) && book != null) {
+            if((item == Material.BOOK_AND_QUILL || item == Material.WRITTEN_BOOK) && book != null) {
                 BookMeta bi = (BookMeta) itemStack.getItemMeta();
                 bi.setAuthor(book.getAuthor());
                 bi.setTitle(book.getTitle());
@@ -103,9 +109,9 @@ public class MIItemStack {
     
     public String toString() {
         if(nbttags != null) {
-            return itemID + "," + quantity + "," + durability + "," + getEnchantmentString() + "," + "#" + nbttags;
+            return item.name() + "," + quantity + "," + durability + "," + getEnchantmentString() + "," + "#" + nbttags;
         } else {
-            return itemID + "," + quantity + "," + durability + "," + getEnchantmentString();
+            return item.name() + "," + quantity + "," + durability + "," + getEnchantmentString();
         }
     }
     
@@ -115,7 +121,7 @@ public class MIItemStack {
         } else {
             String string = "";
             for(Enchantment enchantment : enchantments.keySet()) {
-                string = string + enchantment.getId() + "-" + enchantments.get(enchantment) + "#";
+                string = string + enchantment.getName() + "-" + enchantments.get(enchantment) + "#";
             }
             if("".equals(string)) {
                 string = "0";
@@ -140,10 +146,16 @@ public class MIItemStack {
             String[] enchantments = enchantmentString.split("#");
             for(String enchantment : enchantments) {
                 String[] parts = enchantment.split("-");
-                int ID = Integer.parseInt(parts[0]);
+                Enchantment e;
+                try {
+                	e = Enchantment.getById(Integer.parseInt(parts[0]));
+                }catch(NumberFormatException ex) {
+                	e = Enchantment.getByName(parts[0]);
+                }
                 int level = Integer.parseInt(parts[1]);
-                Enchantment e = Enchantment.getById(ID);
-                this.enchantments.put(e, level);
+                if(e != null) {
+                    this.enchantments.put(e, level);
+                }
             }
         }
     }
