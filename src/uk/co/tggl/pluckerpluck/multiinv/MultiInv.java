@@ -1,12 +1,20 @@
 package uk.co.tggl.pluckerpluck.multiinv;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+
 import uk.co.tggl.pluckerpluck.multiinv.command.MICommand;
+import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 import uk.co.tggl.pluckerpluck.multiinv.listener.MIPlayerListener;
 import uk.co.tggl.pluckerpluck.multiinv.logger.MILogger;
 
@@ -20,12 +28,14 @@ public class MultiInv extends JavaPlugin {
     public int xpversion = 0;
     private MultiInvAPI api;
     
+    private ArrayList<String> grouplist = new ArrayList<String>();
+    
     // Listeners
     MIPlayerListener playerListener;
     
     @Override
     public void onDisable() {
-        
+        MIYamlFiles.saveLogoutWorlds();
     }
     
     @Override
@@ -88,6 +98,56 @@ public class MultiInv extends JavaPlugin {
         }
         
         api = new MultiInvAPI(this);
+        if(!MIYamlFiles.usesql) {
+            File groupsfolder = new File(getDataFolder(), "Groups");
+            if(groupsfolder.exists()) {
+            	//Let's convert!
+            	log.info("Older data folder detected. Converting users to UUID, please wait...");
+            	convertToUUID();
+            	log.info("Conversion complete!");
+            }
+        }
+        
+        getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
+			
+			@Override
+			public void run() {
+				MIYamlFiles.saveLogoutWorlds();
+			}
+		}, 60, 20);
+        scanWorlds();
+    }
+    
+    private void convertToUUID() {
+        File groupsfolder = new File(getDataFolder(), "Groups");
+        File uuidgroupsfolder = new File(getDataFolder(), "UUIDGroups");
+        groupsfolder.renameTo(uuidgroupsfolder);
+        if(uuidgroupsfolder.exists() && uuidgroupsfolder.isDirectory()) {
+        	File[] groups = uuidgroupsfolder.listFiles();
+        	for(File gfolder : groups) {
+        		if(gfolder.isDirectory()) {
+        			File[] users = gfolder.listFiles();
+        			for(File user : users) {
+        				if(user.isFile()) {
+        					String filename = user.getName();
+        					if(filename.endsWith(".ec.yml")) {
+        						String username = filename.substring(0, filename.indexOf("."));
+        						log.debug("Converting " + username + "'s enderchest file.");
+        						OfflinePlayer ouser = Bukkit.getOfflinePlayer(username);
+        						File newname = new File(user.getParent(), ouser.getUniqueId().toString() + ".ec.yml");
+        						user.renameTo(newname);
+        					}else if(filename.endsWith(".yml")) {
+        						String username = filename.substring(0, filename.lastIndexOf("."));
+        						log.debug("Converting " + username + "'s inventory file.");
+        						OfflinePlayer ouser = Bukkit.getOfflinePlayer(username);
+        						File newname = new File(user.getParent(), ouser.getUniqueId().toString() + ".yml");
+        						user.renameTo(newname);
+        					}
+        				}
+        			}
+        		}
+        	}
+        }
     }
     
     public MultiInvAPI getAPI() {
@@ -162,6 +222,28 @@ public class MultiInv extends JavaPlugin {
     public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
         MICommand.command(args, sender, this);
         return true;
+    }
+    
+    public void scanWorlds() {
+    	grouplist.clear();
+    	List<World> worlds = Bukkit.getServer().getWorlds();
+    	for(World world : worlds) {
+    		String group = playerListener.getGroup(world);
+    		if(!grouplist.contains(group)) {
+    			grouplist.add(group);
+    		}
+    	}
+    }
+    
+    public void addWorld(World world) {
+    	String group = playerListener.getGroup(world);
+		if(!grouplist.contains(group)) {
+			grouplist.add(group);
+		}
+    }
+    
+    public ArrayList<String> getAllGroups() {
+    	return grouplist;
     }
     
 }

@@ -42,6 +42,7 @@ public class MIItemStack {
     private short durability = 0;
     private Map<Enchantment,Integer> enchantments = new HashMap<Enchantment,Integer>();
     private MIBook book = null;
+    private ItemStack is = null;
     String nbttags = null;
     
     public MIItemStack(ItemStack itemStack) {
@@ -59,6 +60,7 @@ public class MIItemStack {
             } else if(itemStack.hasItemMeta()) {
                 nbttags = getItemMetaSerialized(itemStack.getItemMeta());
             }
+            is = itemStack.clone();
         }
     }
     
@@ -82,6 +84,7 @@ public class MIItemStack {
                 }
             }
         }
+        is = getItemStack();
     }
     
     public MIItemStack() {
@@ -89,6 +92,9 @@ public class MIItemStack {
     }
     
     public ItemStack getItemStack() {
+    	if(is != null) {
+    		return is.clone();
+    	}
         ItemStack itemStack = null;
         if(item != Material.AIR && quantity != 0) {
             itemStack = new ItemStack(item, quantity, durability);
@@ -136,7 +142,7 @@ public class MIItemStack {
         // if books ever have enchantments, that will be the end of me...
         // Hijack this function to import book data...
         if(enchantmentString.startsWith("book_")) {
-            if(MIYamlFiles.config.getBoolean("useSQL")) {
+            if(MIYamlFiles.usesql) {
                 book = MIYamlFiles.con.getBook(enchantmentString, true);
             } else {
                 book = new MIBook(new File(Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder() + File.separator +

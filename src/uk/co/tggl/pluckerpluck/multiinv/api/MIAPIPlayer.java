@@ -1,6 +1,9 @@
 package uk.co.tggl.pluckerpluck.multiinv.api;
 
+import java.util.UUID;
+
 import org.bukkit.GameMode;
+import org.bukkit.OfflinePlayer;
 
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIEnderchestInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
@@ -8,6 +11,7 @@ import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 public class MIAPIPlayer {
     
     String playername;
+    UUID uuid;
     MIInventory inventory;
     MIEnderchestInventory enderchest;
     GameMode gm;
@@ -17,8 +21,15 @@ public class MIAPIPlayer {
     int foodlevel = 0;
     float saturation = 5;
     
+    public MIAPIPlayer(OfflinePlayer player) {
+        this.playername = player.getName();
+        uuid = player.getUniqueId();
+    }
+    
+    @Deprecated
     public MIAPIPlayer(String playername) {
         this.playername = playername;
+        uuid = null;
     }
     
     public MIInventory getInventory() {
@@ -87,6 +98,10 @@ public class MIAPIPlayer {
     
     public String getPlayername() {
         return playername;
+    }
+    
+    public UUID getUniqueId() {
+    	return uuid;
     }
     
 }

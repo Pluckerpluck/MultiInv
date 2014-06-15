@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -23,11 +22,19 @@ import java.sql.SQLException;
  */
 public class MIYamlFiles {
     
-    public static YamlConfiguration config;
+    protected static YamlConfiguration config;
     public static YamlConfiguration playerlogoutmap;
     private static HashMap<String,String> worldgroups = new HashMap<String,String>();
     public static HashMap<String,String> creativegroups = new HashMap<String,String>();
     public static ConcurrentHashMap<String,String> logoutworld = new ConcurrentHashMap<String,String>();
+    
+    public static boolean separategamemodeinventories = true;
+    public static boolean usesql = false;
+    public static boolean compatibilitymode = false;
+    public static boolean controlgamemode = true;
+    public static boolean xpfix = false;
+    
+    static boolean logoutdirty = false;
     
     public static SqlConnector con;
     
@@ -85,7 +92,12 @@ public class MIYamlFiles {
                     config.set("xpfix", false);
                     saveYamlFile(config, "config.yml");
                 }
+                separategamemodeinventories = MIYamlFiles.config.getBoolean("separateGamemodeInventories", true);
+                MIYamlFiles.compatibilitymode = MIYamlFiles.config.getBoolean("compatibilityMode");
+                controlgamemode = config.getBoolean("controlGamemode", true);
+                MIYamlFiles.xpfix = config.getBoolean("xpfix", true);
                 if(config.getBoolean("useSQL", false)) {
+                	usesql = true;
                     try {
                         String username = config.getString("sql.username", "username");
                         String password = config.getString("sql.password", "password");
@@ -125,7 +137,14 @@ public class MIYamlFiles {
     public static void savePlayerLogoutWorld(String player, String world) {
         logoutworld.put(player, world);
         playerlogoutmap.set(player, world);
-        saveYamlFile(playerlogoutmap, "logoutworld.yml");
+        logoutdirty = true;
+    }
+    
+    public static void saveLogoutWorlds() {
+    	if(logoutdirty) {
+            saveYamlFile(playerlogoutmap, "logoutworld.yml");
+            logoutdirty = false;
+    	}
     }
     
     public static void loadGroups() {
@@ -182,10 +201,4 @@ public class MIYamlFiles {
         }
         return config;
     }
-    
-    /*
-     * private static void setConfigDefaults(Configuration config){ config.addDefault("useSQL", false); config.addDefault("splitHealth",
-     * true); config.addDefault("splitHunger", true); }
-     */
-    
 }

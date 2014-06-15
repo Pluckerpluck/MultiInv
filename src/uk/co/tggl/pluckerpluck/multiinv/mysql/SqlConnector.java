@@ -12,7 +12,9 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.OfflinePlayer;
 
 import uk.co.tggl.pluckerpluck.multiinv.books.MIBook;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIEnderchestInventory;
@@ -37,6 +39,9 @@ public class SqlConnector {
         }
         if(!inventoryColumnExists("ADVENTURE")) {
             addInventoryColumn("ADVENTURE");
+        }
+        if(!inventoryColumnExists("uuid")) {
+            convertToUUID();
         }
         if(!chestTableExists()) {
             createChestTable();
@@ -98,6 +103,9 @@ public class SqlConnector {
     
     public void refreshConnection() {
         try {
+        	if(con.isValid(1)) {
+        		return;
+        	}
             con.close();
         } catch(SQLException e) {
             // We don't need to do anything if the connection isn't there...
@@ -161,7 +169,7 @@ public class SqlConnector {
         Statement st;
         try {
             st = con.createStatement();
-            ResultSet rs = st.executeQuery("SHOW COLUMNS FROM `" + prefix + "multiinv` LIKE 'inv_" + gamemode + "';");
+            ResultSet rs = st.executeQuery("SHOW COLUMNS FROM `" + prefix + "multiinv` LIKE 'inv_" + gamemode.toLowerCase() + "';");
             if(rs.next()) {
                 return true;
             } else {
@@ -209,6 +217,28 @@ public class SqlConnector {
         }
     }
     
+    public void convertToUUID() {
+    	//TODO: convert to UUID
+    	addInventoryColumn("uuid");
+        Statement st;
+        try {
+        	st = con.createStatement();
+            st.executeUpdate("ALTER TABLE `" + prefix + "enderchestinv` ADD `inv_uuid` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+            st = con.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM `" + prefix + "multiinv" + "`;");
+            while(rs.next()) {
+            	String playername = rs.getString("inv_player");
+            	String uuid = Bukkit.getServer().getOfflinePlayer(playername).getUniqueId().toString();
+            	System.out.println("Setting " + playername + "'s uuid to: " + uuid);
+                Statement st1 = con.createStatement();
+                st1.executeUpdate("UPDATE " + prefix + "multiinv SET inv_uuid='" + uuid + "' WHERE inv_player='" + playername + "'");
+                st1.executeUpdate("UPDATE " + prefix + "enderchestinv SET inv_uuid='" + uuid + "' WHERE chest_player='" + playername + "'");
+            }
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
     public boolean createTable() {
         Statement st;
         try {
@@ -222,6 +252,8 @@ public class SqlConnector {
                     "`inv_group` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL COMMENT 'Inventory group.', "
                     +
                     "`inv_player` VARCHAR( 30 ) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL COMMENT 'Minecraft player name.', "
+                    +
+                    "`inv_uuid` VARCHAR( 36 ) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL COMMENT 'Minecraft player UUID.', "
                     +
                     "`inv_gamemode` ENUM('ADVENTURE','CREATIVE','SURVIVAL') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL COMMENT 'ADVENTURE, CREATIVE or SURVIVAL game mode.', "
                     +
@@ -345,12 +377,12 @@ public class SqlConnector {
         return null;
     }
     
-    public MIEnderchestInventory getEnderchestInventory(String player, String group, String inventoryName) {
+    public MIEnderchestInventory getEnderchestInventory(OfflinePlayer player, String group, String inventoryName) {
         // Get stored string from configuration file
         MIEnderchestInventory inventory = new MIEnderchestInventory();
         try {
             Statement st = con.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "enderchestinv WHERE chest_player='" + player + "' AND inv_group='" + group + "'");
+            ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "enderchestinv WHERE inv_uuid='" + player.getUniqueId().toString() + "' AND inv_group='" + group + "'");
             if(rs.next()) {
                 String inventoryString = rs.getString("chest_" + inventoryName.toLowerCase());
                 inventory = new MIEnderchestInventory(inventoryString);
@@ -361,7 +393,7 @@ public class SqlConnector {
         return inventory;
     }
     
-    public MIInventory getInventory(String player, String group, String inventoryName) {
+    public MIInventory getInventory(OfflinePlayer player, String group, String inventoryName) {
         // Get stored string from configuration file
         MIInventory inventory = new MIInventory((String) null);
         // Let's add inventory gamemode columns dynamically for newer versions of minecraft
@@ -370,7 +402,7 @@ public class SqlConnector {
         }
         try {
             Statement st = con.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
+            ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_uuid='" + player.getUniqueId().toString() + "' AND inv_group='" + group + "'");
             if(rs.next()) {
                 String inventoryString = rs.getString("inv_" + inventoryName.toLowerCase());
                 inventory = new MIInventory(inventoryString);
@@ -381,7 +413,27 @@ public class SqlConnector {
         return inventory;
     }
     
-    public void saveInventory(String player, String group, MIInventory inventory, String inventoryName) {
+    public void saveAll(OfflinePlayer player, String group, MIInventory inventory, String inventoryName,
+    		int experience, GameMode gameMode, double health, int hunger, float saturation) {
+    	String inventoryString = inventory.toString();
+        // Call this just to make sure the player record has been created.
+        createRecord(player, group);
+        // Let's add inventory gamemode columns dynamically for newer versions of minecraft
+        if(!inventoryColumnExists(inventoryName)) {
+            addInventoryColumn(inventoryName);
+        }
+        try {
+            Statement st = con.createStatement();
+            st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_" + inventoryName.toLowerCase() + "='" + 
+            inventoryString + "', inv_experience='" + experience + "', inv_gamemode='" + gameMode.toString() + 
+            "', inv_health='" + health + "', inv_hunger='" + hunger + "', inv_saturation='" + saturation + 
+            "' WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void saveInventory(OfflinePlayer player, String group, MIInventory inventory, String inventoryName) {
         String inventoryString = inventory.toString();
         // Call this just to make sure the player record has been created.
         createRecord(player, group);
@@ -398,7 +450,7 @@ public class SqlConnector {
         }
     }
     
-    public void saveEnderchestInventory(String player, String group, MIEnderchestInventory inventory, String inventoryName) {
+    public void saveEnderchestInventory(OfflinePlayer player, String group, MIEnderchestInventory inventory, String inventoryName) {
         String inventoryString = inventory.toString();
         // Call this just to make sure the player record has been created.
         createChestRecord(player, group);
@@ -411,40 +463,40 @@ public class SqlConnector {
         }
     }
     
-    public void createRecord(String player, String group) {
+    public void createRecord(OfflinePlayer player, String group) {
         try {
             Statement st = con.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
+            ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_uuid='" + player.getUniqueId().toString() + "' AND inv_group='" + group + "'");
             if(!rs.next()) {
                 st.executeUpdate("INSERT INTO "
                         + prefix
-                        + "multiinv (inv_player, inv_group, inv_gamemode, inv_health, inv_hunger, inv_saturation, inv_level, inv_experience, inv_survival, inv_creative, inv_ADVENTURE) "
+                        + "multiinv (inv_player, inv_uuid, inv_group, inv_gamemode, inv_health, inv_hunger, inv_saturation, inv_level, inv_experience, inv_survival, inv_creative, inv_ADVENTURE) "
                         +
-                        "VALUES('" + player + "', '" + group + "', 'SURVIVAL', 20, 20, 5, 0, 0, '', '', '')");
+                        "VALUES('" + player + "', '" + player.getUniqueId().toString() + "', '" + group + "', 'SURVIVAL', 20, 20, 5, 0, 0, '', '', '')");
             }
         } catch(SQLException e) {
             e.printStackTrace();
         }
     }
     
-    public void createChestRecord(String player, String group) {
+    public void createChestRecord(OfflinePlayer player, String group) {
         try {
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "enderchestinv WHERE chest_player='" + player + "' AND inv_group='" + group + "'");
             if(!rs.next()) {
-                st.executeUpdate("INSERT INTO " + prefix + "enderchestinv (chest_player, inv_group, chest_survival, chest_creative, chest_adventure) " +
-                        "VALUES('" + player + "', '" + group + "', '', '', '')");
+                st.executeUpdate("INSERT INTO " + prefix + "enderchestinv (chest_player, inv_uuid, inv_group, chest_survival, chest_creative, chest_adventure) " +
+                        "VALUES('" + player + "', '" + player.getUniqueId().toString() + "', '" + group + "', '', '', '')");
             }
         } catch(SQLException e) {
             e.printStackTrace();
         }
     }
     
-    public double getHealth(String player, String group) {
+    public double getHealth(OfflinePlayer player, String group) {
         double health = 20;
         try {
             Statement st = con.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
+            ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_uuid='" + player.getUniqueId().toString() + "' AND inv_group='" + group + "'");
             if(rs.next()) {
                 health = rs.getDouble("inv_health");
             }
@@ -457,22 +509,22 @@ public class SqlConnector {
         return health;
     }
     
-    public void saveHealth(String player, String group, double health) {
+    public void saveHealth(OfflinePlayer player, String group, double health) {
         // Call this just to make sure the player record has been created.
         createRecord(player, group);
         try {
             Statement st = con.createStatement();
-            st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_health='" + health + "' WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
+            st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_health='" + health + "' WHERE inv_uuid='" + player.getUniqueId().toString() + "' AND inv_group='" + group + "'");
         } catch(SQLException e) {
             e.printStackTrace();
         }
     }
     
-    public GameMode getGameMode(String player, String group) {
+    public GameMode getGameMode(OfflinePlayer player, String group) {
         String gameModeString = null;
         try {
             Statement st = con.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
+            ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_uuid='" + player.getUniqueId().toString() + "' AND inv_group='" + group + "'");
             if(rs.next()) {
                 gameModeString = rs.getString("inv_gamemode");
             }
@@ -488,23 +540,23 @@ public class SqlConnector {
         return gameMode;
     }
     
-    public void saveGameMode(String player, String group, GameMode gameMode) {
+    public void saveGameMode(OfflinePlayer player, String group, GameMode gameMode) {
         // Call this just to make sure the player record has been created.
         createRecord(player, group);
         try {
             Statement st = con.createStatement();
-            st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_gamemode='" + gameMode.toString() + "' WHERE inv_player='" + player + "' AND inv_group='"
+            st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_gamemode='" + gameMode.toString() + "' WHERE inv_uuid='" + player.getUniqueId().toString() + "' AND inv_group='"
                     + group + "'");
         } catch(SQLException e) {
             e.printStackTrace();
         }
     }
     
-    public int getHunger(String player, String group) {
+    public int getHunger(OfflinePlayer player, String group) {
         int hunger = 20;
         try {
             Statement st = con.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
+            ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_uuid='" + player.getUniqueId().toString() + "' AND inv_group='" + group + "'");
             if(rs.next()) {
                 hunger = rs.getInt("inv_hunger");
             }
@@ -517,11 +569,11 @@ public class SqlConnector {
         return hunger;
     }
     
-    public float getSaturation(String player, String group) {
+    public float getSaturation(OfflinePlayer player, String group) {
         double saturationDouble = 5;
         try {
             Statement st = con.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
+            ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_uuid='" + player.getUniqueId().toString() + "' AND inv_group='" + group + "'");
             if(rs.next()) {
                 saturationDouble = rs.getDouble("inv_saturation");
             }
@@ -532,23 +584,23 @@ public class SqlConnector {
         return saturation;
     }
     
-    public void saveSaturation(String player, String group, float saturation) {
+    public void saveSaturation(OfflinePlayer player, String group, float saturation) {
         // Call this just to make sure the player record has been created.
         createRecord(player, group);
         try {
             Statement st = con.createStatement();
-            st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_saturation='" + saturation + "' WHERE inv_player='" + player + "' AND inv_group='" + group
+            st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_saturation='" + saturation + "' WHERE inv_uuid='" + player.getUniqueId().toString() + "' AND inv_group='" + group
                     + "'");
         } catch(SQLException e) {
             e.printStackTrace();
         }
     }
     
-    public int getTotalExperience(String player, String group) {
+    public int getTotalExperience(OfflinePlayer player, String group) {
         int experience = 0;
         try {
             Statement st = con.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
+            ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "multiinv WHERE inv_uuid='" + player.getUniqueId().toString() + "' AND inv_group='" + group + "'");
             if(rs.next()) {
                 experience = rs.getInt("inv_experience");
             }
@@ -558,23 +610,23 @@ public class SqlConnector {
         return experience;
     }
     
-    public void saveExperience(String player, String group, int experience) {
+    public void saveExperience(OfflinePlayer player, String group, int experience) {
         // Call this just to make sure the player record has been created.
         createRecord(player, group);
         try {
             Statement st = con.createStatement();
-            st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_experience='" + experience + "' WHERE inv_player='" + player + "' AND inv_group='" + group
+            st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_experience='" + experience + "' WHERE inv_uuid='" + player.getUniqueId().toString() + "' AND inv_group='" + group
                     + "'");
         } catch(SQLException e) {
             e.printStackTrace();
         }
     }
     
-    public void saveHunger(String player, String group, int hunger) {
+    public void saveHunger(OfflinePlayer player, String group, int hunger) {
         createRecord(player, group);
         try {
             Statement st = con.createStatement();
-            st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_hunger='" + hunger + "' WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
+            st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_hunger='" + hunger + "' WHERE inv_uuid='" + player.getUniqueId().toString() + "' AND inv_group='" + group + "'");
         } catch(SQLException e) {
             e.printStackTrace();
         }

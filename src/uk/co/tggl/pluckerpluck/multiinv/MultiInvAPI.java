@@ -1,14 +1,13 @@
 package uk.co.tggl.pluckerpluck.multiinv;
 
-import java.io.File;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import Tux2.TuxTwoLib.TuxTwoPlayer;
-
 import uk.co.tggl.pluckerpluck.multiinv.api.MIAPIPlayer;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIItemStack;
@@ -36,27 +35,19 @@ public class MultiInvAPI {
      *            The game mode of the inventory you want to retrieve.
      * @return
      */
-    public MIInventory getPlayerInventory(String player, String world, GameMode gm) {
-        Player giveplayer = plugin.getServer().getPlayer(player);
+    public MIInventory getPlayerInventory(OfflinePlayer player, String world, GameMode gm) {
+        Player giveplayer = null;
+    	if(player instanceof Player) {
+    		giveplayer = (Player) player;
+    	}else {
+    		giveplayer = plugin.getServer().getPlayer(player.getName());
+    	}
         boolean playeronline = true;
         if((giveplayer == null || !giveplayer.isOnline())) {
-            // See if the player has data files
-            
-            // Find the player folder
-            File playerfolder = new File(Bukkit.getWorlds().get(0).getWorldFolder(), "players");
-            
-            // Find player name
-            for(File playerfile : playerfolder.listFiles()) {
-                String filename = playerfile.getName();
-                String playername = filename.substring(0, filename.length() - 4);
-                
-                if(playername.trim().equalsIgnoreCase(player)) {
-                    Player target = TuxTwoPlayer.getOfflinePlayer(playername);
-                    if(target != null) {
-                        target.loadData();
-                        giveplayer = target;
-                    }
-                }
+            Player target = TuxTwoPlayer.getOfflinePlayer(player);
+            if(target != null) {
+                target.loadData();
+                giveplayer = target;
             }
         }
         if(giveplayer != null) {
@@ -70,7 +61,7 @@ public class MultiInvAPI {
                         inventoryName = "SURVIVAL";
                     }
                     if(MIYamlFiles.config.getBoolean("useSQL")) {
-                        MIInventory inventory = MIYamlFiles.con.getInventory(giveplayer.getName(), MIPlayerListener.getGroup(world), inventoryName);
+                        MIInventory inventory = MIYamlFiles.con.getInventory(giveplayer, MIPlayerListener.getGroup(world), inventoryName);
                         return inventory;
                     } else {
                         MIPlayerFile config = new MIPlayerFile(giveplayer, MIPlayerListener.getGroup(world));
@@ -91,10 +82,10 @@ public class MultiInvAPI {
                     inventoryName = "SURVIVAL";
                 }
                 if(MIYamlFiles.config.getBoolean("useSQL")) {
-                    MIInventory inventory = MIYamlFiles.con.getInventory(giveplayer.getName(), MIPlayerListener.getGroup(world), inventoryName);
+                    MIInventory inventory = MIYamlFiles.con.getInventory(giveplayer, MIPlayerListener.getGroup(world), inventoryName);
                     return inventory;
                 } else {
-                    MIPlayerFile config = new MIPlayerFile(player, MIPlayerListener.getGroup(world));
+                    MIPlayerFile config = new MIPlayerFile(giveplayer, MIPlayerListener.getGroup(world));
                     MIInventory inventory = config.getInventory(inventoryName);
                     return inventory;
                 }
@@ -118,8 +109,13 @@ public class MultiInvAPI {
      *            The inventory
      * @return True upon success, false upon error.
      */
-    public boolean setPlayerInventory(String player, String world, GameMode gm, MIInventory inventory) {
-        Player giveplayer = plugin.getServer().getPlayer(player);
+    public boolean setPlayerInventory(OfflinePlayer player, String world, GameMode gm, MIInventory inventory) {
+        Player giveplayer;
+    	if(player instanceof Player) {
+    		giveplayer = (Player) player;
+    	}else {
+    		giveplayer = plugin.getServer().getPlayer(player.getName());
+    	}
         String currentworld = "";
         boolean offlineplayer = false;
         if(giveplayer != null && giveplayer.isOnline()) {
@@ -140,7 +136,7 @@ public class MultiInvAPI {
                     inventoryName = "SURVIVAL";
                 }
                 if(MIYamlFiles.config.getBoolean("useSQL")) {
-                    MIYamlFiles.con.saveInventory(giveplayer.getName(), MIPlayerListener.getGroup(world), inventory, inventoryName);
+                    MIYamlFiles.con.saveInventory(giveplayer, MIPlayerListener.getGroup(world), inventory, inventoryName);
                     return true;
                 } else {
                     MIPlayerFile config = new MIPlayerFile(giveplayer, MIPlayerListener.getGroup(world));
@@ -165,7 +161,7 @@ public class MultiInvAPI {
                 inventoryName = "SURVIVAL";
             }
             if(MIYamlFiles.config.getBoolean("useSQL")) {
-                MIYamlFiles.con.saveInventory(giveplayer.getName(), MIPlayerListener.getGroup(world), inventory, inventoryName);
+                MIYamlFiles.con.saveInventory(giveplayer, MIPlayerListener.getGroup(world), inventory, inventoryName);
                 return true;
             } else {
                 MIPlayerFile config = new MIPlayerFile(giveplayer, MIPlayerListener.getGroup(world));
@@ -188,8 +184,13 @@ public class MultiInvAPI {
      *            The item to add.
      * @return true upon successful adding, false if the inventory was full or player not found.
      */
-    public boolean addItemToInventory(String player, String world, GameMode gm, MIItemStack itemstack) {
-        Player giveplayer = plugin.getServer().getPlayer(player);
+    public boolean addItemToInventory(OfflinePlayer player, String world, GameMode gm, MIItemStack itemstack) {
+        Player giveplayer;
+    	if(player instanceof Player) {
+    		giveplayer = (Player) player;
+    	}else {
+    		giveplayer = plugin.getServer().getPlayer(player.getName());
+    	}
         String currentworld = "";
         boolean offlineplayer = false;
         if(giveplayer != null && giveplayer.isOnline()) {
@@ -210,7 +211,7 @@ public class MultiInvAPI {
                     inventoryName = "SURVIVAL";
                 }
                 if(MIYamlFiles.config.getBoolean("useSQL")) {
-                    MIInventory inventory = MIYamlFiles.con.getInventory(giveplayer.getName(), MIPlayerListener.getGroup(world), inventoryName);
+                    MIInventory inventory = MIYamlFiles.con.getInventory(giveplayer, MIPlayerListener.getGroup(world), inventoryName);
                     // now let's find an empty slot...
                     boolean noempty = true;
                     MIItemStack[] items = inventory.getInventoryContents();
@@ -224,7 +225,7 @@ public class MultiInvAPI {
                     if(noempty) {
                         return false;
                     }
-                    MIYamlFiles.con.saveInventory(giveplayer.getName(), MIPlayerListener.getGroup(world), inventory, inventoryName);
+                    MIYamlFiles.con.saveInventory(giveplayer, MIPlayerListener.getGroup(world), inventory, inventoryName);
                     return true;
                 } else {
                     MIPlayerFile config = new MIPlayerFile(giveplayer, MIPlayerListener.getGroup(world));
@@ -266,7 +267,7 @@ public class MultiInvAPI {
                 inventoryName = "SURVIVAL";
             }
             if(MIYamlFiles.config.getBoolean("useSQL")) {
-                MIInventory inventory = MIYamlFiles.con.getInventory(giveplayer.getName(), MIPlayerListener.getGroup(world), inventoryName);
+                MIInventory inventory = MIYamlFiles.con.getInventory(giveplayer, MIPlayerListener.getGroup(world), inventoryName);
                 // now let's find an empty slot...
                 boolean noempty = true;
                 MIItemStack[] items = inventory.getInventoryContents();
@@ -280,7 +281,7 @@ public class MultiInvAPI {
                 if(noempty) {
                     return false;
                 }
-                MIYamlFiles.con.saveInventory(giveplayer.getName(), MIPlayerListener.getGroup(world), inventory, inventoryName);
+                MIYamlFiles.con.saveInventory(giveplayer, MIPlayerListener.getGroup(world), inventory, inventoryName);
                 return true;
             } else {
                 MIPlayerFile config = new MIPlayerFile(giveplayer, MIPlayerListener.getGroup(world));
@@ -315,27 +316,19 @@ public class MultiInvAPI {
      *            What gamemode you want the statistics for.
      * @return A copy of the player's stats.
      */
-    public MIAPIPlayer getPlayerInstance(String player, String world, GameMode gm) {
-        Player giveplayer = plugin.getServer().getPlayer(player);
+    public MIAPIPlayer getPlayerInstance(OfflinePlayer player, String world, GameMode gm) {
+        Player giveplayer;
+    	if(player instanceof Player) {
+    		giveplayer = (Player) player;
+    	}else {
+    		giveplayer = plugin.getServer().getPlayer(player.getName());
+    	}
         boolean playeronline = true;
         if((giveplayer == null || !giveplayer.isOnline())) {
-            // See if the player has data files
-            
-            // Find the player folder
-            File playerfolder = new File(Bukkit.getWorlds().get(0).getWorldFolder(), "players");
-            
-            // Find player name
-            for(File playerfile : playerfolder.listFiles()) {
-                String filename = playerfile.getName();
-                String playername = filename.substring(0, filename.length() - 4);
-                
-                if(playername.trim().equalsIgnoreCase(player)) {
-                    Player target = TuxTwoPlayer.getOfflinePlayer(playername);
-                    if(target != null) {
-                        target.loadData();
-                        giveplayer = target;
-                    }
-                }
+            Player target = TuxTwoPlayer.getOfflinePlayer(player);
+            if(target != null) {
+                target.loadData();
+                giveplayer = target;
             }
         }
         if(giveplayer != null) {
@@ -349,11 +342,10 @@ public class MultiInvAPI {
                         inventoryName = "SURVIVAL";
                     }
                     if(MIYamlFiles.config.getBoolean("useSQL")) {
-                        MIAPIPlayer playerfile = new MIAPIPlayer(giveplayer.getName());
+                        MIAPIPlayer playerfile = new MIAPIPlayer(giveplayer);
                         String group = MIPlayerListener.getGroup(world);
-                        String playername = giveplayer.getName();
-                        playerfile.setInventory(MIYamlFiles.con.getInventory(playername, group, inventoryName));
-                        playerfile.setEnderchest(MIYamlFiles.con.getEnderchestInventory(playername, group, inventoryName));
+                        playerfile.setInventory(MIYamlFiles.con.getInventory(giveplayer, group, inventoryName));
+                        playerfile.setEnderchest(MIYamlFiles.con.getEnderchestInventory(giveplayer, group, inventoryName));
                         playerfile.setFoodlevel(giveplayer.getFoodLevel());
                         playerfile.setSaturation(giveplayer.getSaturation());
                         playerfile.setHealth(giveplayer.getHealth());
@@ -363,7 +355,7 @@ public class MultiInvAPI {
                         return playerfile;
                     } else {
                         MIPlayerFile config = new MIPlayerFile(giveplayer, MIPlayerListener.getGroup(world));
-                        MIAPIPlayer playerfile = new MIAPIPlayer(giveplayer.getName());
+                        MIAPIPlayer playerfile = new MIAPIPlayer(giveplayer);
                         playerfile.setInventory(config.getInventory(gm.toString()));
                         playerfile.setEnderchest(config.getEnderchestInventory(gm.toString()));
                         playerfile.setFoodlevel(giveplayer.getFoodLevel());
@@ -376,7 +368,7 @@ public class MultiInvAPI {
                     }
                     // If they are currently using the inventory, let's just grab it...
                 } else {
-                    MIAPIPlayer playerfile = new MIAPIPlayer(giveplayer.getName());
+                    MIAPIPlayer playerfile = new MIAPIPlayer(giveplayer);
                     playerfile.setInventory(playerfile.getInventory());
                     playerfile.setEnderchest(playerfile.getEnderchest());
                     playerfile.setFoodlevel(giveplayer.getFoodLevel());
@@ -397,15 +389,14 @@ public class MultiInvAPI {
                     inventoryName = "SURVIVAL";
                 }
                 if(MIYamlFiles.config.getBoolean("useSQL")) {
-                    MIAPIPlayer playerfile = new MIAPIPlayer(giveplayer.getName());
+                    MIAPIPlayer playerfile = new MIAPIPlayer(giveplayer);
                     String group = MIPlayerListener.getGroup(world);
-                    String playername = giveplayer.getName();
-                    playerfile.setInventory(MIYamlFiles.con.getInventory(playername, group, inventoryName));
-                    playerfile.setEnderchest(MIYamlFiles.con.getEnderchestInventory(playername, group, inventoryName));
-                    playerfile.setFoodlevel(MIYamlFiles.con.getHunger(playername, group));
-                    playerfile.setSaturation(MIYamlFiles.con.getSaturation(playername, group));
-                    playerfile.setHealth(MIYamlFiles.con.getHealth(playername, group));
-                    int totalxp = MIYamlFiles.con.getTotalExperience(playername, group);
+                    playerfile.setInventory(MIYamlFiles.con.getInventory(giveplayer, group, inventoryName));
+                    playerfile.setEnderchest(MIYamlFiles.con.getEnderchestInventory(giveplayer, group, inventoryName));
+                    playerfile.setFoodlevel(MIYamlFiles.con.getHunger(giveplayer, group));
+                    playerfile.setSaturation(MIYamlFiles.con.getSaturation(giveplayer, group));
+                    playerfile.setHealth(MIYamlFiles.con.getHealth(giveplayer, group));
+                    int totalxp = MIYamlFiles.con.getTotalExperience(giveplayer, group);
                     int[] xp = plugin.getXP(totalxp);
                     playerfile.setXpLevel(xp[0]);
                     playerfile.setXp((float) ((float) xp[1] / (float) xp[2]));
@@ -413,7 +404,7 @@ public class MultiInvAPI {
                     return playerfile;
                 } else {
                     MIPlayerFile config = new MIPlayerFile(giveplayer, MIPlayerListener.getGroup(world));
-                    MIAPIPlayer playerfile = new MIAPIPlayer(giveplayer.getName());
+                    MIAPIPlayer playerfile = new MIAPIPlayer(giveplayer);
                     playerfile.setInventory(config.getInventory(gm.toString()));
                     playerfile.setEnderchest(config.getEnderchestInventory(gm.toString()));
                     playerfile.setFoodlevel(config.getHunger());
@@ -443,23 +434,11 @@ public class MultiInvAPI {
         Player giveplayer = plugin.getServer().getPlayer(player.getPlayername());
         boolean playeronline = true;
         if((giveplayer == null || !giveplayer.isOnline())) {
-            // See if the player has data files
-            
-            // Find the player folder
-            File playerfolder = new File(Bukkit.getWorlds().get(0).getWorldFolder(), "players");
-            
-            // Find player name
-            for(File playerfile : playerfolder.listFiles()) {
-                String filename = playerfile.getName();
-                String playername = filename.substring(0, filename.length() - 4);
-                
-                if(playername.trim().equalsIgnoreCase(player.getPlayername())) {
-                    Player target = TuxTwoPlayer.getOfflinePlayer(playername);
-                    if(target != null) {
-                        target.loadData();
-                        giveplayer = target;
-                    }
-                }
+        	OfflinePlayer oplayer = Bukkit.getOfflinePlayer(player.getPlayername());
+            Player target = TuxTwoPlayer.getOfflinePlayer(oplayer);
+            if(target != null) {
+                target.loadData();
+                giveplayer = target;
             }
         }
         if(giveplayer != null) {
@@ -471,9 +450,8 @@ public class MultiInvAPI {
                     String inventoryName = player.getGm().toString();
                     if(MIYamlFiles.config.getBoolean("useSQL")) {
                         String group = MIPlayerListener.getGroup(world);
-                        String playername = giveplayer.getName();
-                        MIYamlFiles.con.saveInventory(playername, group, player.getInventory(), inventoryName);
-                        MIYamlFiles.con.saveEnderchestInventory(playername, group, player.getEnderchest(), inventoryName);
+                        MIYamlFiles.con.saveInventory(giveplayer, group, player.getInventory(), inventoryName);
+                        MIYamlFiles.con.saveEnderchestInventory(giveplayer, group, player.getEnderchest(), inventoryName);
                     } else {
                         MIPlayerFile config = new MIPlayerFile(giveplayer, MIPlayerListener.getGroup(world));
                         config.saveInventory(player.getInventory(), player.getGm().toString());
@@ -501,23 +479,26 @@ public class MultiInvAPI {
                 }
                 if(MIYamlFiles.config.getBoolean("useSQL")) {
                     String group = MIPlayerListener.getGroup(world);
-                    String playername = giveplayer.getName();
-                    MIYamlFiles.con.saveInventory(playername, group, player.getInventory(), inventoryName);
-                    MIYamlFiles.con.saveEnderchestInventory(playername, group, player.getEnderchest(), inventoryName);
-                    MIYamlFiles.con.saveHunger(playername, group, player.getFoodlevel());
-                    MIYamlFiles.con.saveSaturation(playername, group, player.getSaturation());
-                    MIYamlFiles.con.saveHealth(playername, group, player.getHealth());
                     int xp = plugin.getTotalXP(player.getXpLevel(), player.getXp());
-                    MIYamlFiles.con.saveExperience(playername, group, xp);
+                    MIYamlFiles.con.saveAll(giveplayer, group, player.getInventory(), inventoryName, xp, player.getGm(), 
+                    		player.getHealth(), player.getFoodlevel(), player.getSaturation());
+                    //MIYamlFiles.con.saveInventory(giveplayer, group, player.getInventory(), inventoryName);
+                    MIYamlFiles.con.saveEnderchestInventory(giveplayer, group, player.getEnderchest(), inventoryName);
+                    //MIYamlFiles.con.saveHunger(giveplayer, group, player.getFoodlevel());
+                    //MIYamlFiles.con.saveSaturation(giveplayer, group, player.getSaturation());
+                    //MIYamlFiles.con.saveHealth(giveplayer, group, player.getHealth());
+                    //MIYamlFiles.con.saveExperience(giveplayer, group, xp);
                     return true;
                 } else {
                     MIPlayerFile config = new MIPlayerFile(giveplayer, MIPlayerListener.getGroup(world));
-                    config.saveInventory(player.getInventory(), inventoryName);
+                    //config.saveInventory(player.getInventory(), inventoryName);
+                    config.saveAll(player.getInventory(), inventoryName, plugin.getTotalXP(player.getXpLevel(), player.getXp()), player.getXpLevel(), player.getXp(),
+                    		player.getGm(), player.getHealth(), player.getFoodlevel(), player.getSaturation());
                     config.saveEnderchestInventory(player.getEnderchest(), inventoryName);
-                    config.saveHunger(player.getFoodlevel());
-                    config.saveSaturation(player.getSaturation());
-                    config.saveHealth(player.getHealth());
-                    config.saveExperience(plugin.getTotalXP(player.getXpLevel(), player.getXp()), player.getXpLevel(), player.getXp());
+                    //config.saveHunger(player.getFoodlevel());
+                    //config.saveSaturation(player.getSaturation());
+                    //config.saveHealth(player.getHealth());
+                    //config.saveExperience(plugin.getTotalXP(player.getXpLevel(), player.getXp()), player.getXpLevel(), player.getXp());
                     return true;
                 }
             }

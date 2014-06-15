@@ -35,7 +35,7 @@ public class MIBook {
         this.author = author;
         this.title = title;
         this.pages = pages;
-        if(MIYamlFiles.config.getBoolean("useSQL")) {
+        if(MIYamlFiles.usesql) {
             // If we are using mySQL let's assume we are getting this loaded from the mySQL connector...
             // So we shouldn't have to do anything. :D (There should be no other way this is called anyways.)
         } else {
@@ -62,7 +62,7 @@ public class MIBook {
             this.author = author;
             this.title = title;
             this.pages = pages;
-            if(MIYamlFiles.config.getBoolean("useSQL")) {
+            if(MIYamlFiles.usesql) {
                 MIBook newbook = MIYamlFiles.con.getBook(hashcode, false);
                 if(newbook == null) {
                     MIYamlFiles.con.saveBook(this);
@@ -101,7 +101,7 @@ public class MIBook {
             this.author = author;
             this.title = title;
             this.pages = spages;
-            if(MIYamlFiles.config.getBoolean("useSQL")) {
+            if(MIYamlFiles.usesql) {
                 MIBook newbook = MIYamlFiles.con.getBook(hashcode, false);
                 if(newbook == null) {
                     MIYamlFiles.con.saveBook(this);

@@ -121,14 +121,14 @@ public class MICommand {
                                         effects.add(potioneffects[i]);
                                     }
                                 }
-                                if(MIYamlFiles.config.getBoolean("useSQL")) {
-                                    MIYamlFiles.con.saveInventory(player.getName(), group, new MIInventory(inventory, armor, effects), "SURVIVAL");
-                                    MIYamlFiles.con.saveHealth(player.getName(), group, health);
-                                    MIYamlFiles.con.saveHunger(player.getName(), group, hunger);
-                                    MIYamlFiles.con.saveSaturation(player.getName(), group, saturation);
-                                    MIYamlFiles.con.saveExperience(player.getName(), group, totalexp);
+                                if(MIYamlFiles.usesql) {
+                                    MIYamlFiles.con.saveInventory(player, group, new MIInventory(inventory, armor, effects), "SURVIVAL");
+                                    MIYamlFiles.con.saveHealth(player, group, health);
+                                    MIYamlFiles.con.saveHunger(player, group, hunger);
+                                    MIYamlFiles.con.saveSaturation(player, group, saturation);
+                                    MIYamlFiles.con.saveExperience(player, group, totalexp);
                                 } else {
-                                    MIPlayerFile config = new MIPlayerFile(player1.getName(), group);
+                                    MIPlayerFile config = new MIPlayerFile(player1, group);
                                     config.saveInventory(new MIInventory(inventory, armor, effects), "SURVIVAL");
                                     config.saveHealth(health);
                                     config.saveHunger(hunger);
@@ -148,10 +148,10 @@ public class MICommand {
                                         effects.add(potioneffects[i]);
                                     }
                                 }
-                                if(MIYamlFiles.config.getBoolean("useSQL")) {
-                                    MIYamlFiles.con.saveInventory(player.getName(), group, new MIInventory(inventory, armor, effects), "ADVENTURE");
+                                if(MIYamlFiles.usesql) {
+                                    MIYamlFiles.con.saveInventory(player, group, new MIInventory(inventory, armor, effects), "ADVENTURE");
                                 } else {
-                                    MIPlayerFile config = new MIPlayerFile(player1.getName(), group);
+                                    MIPlayerFile config = new MIPlayerFile(player1, group);
                                     config.saveInventory(new MIInventory(inventory, armor, effects), "ADVENTURE");
                                 }
                             }
@@ -177,14 +177,14 @@ public class MICommand {
                                             effects.add(potioneffects[i]);
                                         }
                                     }
-                                    if(MIYamlFiles.config.getBoolean("useSQL")) {
-                                        MIYamlFiles.con.saveInventory(player.getName(), worldName, new MIInventory(inventory, armor, effects), "SURVIVAL");
-                                        MIYamlFiles.con.saveHealth(player.getName(), worldName, health);
-                                        MIYamlFiles.con.saveHunger(player.getName(), worldName, hunger);
-                                        MIYamlFiles.con.saveSaturation(player.getName(), worldName, saturation);
-                                        MIYamlFiles.con.saveExperience(player.getName(), worldName, totalexp);
+                                    if(MIYamlFiles.usesql) {
+                                        MIYamlFiles.con.saveInventory(player, worldName, new MIInventory(inventory, armor, effects), "SURVIVAL");
+                                        MIYamlFiles.con.saveHealth(player, worldName, health);
+                                        MIYamlFiles.con.saveHunger(player, worldName, hunger);
+                                        MIYamlFiles.con.saveSaturation(player, worldName, saturation);
+                                        MIYamlFiles.con.saveExperience(player, worldName, totalexp);
                                     } else {
-                                        MIPlayerFile config = new MIPlayerFile(player1.getName(), worldName);
+                                        MIPlayerFile config = new MIPlayerFile(player1, worldName);
                                         config.saveInventory(new MIInventory(inventory, armor, effects), "SURVIVAL");
                                         config.saveHealth(health);
                                         config.saveHunger(hunger);
@@ -204,10 +204,10 @@ public class MICommand {
                                             effects.add(potioneffects[i]);
                                         }
                                     }
-                                    if(MIYamlFiles.config.getBoolean("useSQL")) {
-                                        MIYamlFiles.con.saveInventory(player.getName(), worldName, new MIInventory(inventory, armor, effects), "ADVENTURE");
+                                    if(MIYamlFiles.usesql) {
+                                        MIYamlFiles.con.saveInventory(player, worldName, new MIInventory(inventory, armor, effects), "ADVENTURE");
                                     } else {
-                                        MIPlayerFile config = new MIPlayerFile(player1.getName(), worldName);
+                                        MIPlayerFile config = new MIPlayerFile(player1, worldName);
                                         config.saveInventory(new MIInventory(inventory, armor, effects), "ADVENTURE");
                                     }
                                 }
@@ -269,20 +269,20 @@ public class MICommand {
                                     exp = playerstats.getExp();
                                     totalexp = plugin.getTotalXP(level, exp);
                                 }
-                                if(MIYamlFiles.config.getBoolean("useSQL")) {
+                                if(MIYamlFiles.usesql) {
                                     if(playerenderchest != null) {
                                         ItemStack[] enderchestinventory = playerenderchest.get(InventoryStoredType.ARMOUR);
-                                        MIYamlFiles.con.saveEnderchestInventory(player.getName(), group, new MIEnderchestInventory(enderchestinventory),
+                                        MIYamlFiles.con.saveEnderchestInventory(player, group, new MIEnderchestInventory(enderchestinventory),
                                                 "SURVIVAL");
                                     }
-                                    MIYamlFiles.con.saveInventory(player.getName(), group, new MIInventory(inventory, armor, new LinkedList<PotionEffect>()),
+                                    MIYamlFiles.con.saveInventory(player, group, new MIInventory(inventory, armor, new LinkedList<PotionEffect>()),
                                             "SURVIVAL");
-                                    MIYamlFiles.con.saveHealth(player.getName(), group, health);
-                                    MIYamlFiles.con.saveHunger(player.getName(), group, hunger);
-                                    MIYamlFiles.con.saveSaturation(player.getName(), group, saturation);
-                                    MIYamlFiles.con.saveExperience(player.getName(), group, totalexp);
+                                    MIYamlFiles.con.saveHealth(player, group, health);
+                                    MIYamlFiles.con.saveHunger(player, group, hunger);
+                                    MIYamlFiles.con.saveSaturation(player, group, saturation);
+                                    MIYamlFiles.con.saveExperience(player, group, totalexp);
                                 } else {
-                                    MIPlayerFile config = new MIPlayerFile(player1.getName(), group);
+                                    MIPlayerFile config = new MIPlayerFile(player1, group);
                                     config.saveInventory(new MIInventory(inventory, armor, new LinkedList<PotionEffect>()), "SURVIVAL");
                                     if(playerenderchest != null) {
                                         ItemStack[] enderchestinventory = playerenderchest.get(InventoryStoredType.ARMOUR);
@@ -336,56 +336,57 @@ public class MICommand {
                         if(pfile.getName().endsWith(".yml") && !pfile.getName().endsWith(".ec.yml")) {
                             String playername = pfile.getName().substring(0, pfile.getName().lastIndexOf("."));
                             System.out.println("Importing player " + playername);
-                            MIPlayerFile playerfile = new MIPlayerFile(playername, fdir.getName());
-                            MIYamlFiles.con.saveExperience(playername, group, playerfile.getTotalExperience());
+                            OfflinePlayer player1 = Bukkit.getOfflinePlayer(playername);
+                            MIPlayerFile playerfile = new MIPlayerFile(player1, fdir.getName());
+                            MIYamlFiles.con.saveExperience(player1, group, playerfile.getTotalExperience());
                             if(playerfile.getGameMode() != null) {
-                                MIYamlFiles.con.saveGameMode(playername, group, playerfile.getGameMode());
+                                MIYamlFiles.con.saveGameMode(player1, group, playerfile.getGameMode());
                             }
-                            MIYamlFiles.con.saveHealth(playername, group, playerfile.getHealth());
-                            MIYamlFiles.con.saveHunger(playername, group, playerfile.getHunger());
+                            MIYamlFiles.con.saveHealth(player1, group, playerfile.getHealth());
+                            MIYamlFiles.con.saveHunger(player1, group, playerfile.getHunger());
                             if(playerfile.getInventory("SURVIVAL") != null) {
                                 try {
-                                    MIYamlFiles.con.saveInventory(playername, group, playerfile.getInventory("SURVIVAL"), "SURVIVAL");
+                                    MIYamlFiles.con.saveInventory(player1, group, playerfile.getInventory("SURVIVAL"), "SURVIVAL");
                                 } catch(NullPointerException e) {
                                     // We need to catch this, otherwise it goes wild sometimes... not a pretty sight to see...
                                 }
                             }
                             if(playerfile.getInventory("CREATIVE") != null) {
                                 try {
-                                    MIYamlFiles.con.saveInventory(playername, group, playerfile.getInventory("CREATIVE"), "CREATIVE");
+                                    MIYamlFiles.con.saveInventory(player1, group, playerfile.getInventory("CREATIVE"), "CREATIVE");
                                 } catch(NullPointerException e) {
                                     // We need to catch this for old inventory files, otherwise it goes wild... not a pretty sight to see...
                                 }
                             }
                             if(playerfile.getInventory("ADVENTURE") != null) {
                                 try {
-                                    MIYamlFiles.con.saveInventory(playername, group, playerfile.getInventory("ADVENTURE"), "ADVENTURE");
+                                    MIYamlFiles.con.saveInventory(player1, group, playerfile.getInventory("ADVENTURE"), "ADVENTURE");
                                 } catch(NullPointerException e) {
                                     // We need to catch this for old inventory files, otherwise it goes wild... not a pretty sight to see...
                                 }
                             }
                             if(playerfile.getEnderchestInventory("SURVIVAL") != null) {
                                 try {
-                                    MIYamlFiles.con.saveEnderchestInventory(playername, group, playerfile.getEnderchestInventory("SURVIVAL"), "SURVIVAL");
+                                    MIYamlFiles.con.saveEnderchestInventory(player1, group, playerfile.getEnderchestInventory("SURVIVAL"), "SURVIVAL");
                                 } catch(NullPointerException e) {
                                     // We need to catch this for old inventory files, otherwise it goes wild... not a pretty sight to see...
                                 }
                             }
                             if(playerfile.getEnderchestInventory("CREATIVE") != null) {
                                 try {
-                                    MIYamlFiles.con.saveEnderchestInventory(playername, group, playerfile.getEnderchestInventory("CREATIVE"), "CREATIVE");
+                                    MIYamlFiles.con.saveEnderchestInventory(player1, group, playerfile.getEnderchestInventory("CREATIVE"), "CREATIVE");
                                 } catch(NullPointerException e) {
                                     // We need to catch this for old inventory files, otherwise it goes wild... not a pretty sight to see...
                                 }
                             }
                             if(playerfile.getEnderchestInventory("ADVENTURE") != null) {
                                 try {
-                                    MIYamlFiles.con.saveEnderchestInventory(playername, group, playerfile.getEnderchestInventory("ADVENTURE"), "ADVENTURE");
+                                    MIYamlFiles.con.saveEnderchestInventory(player1, group, playerfile.getEnderchestInventory("ADVENTURE"), "ADVENTURE");
                                 } catch(NullPointerException e) {
                                     // We need to catch this for old inventory files, otherwise it goes wild... not a pretty sight to see...
                                 }
                             }
-                            MIYamlFiles.con.saveSaturation(playername, group, playerfile.getSaturation());
+                            MIYamlFiles.con.saveSaturation(player1, group, playerfile.getSaturation());
                             
                         }
                     }

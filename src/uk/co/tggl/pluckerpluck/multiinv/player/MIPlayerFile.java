@@ -2,8 +2,10 @@ package uk.co.tggl.pluckerpluck.multiinv.player;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIEnderchestInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
@@ -22,29 +24,66 @@ public class MIPlayerFile {
     final private File file;
     final private File enderfile;
     final private String playername;
+    final private String uuid;
     
     public MIPlayerFile(Player player, String group) {
         // Find and load configuration file for the player
         File dataFolder = Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder();
-        File worldsFolder = new File(dataFolder, "Groups");
+        File worldsFolder = new File(dataFolder, "UUIDGroups");
         playername = player.getName();
-        file = new File(worldsFolder, group + File.separator + playername + ".yml");
-        enderfile = new File(worldsFolder, group + File.separator + playername + ".ec.yml");
+        uuid = player.getUniqueId().toString();
+        file = new File(worldsFolder, group + File.separator + uuid + ".yml");
+        enderfile = new File(worldsFolder, group + File.separator + uuid + ".ec.yml");
         playerFile = new YamlConfiguration();
         enderchestFile = new YamlConfiguration();
         load();
     }
     
-    public MIPlayerFile(String player, String group) {
+    public MIPlayerFile(OfflinePlayer player, String group) {
         // Find and load configuration file for the player
         File dataFolder = Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder();
-        File worldsFolder = new File(dataFolder, "Groups");
-        file = new File(worldsFolder, group + File.separator + player + ".yml");
-        enderfile = new File(worldsFolder, group + File.separator + player + ".ec.yml");
-        playername = player;
+        File worldsFolder = new File(dataFolder, "UUIDGroups");
+        playername = player.getName();
+        uuid = player.getUniqueId().toString();
+        file = new File(worldsFolder, group + File.separator + uuid + ".yml");
+        enderfile = new File(worldsFolder, group + File.separator + uuid + ".ec.yml");
         playerFile = new YamlConfiguration();
         enderchestFile = new YamlConfiguration();
         load();
+    }
+    
+    public MIPlayerFile(OfflinePlayer player, String group, boolean convert) {
+        // Find and load configuration file for the player
+        File dataFolder = Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder();
+        File worldsFolder = new File(dataFolder, "UUIDGroups");
+        playername = player.getName();
+        uuid = player.getUniqueId().toString();
+        file = new File(worldsFolder, group + File.separator + uuid + ".yml");
+        enderfile = new File(worldsFolder, group + File.separator + uuid + ".ec.yml");
+        playerFile = new YamlConfiguration();
+        enderchestFile = new YamlConfiguration();
+        if(convert) {
+            File oldWorldsFolder = new File(dataFolder, "Groups");
+            File file1 = new File(oldWorldsFolder, group + File.separator + uuid + ".yml");
+            File enderfile1 = new File(oldWorldsFolder, group + File.separator + uuid + ".ec.yml");
+            if(file1.exists()) {
+                try {
+                    playerFile.load(file1);
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            if(enderfile1.exists()) {
+                try {
+                    enderchestFile.load(enderfile1);
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            save();
+        }else {
+            load();
+        }
     }
     
     private void load() {
@@ -71,6 +110,22 @@ public class MIPlayerFile {
     private void save() {
         try {
             playerFile.save(file);
+            enderchestFile.save(enderfile);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void saveInventory() {
+        try {
+            playerFile.save(file);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void saveEnder() {
+        try {
             enderchestFile.save(enderfile);
         } catch(Exception e) {
             e.printStackTrace();
@@ -106,8 +161,8 @@ public class MIPlayerFile {
         
         String folder = file.getParentFile().getName();
         MultiInv.log.debug("Saving " + playername + "'s " + inventoryName + " inventory to " + folder);
-        
-        save();
+
+        saveInventory();
     }
     
     // Load particular enderchest inventory for specified player from specified group
@@ -125,7 +180,7 @@ public class MIPlayerFile {
     public void saveEnderchestInventory(MIEnderchestInventory inventory, String inventoryName) {
         String inventoryString = inventory.toString();
         enderchestFile.set(inventoryName, inventoryString);
-        save();
+        saveEnder();
     }
     
     public double getHealth() {
@@ -135,10 +190,11 @@ public class MIPlayerFile {
         }
         return health;
     }
-    
+
+    @Deprecated
     public void saveHealth(double health) {
         playerFile.set("health", health);
-        save();
+        saveInventory();
     }
     
     public GameMode getGameMode() {
@@ -154,7 +210,7 @@ public class MIPlayerFile {
     
     public void saveGameMode(GameMode gameMode) {
         playerFile.set("gameMode", gameMode.toString());
-        save();
+        saveInventory();
     }
     
     public int getHunger() {
@@ -170,10 +226,11 @@ public class MIPlayerFile {
         float saturation = (float) saturationDouble;
         return saturation;
     }
-    
+
+    @Deprecated
     public void saveSaturation(float saturation) {
         playerFile.set("saturation", saturation);
-        save();
+        saveInventory();
     }
     
     public int getTotalExperience() {
@@ -189,17 +246,33 @@ public class MIPlayerFile {
         float exp = (float) expDouble;
         return exp;
     }
-    
+
+    @Deprecated
     public void saveExperience(int experience, int level, float exp) {
         playerFile.set("experience", experience);
         playerFile.set("level", level);
         playerFile.set("exp", exp);
-        save();
+        saveInventory();
     }
     
+    @Deprecated
     public void saveHunger(int hunger) {
         playerFile.set("hunger", hunger);
-        save();
+        saveInventory();
     }
     
+    public void saveAll(MIInventory inventory, String inventoryName,
+    		int experience, int level, float exp, GameMode gameMode, double health, int hunger, float saturation) {
+
+        String inventoryString = inventory.toString();
+        playerFile.set(inventoryName, inventoryString);
+        playerFile.set("experience", experience);
+        playerFile.set("level", level);
+        playerFile.set("exp", exp);
+        playerFile.set("gameMode", gameMode.toString());
+        playerFile.set("health", health);
+        playerFile.set("hunger", hunger);
+        playerFile.set("saturation", saturation);
+        saveInventory();
+    }
 }
