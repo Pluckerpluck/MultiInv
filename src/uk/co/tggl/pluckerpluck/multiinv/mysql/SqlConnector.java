@@ -427,7 +427,7 @@ public class SqlConnector {
             st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_" + inventoryName.toLowerCase() + "='" + 
             inventoryString + "', inv_experience='" + experience + "', inv_gamemode='" + gameMode.toString() + 
             "', inv_health='" + health + "', inv_hunger='" + hunger + "', inv_saturation='" + saturation + 
-            "' WHERE inv_player='" + player + "' AND inv_group='" + group + "'");
+            "' WHERE inv_uuid='" + player.getUniqueId().toString() + "' AND inv_group='" + group + "'");
         } catch(SQLException e) {
             e.printStackTrace();
         }
@@ -443,7 +443,7 @@ public class SqlConnector {
         }
         try {
             Statement st = con.createStatement();
-            st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_" + inventoryName.toLowerCase() + "='" + inventoryString + "' WHERE inv_player='" + player
+            st.executeUpdate("UPDATE " + prefix + "multiinv SET inv_" + inventoryName.toLowerCase() + "='" + inventoryString + "' WHERE inv_uuid='" + player.getUniqueId().toString()
                     + "' AND inv_group='" + group + "'");
         } catch(SQLException e) {
             e.printStackTrace();
@@ -456,8 +456,8 @@ public class SqlConnector {
         createChestRecord(player, group);
         try {
             Statement st = con.createStatement();
-            st.executeUpdate("UPDATE " + prefix + "enderchestinv SET chest_" + inventoryName.toLowerCase() + "='" + inventoryString + "' WHERE chest_player='"
-                    + player + "' AND inv_group='" + group + "'");
+            st.executeUpdate("UPDATE " + prefix + "enderchestinv SET chest_" + inventoryName.toLowerCase() + "='" + inventoryString + "' WHERE inv_uuid='"
+                    + player.getUniqueId().toString() + "' AND inv_group='" + group + "'");
         } catch(SQLException e) {
             e.printStackTrace();
         }
@@ -472,7 +472,7 @@ public class SqlConnector {
                         + prefix
                         + "multiinv (inv_player, inv_uuid, inv_group, inv_gamemode, inv_health, inv_hunger, inv_saturation, inv_level, inv_experience, inv_survival, inv_creative, inv_ADVENTURE) "
                         +
-                        "VALUES('" + player + "', '" + player.getUniqueId().toString() + "', '" + group + "', 'SURVIVAL', 20, 20, 5, 0, 0, '', '', '')");
+                        "VALUES('" + player.getName() + "', '" + player.getUniqueId().toString() + "', '" + group + "', 'SURVIVAL', 20, 20, 5, 0, 0, '', '', '')");
             }
         } catch(SQLException e) {
             e.printStackTrace();
@@ -482,10 +482,10 @@ public class SqlConnector {
     public void createChestRecord(OfflinePlayer player, String group) {
         try {
             Statement st = con.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "enderchestinv WHERE chest_player='" + player + "' AND inv_group='" + group + "'");
+            ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "enderchestinv WHERE inv_uuid='" + player.getUniqueId().toString() + "' AND inv_group='" + group + "'");
             if(!rs.next()) {
                 st.executeUpdate("INSERT INTO " + prefix + "enderchestinv (chest_player, inv_uuid, inv_group, chest_survival, chest_creative, chest_adventure) " +
-                        "VALUES('" + player + "', '" + player.getUniqueId().toString() + "', '" + group + "', '', '', '')");
+                        "VALUES('" + player.getName() + "', '" + player.getUniqueId().toString() + "', '" + group + "', '', '', '')");
             }
         } catch(SQLException e) {
             e.printStackTrace();
