@@ -106,6 +106,8 @@ public class MultiInv extends JavaPlugin {
             	convertToUUID();
             	log.info("Conversion complete!");
             }
+        }else if(MIYamlFiles.con != null) {
+            Bukkit.getScheduler().runTaskTimerAsynchronously(this, MIYamlFiles.con, 20, 20);
         }
         
         getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {

@@ -401,7 +401,7 @@ public class MICommand {
                     if(fdir.isFile() && fdir.getName().endsWith(".yml")) {
                         System.out.println("Importing book " + fdir.getName());
                         MIBook thebook = new MIBook(fdir);
-                        MIYamlFiles.con.saveBook(thebook);
+                        MIYamlFiles.con.saveBook(thebook, true);
                     }
                 }
             }

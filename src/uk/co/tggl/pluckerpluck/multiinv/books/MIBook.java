@@ -65,7 +65,7 @@ public class MIBook {
             if(MIYamlFiles.usesql) {
                 MIBook newbook = MIYamlFiles.con.getBook(hashcode, false);
                 if(newbook == null) {
-                    MIYamlFiles.con.saveBook(this);
+                    MIYamlFiles.con.saveBook(this, false);
                 } else {
                     // We don't need to do anything if there is a result.
                     // It should all be exactly the same.
@@ -104,7 +104,7 @@ public class MIBook {
             if(MIYamlFiles.usesql) {
                 MIBook newbook = MIYamlFiles.con.getBook(hashcode, false);
                 if(newbook == null) {
-                    MIYamlFiles.con.saveBook(this);
+                    MIYamlFiles.con.saveBook(this, false);
                 } else {
                     // We don't need to do anything if there is a result.
                     // It should all be exactly the same.
