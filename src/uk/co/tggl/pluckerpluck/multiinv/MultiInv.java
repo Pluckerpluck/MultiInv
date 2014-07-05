@@ -50,7 +50,7 @@ public class MultiInv extends JavaPlugin {
         
         // Adding in metrics
         try {
-            Metrics metrics = new Metrics(this);
+            MetricsLite metrics = new MetricsLite(this);
             metrics.start();
         } catch(IOException e) {
             // Failed to submit the stats :-(
