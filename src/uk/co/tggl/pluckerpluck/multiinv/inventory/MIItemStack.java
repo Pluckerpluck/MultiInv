@@ -411,24 +411,26 @@ public class MIItemStack {
             smeta.append("G" + Integer.toString(((FireworkMeta) meta).getPower()) + "#");
         }else if(meta instanceof FireworkEffectMeta) {
             FireworkEffect effect = ((FireworkEffectMeta) meta).getEffect();
-            List<Color> colors = effect.getColors();
-            List<Color> fadecolors = effect.getFadeColors();
-            StringBuilder colorstring = new StringBuilder();
-            for(Color color : colors) {
-                if(colorstring.length() > 0) {
-                    colorstring.append("-");
+            if(effect != null) {
+                List<Color> colors = effect.getColors();
+                List<Color> fadecolors = effect.getFadeColors();
+                StringBuilder colorstring = new StringBuilder();
+                for(Color color : colors) {
+                    if(colorstring.length() > 0) {
+                        colorstring.append("-");
+                    }
+                    colorstring.append(Integer.toString(color.asRGB()));
                 }
-                colorstring.append(Integer.toString(color.asRGB()));
-            }
-            StringBuilder fadecolorstring = new StringBuilder();
-            for(Color color : fadecolors) {
-                if(fadecolorstring.length() > 0) {
-                    fadecolorstring.append("-");
+                StringBuilder fadecolorstring = new StringBuilder();
+                for(Color color : fadecolors) {
+                    if(fadecolorstring.length() > 0) {
+                        fadecolorstring.append("-");
+                    }
+                    fadecolorstring.append(Integer.toString(color.asRGB()));
                 }
-                fadecolorstring.append(Integer.toString(color.asRGB()));
+                smeta.append("F" + effect.getType().name() + "+" + colorstring.toString() + "+" + fadecolorstring.toString() + "+" + 
+                        effect.hasFlicker() + "+" + effect.hasTrail() + "#");
             }
-            smeta.append("F" + effect.getType().name() + "+" + colorstring.toString() + "+" + fadecolorstring.toString() + "+" + 
-                    effect.hasFlicker() + "+" + effect.hasTrail() + "#");
         }
         if(meta instanceof Repairable) {
             Repairable rmeta = (Repairable) meta;
