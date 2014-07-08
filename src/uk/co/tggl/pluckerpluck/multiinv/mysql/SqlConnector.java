@@ -307,7 +307,7 @@ public class SqlConnector implements Runnable {
                     "`inv_survival` text NOT NULL, " +
                     "`inv_creative` text NOT NULL, " +
                     "`inv_adventure` text NOT NULL, " +
-                    "UNIQUE KEY `unique_player_group` ( `inv_player` , `inv_group` ) ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
+                    "UNIQUE KEY `unique_player_group` ( `inv_uuid` , `inv_group` ) ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
             return true;
         } catch(SQLException e) {
             e.printStackTrace();
@@ -327,7 +327,7 @@ public class SqlConnector implements Runnable {
                     "`chest_survival` text NOT NULL, " +
                     "`chest_creative` text NOT NULL, " +
                     "`chest_adventure` text NOT NULL, " +
-                    "UNIQUE KEY `unique_player_group` ( `chest_player` , `inv_group` ) ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
+                    "UNIQUE KEY `unique_player_group` ( `inv_uuid` , `inv_group` ) ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
             return true;
         } catch(SQLException e) {
             e.printStackTrace();
