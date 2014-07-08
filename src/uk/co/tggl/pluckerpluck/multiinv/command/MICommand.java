@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import me.drayshak.WorldInventories.Group;
 import me.drayshak.WorldInventories.InventoryLoadType;
@@ -314,6 +315,16 @@ public class MICommand {
                     sender.sendMessage(ChatColor.DARK_GREEN + "Please disable/delete WorldInventories now.");
                 }
             }
+        }else {
+        	if(sender.hasPermission("multiinv.import")) {
+        		sender.sendMessage(ChatColor.GOLD + "Import Commands:");
+        		sender.sendMessage(ChatColor.GOLD + "/multiinv import" + ChatColor.AQUA + " - Import from fat file to mySQL");
+        		sender.sendMessage(ChatColor.GOLD + "/multiinv mvimport" + ChatColor.AQUA + " - Imports Multiverse-Inventories into MultiInv");
+        		sender.sendMessage(ChatColor.GOLD + "/multiinv miimport" + ChatColor.AQUA + " - Imports WorldInventories into MultiInv");
+        	}
+        	if(sender.hasPermission("multiinv.reload")) {
+        		sender.sendMessage(ChatColor.GOLD + "/multiinv reload" + ChatColor.AQUA + " - Reloads config files.");
+        	}
         }
     }
     
@@ -334,9 +345,9 @@ public class MICommand {
                     File[] playerfiles = fdir.listFiles();
                     for(File pfile : playerfiles) {
                         if(pfile.getName().endsWith(".yml") && !pfile.getName().endsWith(".ec.yml")) {
-                            String playername = pfile.getName().substring(0, pfile.getName().lastIndexOf("."));
-                            System.out.println("Importing player " + playername);
-                            OfflinePlayer player1 = Bukkit.getOfflinePlayer(playername);
+                            String suuid = pfile.getName().substring(0, pfile.getName().lastIndexOf("."));
+                            OfflinePlayer player1 = Bukkit.getOfflinePlayer(UUID.fromString(suuid));
+                            System.out.println("Importing player " + player1.getName() + " with UUID: " + suuid);
                             MIPlayerFile playerfile = new MIPlayerFile(player1, fdir.getName());
                             MIYamlFiles.con.saveExperience(player1, group, playerfile.getTotalExperience());
                             if(playerfile.getGameMode() != null) {
