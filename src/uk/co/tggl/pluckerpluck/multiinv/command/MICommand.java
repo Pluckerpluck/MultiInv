@@ -334,7 +334,7 @@ public class MICommand {
             return false;
         }
         System.out.println("getting World Inventories Directory");
-        String worldinventoriesdir = Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder().getAbsolutePath() + File.separator + "Groups";
+        String worldinventoriesdir = Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder().getAbsolutePath() + File.separator + "UUIDGroups";
         File worldinvdir = new File(worldinventoriesdir);
         if(worldinvdir.exists()) {
             File[] thedirs = worldinvdir.listFiles();
