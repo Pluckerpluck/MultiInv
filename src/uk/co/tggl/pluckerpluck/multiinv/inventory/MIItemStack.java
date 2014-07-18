@@ -270,30 +270,32 @@ public class MIItemStack {
                 }
             }else if(ismeta instanceof FireworkEffectMeta) {
                 data = itemdata.get("F0");
-                String[] fedata = data.split("\\+");
-                Type effect = FireworkEffect.Type.valueOf(fedata[0]);
-                Builder ef = FireworkEffect.builder();
-                ef.with(effect);
-                if(effect != null) {
-                    String[] colors = fedata[1].split("-");
-                    for(String color : colors) {
-                        try {
-                            ef.withColor(Color.fromRGB(Integer.parseInt(color)));
-                        }catch (Exception e) {
-                            
+                if(data != null) {
+                    String[] fedata = data.split("\\+");
+                    Type effect = FireworkEffect.Type.valueOf(fedata[0]);
+                    Builder ef = FireworkEffect.builder();
+                    ef.with(effect);
+                    if(effect != null) {
+                        String[] colors = fedata[1].split("-");
+                        for(String color : colors) {
+                            try {
+                                ef.withColor(Color.fromRGB(Integer.parseInt(color)));
+                            }catch (Exception e) {
+                                
+                            }
                         }
-                    }
-                    String[] fadecolors = fedata[2].split("-");
-                    for(String fadecolor : fadecolors) {
-                        try {
-                            ef.withFade(Color.fromRGB(Integer.parseInt(fadecolor)));
-                        }catch (Exception e) {
-                            
+                        String[] fadecolors = fedata[2].split("-");
+                        for(String fadecolor : fadecolors) {
+                            try {
+                                ef.withFade(Color.fromRGB(Integer.parseInt(fadecolor)));
+                            }catch (Exception e) {
+                                
+                            }
                         }
+                        ef.flicker(Boolean.parseBoolean(fedata[3]));
+                        ef.trail(Boolean.parseBoolean(fedata[4]));
+                        ((FireworkEffectMeta) ismeta).setEffect(ef.build());
                     }
-                    ef.flicker(Boolean.parseBoolean(fedata[3]));
-                    ef.trail(Boolean.parseBoolean(fedata[4]));
-                    ((FireworkEffectMeta) ismeta).setEffect(ef.build());
                 }
             }
             if(ismeta instanceof Repairable) {
