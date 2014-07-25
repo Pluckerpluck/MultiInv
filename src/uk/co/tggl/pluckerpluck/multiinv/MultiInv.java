@@ -10,8 +10,10 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import uk.co.tggl.pluckerpluck.multiinv.command.MICommand;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
@@ -36,6 +38,22 @@ public class MultiInv extends JavaPlugin {
     @Override
     public void onDisable() {
         MIYamlFiles.saveLogoutWorlds();
+
+        //If we save on quit we also want to save on disable!
+		if(MIYamlFiles.saveonquit) {
+			for(Player player : getServer().getOnlinePlayers()) {
+				String currentworld = MIPlayerListener.getGroup(player.getLocation().getWorld());
+	        	if(!player.hasPermission("multiinv.enderchestexempt")) {
+	                // Load the enderchest inventory for this world from file.
+	                playerListener.saveEnderchestState(player, currentworld);
+	            }
+	            if(!player.hasPermission("multiinv.exempt")) {
+	                // Load the inventory for this world from file.
+	                playerListener.savePlayerState(player, currentworld);
+	            }
+			}
+		}
+	
     }
     
     @Override

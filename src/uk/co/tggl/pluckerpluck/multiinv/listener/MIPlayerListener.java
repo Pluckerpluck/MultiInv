@@ -78,8 +78,25 @@ public class MIPlayerListener implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerLogout(PlayerQuitEvent event) {
-		BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, new PlayerLogoutRemover(event.getPlayer().getName()), 20*60);
-		playerremoval.put(event.getPlayer().getName(), task);
+		Player player = event.getPlayer();
+		String currentworld = getGroup(player.getLocation().getWorld());
+		if(MIYamlFiles.saveonquit) {
+        	if(!player.hasPermission("multiinv.enderchestexempt")) {
+                // Load the enderchest inventory for this world from file.
+                saveEnderchestState(player, currentworld);
+            }
+            if(!player.hasPermission("multiinv.exempt")) {
+                // Load the inventory for this world from file.
+                savePlayerState(player, currentworld);
+            }
+            //Remove the player from the list immediately if saveonquit is true.
+            //Prevents a bug where stuff is saved to file within the 60 seconds time out.
+    		BukkitTask task = plugin.getServer().getScheduler().runTask(plugin, new PlayerLogoutRemover(event.getPlayer().getName()));
+    		playerremoval.put(event.getPlayer().getName(), task);
+        }else {
+    		BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, new PlayerLogoutRemover(event.getPlayer().getName()), 20*60);
+    		playerremoval.put(event.getPlayer().getName(), task);
+        }
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)

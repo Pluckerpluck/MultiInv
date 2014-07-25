@@ -33,6 +33,7 @@ public class MIYamlFiles {
     public static boolean compatibilitymode = false;
     public static boolean controlgamemode = true;
     public static boolean xpfix = false;
+    public static boolean saveonquit = false;
     
     static boolean logoutdirty = false;
     
@@ -60,6 +61,7 @@ public class MIYamlFiles {
             saveYamlFile(config, "config.yml");
         } else {
             String worldtypes = config.getString("splitHealth");
+            String squit = config.getString("SaveInventoryOnQuit");
             if(worldtypes == null || worldtypes.equals("")) {
                 config.set("useSQL", false);
                 config.set("splitHealth", true);
@@ -75,6 +77,9 @@ public class MIYamlFiles {
                 config.set("sql.prefix", "multiinv_");
                 creativegroups.clear();
                 creativegroups.put("creative", "creative");
+                saveYamlFile(config, "config.yml");
+            } else if(squit == null || squit.equals("")) {
+                config.set("SaveInventoryOnQuit", false);
                 saveYamlFile(config, "config.yml");
             } else {
                 creativegroups.clear();
@@ -96,6 +101,7 @@ public class MIYamlFiles {
                 MIYamlFiles.compatibilitymode = MIYamlFiles.config.getBoolean("compatibilityMode");
                 controlgamemode = config.getBoolean("controlGamemode", true);
                 MIYamlFiles.xpfix = config.getBoolean("xpfix", true);
+                saveonquit = config.getBoolean("SaveInventoryOnQuit", false);
                 if(config.getBoolean("useSQL", false)) {
                 	usesql = true;
                     try {
