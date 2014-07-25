@@ -24,6 +24,7 @@ import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.books.MIBook;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -445,7 +446,7 @@ public class MIItemStack {
         if(encode == null) {
             return "";
         }
-        return javax.xml.bind.DatatypeConverter.printBase64Binary(encode.getBytes());
+        return javax.xml.bind.DatatypeConverter.printBase64Binary(encode.getBytes(Charset.forName("UTF-8")));
     }
     
     private String base64Decode(String encoded) {
@@ -453,7 +454,7 @@ public class MIItemStack {
             return "";
         }
         byte[] bytes = javax.xml.bind.DatatypeConverter.parseBase64Binary(encoded);
-        return new String(bytes);
+        return new String(bytes, Charset.forName("UTF-8"));
     }
     
     private String encodeLore(List<String> lore) {
