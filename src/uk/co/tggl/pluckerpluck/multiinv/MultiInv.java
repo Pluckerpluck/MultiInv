@@ -15,6 +15,8 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
+import com.tux2mc.debugreport.DebugReport;
+
 import uk.co.tggl.pluckerpluck.multiinv.command.MICommand;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 import uk.co.tggl.pluckerpluck.multiinv.listener.MIPlayerListener;
@@ -29,6 +31,8 @@ public class MultiInv extends JavaPlugin {
     public static MILogger log;
     public int xpversion = 0;
     private MultiInvAPI api;
+    
+    public DebugReport dreport = null;
     
     private ArrayList<String> grouplist = new ArrayList<String>();
     
@@ -136,6 +140,13 @@ public class MultiInv extends JavaPlugin {
 			}
 		}, 60, 20);
         scanWorlds();
+        loadReportPlugin();
+    }
+    
+    private void loadReportPlugin() {
+    	if(Bukkit.getPluginManager().isPluginEnabled("DebugReport")) {
+    		dreport = DebugReport.getInstance();
+    	}
     }
     
     private void convertToUUID() {

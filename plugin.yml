@@ -5,6 +5,7 @@ website: http://www.tggl.co.uk
 author: Pluckerpluck
 authors: [Tux2]
 depend: [TuxTwoLib]
+softdepend: [DebugReport]
 description: >
              This is a plugin to create separate inventories for each world
 

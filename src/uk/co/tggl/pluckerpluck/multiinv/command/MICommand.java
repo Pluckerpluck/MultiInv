@@ -1,6 +1,10 @@
 package uk.co.tggl.pluckerpluck.multiinv.command;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -68,7 +72,55 @@ public class MICommand {
             for(int i = 1; i < strings.length; i++) {
                 args[i - 1] = strings[i];
             }
-            if(command.equalsIgnoreCase("reload")) {
+            if(command.equalsIgnoreCase("report")) {
+            	if(plugin.dreport != null) {
+            		LinkedList<String> customdata = new LinkedList<String>();
+            		customdata.add("MultiInv Custom Data");
+            		customdata.add("================================");
+            		customdata.add("-----------config.yml-----------");
+            		BufferedReader reader = null;
+					try {
+						reader = new BufferedReader(new FileReader(plugin.getDataFolder() + File.separator + "config.yml"));
+	            		String line = null;
+	            		while ((line = reader.readLine()) != null) {
+	            		    if(line.startsWith("  password:")) {
+	            		    	line = "  password: NOTSHOWN";
+	            		    }
+	            		    customdata.add(line);
+	            		}
+					} catch (FileNotFoundException e) {
+					} catch (IOException e) {
+					}finally {
+						if(reader != null) {
+							try {
+								reader.close();
+							} catch (IOException e) {
+							}
+							reader = null;
+						}
+					}
+            		customdata.add("-----------groups.yml-----------");
+					try {
+						reader = new BufferedReader(new FileReader(plugin.getDataFolder() + File.separator + "groups.yml"));
+	            		String line = null;
+	            		while ((line = reader.readLine()) != null) {
+	            		    customdata.add(line);
+	            		}
+					} catch (FileNotFoundException e) {
+					} catch (IOException e) {
+					}finally {
+						if(reader != null) {
+							try {
+								reader.close();
+							} catch (IOException e) {
+							}
+						}
+					}
+					plugin.dreport.createReport(sender, customdata);
+            	}else {
+            		sender.sendMessage(ChatColor.RED + "In order to generate a debug report you need the plugin DebugReport!");
+            	}
+            }else if(command.equalsIgnoreCase("reload")) {
                 MIYamlFiles.loadConfig();
                 MIYamlFiles.loadGroups();
                 sender.sendMessage(ChatColor.DARK_GREEN + "MultiInv configs reloaded!");
