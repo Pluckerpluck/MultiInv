@@ -74,6 +74,16 @@ public class MIPlayerListener implements Listener {
 			// Let's set a task to run once they get switched to the proper world by bukkit.
 			plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new DeferredWorldCheck(player, this), 1);
 		}
+		if(player.hasPermission("multiinv.exempt") && player.hasPermission("multiinv.enderchestexempt")) {
+			player.sendMessage(ChatColor.GOLD + "[MultiInv] You have the multiinv.exempt and multiinv.enderchestexempt permission nodes.");
+			player.sendMessage(ChatColor.GOLD + "Your inventory and enderchest contents will not switch between worlds.");
+		}else if(player.hasPermission("multiinv.exempt")) {
+			player.sendMessage(ChatColor.GOLD + "[MultiInv] You have the multiinv.exempt permission node.");
+			player.sendMessage(ChatColor.GOLD + "Your inventory contents will not switch between worlds.");
+		}else if(player.hasPermission("multiinv.enderchestexempt")) {
+			player.sendMessage(ChatColor.GOLD + "[MultiInv] You have the multiinv.enderchestexempt permission node.");
+			player.sendMessage(ChatColor.GOLD + "Your enderchest contents will not switch between worlds.");
+		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
