@@ -65,6 +65,12 @@ public class MIPlayerListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerLogin(PlayerLoginEvent event) {
 		Player player = event.getPlayer();
+
+		if(player.hasMetadata("NPC")) {
+			//It's an NPC, we can safely exit...
+			return;
+		}
+		
 		if(playerremoval.containsKey(event.getPlayer().getName())) {
 			BukkitTask task = playerremoval.get(player.getName());
 			task.cancel();
@@ -89,6 +95,12 @@ public class MIPlayerListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerLogout(PlayerQuitEvent event) {
 		Player player = event.getPlayer();
+
+		if(player.hasMetadata("NPC")) {
+			//It's an NPC, we can safely exit...
+			return;
+		}
+		
 		String currentworld = getGroup(player.getLocation().getWorld());
 		if(MIYamlFiles.saveonquit) {
         	if(!player.hasPermission("multiinv.enderchestexempt")) {
@@ -118,6 +130,10 @@ public class MIPlayerListener implements Listener {
 		// Get player objects
 		Player player = event.getPlayer();
 
+		if(player.hasMetadata("NPC")) {
+			//It's an NPC, we can safely exit...
+			return;
+		}
 		// Get world objects
 		World worldTo = player.getWorld();
 		World worldFrom = event.getFrom();
@@ -152,6 +168,12 @@ public class MIPlayerListener implements Listener {
 		if(event.isCancelled()) {
 			return;
 		}
+
+		if(event.getPlayer().hasMetadata("NPC")) {
+			//It's an NPC, we can safely exit...
+			return;
+		}
+		
 		if(playerchangeworlds.containsKey(event.getPlayer().getName())) {
 			if(!event.getFrom().getWorld().getName().equals(event.getTo().getWorld().getName())) {
 				event.setCancelled(true);
@@ -204,6 +226,10 @@ public class MIPlayerListener implements Listener {
 		}
 		Location respawn = event.getRespawnLocation();
 		Player player = event.getPlayer();
+		if(player.hasMetadata("NPC")) {
+			//It's an NPC, we can safely exit...
+			return;
+		}
 		if(respawn.getWorld() != player.getWorld()) {
 			String groupTo = getGroup(respawn.getWorld());
 			String groupFrom = getGroup(player.getWorld());
@@ -223,6 +249,10 @@ public class MIPlayerListener implements Listener {
 	public void onPlayerGameModeChange(PlayerGameModeChangeEvent event) {
 		if(!event.isCancelled() && MIYamlFiles.separategamemodeinventories) {
 			Player player = event.getPlayer();
+			if(player.hasMetadata("NPC")) {
+				//It's an NPC, we can safely exit...
+				return;
+			}
 			MIPlayer miPlayer = players.get(player.getName());
 
 			// Find correct group
