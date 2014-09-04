@@ -17,6 +17,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
 
+import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
+import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 import uk.co.tggl.pluckerpluck.multiinv.books.MIBook;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIEnderchestInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
@@ -489,6 +491,10 @@ public class SqlConnector implements Runnable {
     }
     
     public void saveInventory(OfflinePlayer player, String group, MIInventory inventory, String inventoryName) {
+    	if(player == null || group == null || inventory == null || inventoryName == null) {
+    		MultiInv.log.warning("Unable to save inventory of player due to a null string...");
+    		return;
+    	}
         String inventoryString = inventory.toString();
         /*// Call this just to make sure the player record has been created.
         createRecord(player, group);
