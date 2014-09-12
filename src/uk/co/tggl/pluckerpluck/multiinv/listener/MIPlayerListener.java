@@ -242,6 +242,8 @@ public class MIPlayerListener implements Listener {
 			loadPlayerState(player, groupTo);
 			// Save the player's current world
 			MIYamlFiles.savePlayerLogoutWorld(player.getName(), groupTo);
+			ChangeInventoryEvent eventcall = new ChangeInventoryEvent(respawn.getWorld(),player.getWorld(),player);
+			Bukkit.getServer().getPluginManager().callEvent(eventcall);
 		}
 	}
 
