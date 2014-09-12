@@ -21,6 +21,7 @@ import org.bukkit.scheduler.BukkitTask;
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
 import uk.co.tggl.pluckerpluck.multiinv.PlayerLogoutRemover;
+import uk.co.tggl.pluckerpluck.multiinv.api.ChangeInventoryEvent;
 import uk.co.tggl.pluckerpluck.multiinv.player.DeferredWorldCheck;
 import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayer;
 import uk.co.tggl.pluckerpluck.multiinv.workarounds.SetXP;
