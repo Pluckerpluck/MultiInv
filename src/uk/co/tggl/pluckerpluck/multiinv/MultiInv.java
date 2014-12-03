@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -13,12 +15,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
-
 import com.tux2mc.debugreport.DebugReport;
 
 import uk.co.tggl.pluckerpluck.multiinv.command.MICommand;
-import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 import uk.co.tggl.pluckerpluck.multiinv.listener.MIPlayerListener;
 import uk.co.tggl.pluckerpluck.multiinv.logger.MILogger;
 
@@ -96,13 +95,31 @@ public class MultiInv extends JavaPlugin {
         playerListener = new MIPlayerListener(this);
         
         // Register required events
+        
+        //Is it GlowStone or Spigot?
+        boolean isglowstone = false;
+		File glowstoneproperties = new File("config/glowstone.yml");
+		if(glowstoneproperties.exists()) {
+			isglowstone = true;
+		}
+        
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(playerListener, this);
-        String[] cbversionstring = getServer().getVersion().split(":");
-        String[] versionstring = cbversionstring[1].split("\\.");
+        
+		Matcher mcmatch;
+		if(isglowstone) {
+			Pattern pmcversion = Pattern.compile("(\\d+)\\.(\\d+)\\.?(\\d*)");
+			mcmatch = pmcversion.matcher(getServer().getVersion());
+		}else {
+			String[] cbversionstring = getServer().getVersion().split(":");
+			Pattern pmcversion = Pattern.compile("(\\d+)\\.(\\d+)\\.?(\\d*)");
+			mcmatch = pmcversion.matcher(cbversionstring[1]);
+		}
+		
+        if(mcmatch.find()) {
         try {
-            int majorversion = Integer.parseInt(versionstring[0].trim());
-            int minorversion = Integer.parseInt(versionstring[1].trim());
+			int majorversion = Integer.parseInt(mcmatch.group(1));
+			int minorversion = Integer.parseInt(mcmatch.group(2));
             if(majorversion == 1) {
                 if(minorversion > 2) {
                     xpversion = 1;
@@ -115,6 +132,10 @@ public class MultiInv extends JavaPlugin {
                 log.info("MC 1.3 or above found, enabling version 2 XP handling.");
             }
         } catch(Exception e) {
+            log.severe("Unable to get server version! Inaccurate XP handling may occurr!");
+            log.severe("Server Version String: " + getServer().getVersion());
+        }
+        }else {
             log.severe("Unable to get server version! Inaccurate XP handling may occurr!");
             log.severe("Server Version String: " + getServer().getVersion());
         }
