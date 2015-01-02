@@ -44,6 +44,12 @@ public class SqlConnector implements Runnable {
         if(!inventoryColumnExists("ADVENTURE")) {
             addInventoryColumn("ADVENTURE");
         }
+        if(!inventoryColumnExists("SPECTATOR")) {
+            addInventoryColumn("SPECTATOR");
+        }
+        if(!chestColumnExists("SPECTATOR")) {
+            addChestColumn("chest_spectator");
+        }
         if(!inventoryColumnExists("uuid")) {
             convertToUUID();
         }
@@ -241,6 +247,19 @@ public class SqlConnector implements Runnable {
         }
     }
     
+    public boolean addChestColumn(String gamemode) {
+        Statement st;
+        try {
+            st = con.createStatement();
+            st.executeUpdate("ALTER TABLE `" + prefix + "enderchestinv` ADD `chest_" + gamemode.toLowerCase()
+                    + "` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+            return true;
+        } catch(SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
     public void convertToUUID() {
     	//TODO: convert to UUID
     	addInventoryColumn("uuid");
@@ -309,6 +328,7 @@ public class SqlConnector implements Runnable {
                     "`inv_survival` text NOT NULL, " +
                     "`inv_creative` text NOT NULL, " +
                     "`inv_adventure` text NOT NULL, " +
+                    "`inv_spectator` text NOT NULL, " +
                     "UNIQUE KEY `unique_player_group` ( `inv_uuid` , `inv_group` ) ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
             return true;
         } catch(SQLException e) {
@@ -329,6 +349,7 @@ public class SqlConnector implements Runnable {
                     "`chest_survival` text NOT NULL, " +
                     "`chest_creative` text NOT NULL, " +
                     "`chest_adventure` text NOT NULL, " +
+                    "`chest_spectator` text NOT NULL, " +
                     "UNIQUE KEY `unique_player_group` ( `inv_uuid` , `inv_group` ) ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
             return true;
         } catch(SQLException e) {
@@ -542,9 +563,9 @@ public class SqlConnector implements Runnable {
             if(!rs.next()) {
                 st.executeUpdate("INSERT INTO "
                         + prefix
-                        + "multiinv (inv_player, inv_uuid, inv_group, inv_gamemode, inv_health, inv_hunger, inv_saturation, inv_level, inv_experience, inv_survival, inv_creative, inv_ADVENTURE) "
+                        + "multiinv (inv_player, inv_uuid, inv_group, inv_gamemode, inv_health, inv_hunger, inv_saturation, inv_level, inv_experience, inv_survival, inv_creative, inv_ADVENTURE, inv_SPECTATOR) "
                         +
-                        "VALUES('" + player.getName() + "', '" + player.getUniqueId().toString() + "', '" + group + "', 'SURVIVAL', 20, 20, 5, 0, 0, '', '', '')");
+                        "VALUES('" + player.getName() + "', '" + player.getUniqueId().toString() + "', '" + group + "', 'SURVIVAL', 20, 20, 5, 0, 0, '', '', '', '')");
             }
         } catch(SQLException e) {
             e.printStackTrace();
@@ -556,8 +577,8 @@ public class SqlConnector implements Runnable {
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery("SELECT * FROM " + prefix + "enderchestinv WHERE inv_uuid='" + player.getUniqueId().toString() + "' AND inv_group='" + group + "'");
             if(!rs.next()) {
-                st.executeUpdate("INSERT INTO " + prefix + "enderchestinv (chest_player, inv_uuid, inv_group, chest_survival, chest_creative, chest_adventure) " +
-                        "VALUES('" + player.getName() + "', '" + player.getUniqueId().toString() + "', '" + group + "', '', '', '')");
+                st.executeUpdate("INSERT INTO " + prefix + "enderchestinv (chest_player, inv_uuid, inv_group, chest_survival, chest_creative, chest_adventure, chest_spectator) " +
+                        "VALUES('" + player.getName() + "', '" + player.getUniqueId().toString() + "', '" + group + "', '', '', '', '')");
             }
         } catch(SQLException e) {
             e.printStackTrace();
