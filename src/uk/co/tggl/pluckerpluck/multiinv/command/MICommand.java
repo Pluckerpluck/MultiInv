@@ -163,7 +163,7 @@ public class MICommand {
                             if(playerdata != null && playerdata.get(Sharables.INVENTORY) != null) {
                                 ItemStack[] inventory = playerdata.get(Sharables.INVENTORY);
                                 ItemStack[] armor = playerdata.get(Sharables.ARMOR);
-                                Integer health = playerdata.get(Sharables.HEALTH);
+                                Double health = playerdata.get(Sharables.HEALTH);
                                 Integer hunger = playerdata.get(Sharables.FOOD_LEVEL);
                                 Float saturation = playerdata.get(Sharables.SATURATION);
                                 Integer totalexp = playerdata.get(Sharables.TOTAL_EXPERIENCE);
@@ -219,7 +219,7 @@ public class MICommand {
                                 if(playerdata != null && playerdata.get(Sharables.INVENTORY) != null) {
                                     ItemStack[] inventory = playerdata.get(Sharables.INVENTORY);
                                     ItemStack[] armor = playerdata.get(Sharables.ARMOR);
-                                    Integer health = playerdata.get(Sharables.HEALTH);
+                                    Double health = playerdata.get(Sharables.HEALTH);
                                     Integer hunger = playerdata.get(Sharables.FOOD_LEVEL);
                                     Float saturation = playerdata.get(Sharables.SATURATION);
                                     Integer totalexp = playerdata.get(Sharables.TOTAL_EXPERIENCE);
