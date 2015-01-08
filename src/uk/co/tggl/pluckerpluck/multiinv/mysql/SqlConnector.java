@@ -47,8 +47,23 @@ public class SqlConnector implements Runnable {
         if(!inventoryColumnExists("SPECTATOR")) {
             addInventoryColumn("SPECTATOR");
         }
-        if(!chestColumnExists("SPECTATOR")) {
-            addChestColumn("chest_spectator");
+        if(chestColumnExists("chest_chest_SPECTATOR")) {
+            try {
+                Statement st = con.createStatement();
+                st.executeUpdate("ALTER TABLE `" + prefix + "enderchestinv` CHANGE `chest_chest_spectator` `chest_spectator` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+            } catch(SQLException e) {
+                e.printStackTrace();
+				/*try {
+	                Statement st = con.createStatement();
+	                st.executeUpdate("ALTER TABLE `" + prefix + "enderchestinv` DROP `chest_chest_spectator`");
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}*/
+            }
+        }
+        if(!chestColumnExists("chest_SPECTATOR")) {
+            addChestColumn("spectator");
         }
         if(!inventoryColumnExists("uuid")) {
             convertToUUID();

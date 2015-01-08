@@ -55,6 +55,8 @@ public class MIPlayer implements Runnable {
         	cache.put(group, pcache);
         }
         MIInventory inventory = pcache.getInventory(inventoryName);
+		MultiInv.log.debug("Load inventory for " + player.getName() + " with UUID: " + player.getUniqueId().toString() + " for world group: " + group);
+		MultiInv.log.debug(inventory.toString());
         inventory.loadIntoInventory(this.inventory);
         inventory.setPotionEffects(player);
     }
@@ -70,6 +72,8 @@ public class MIPlayer implements Runnable {
         	cache.put(group, pcache);
         }
         MIInventory inventory = new MIInventory(player);
+		MultiInv.log.debug("Save inventory for " + player.getName() + " with UUID: " + player.getUniqueId().toString() + " for world group: " + group);
+		MultiInv.log.debug(inventory.toString());
         pcache.setInventory(inventory, inventoryName);
         if(MIYamlFiles.usesql) {
             MIYamlFiles.con.refreshConnection();
@@ -92,6 +96,8 @@ public class MIPlayer implements Runnable {
         	cache.put(group, pcache);
         }
         MIInventory inventory = new MIInventory(player);
+		MultiInv.log.debug("Save inventory for " + player.getName() + " with UUID: " + player.getUniqueId().toString() + " for world group: " + group);
+		MultiInv.log.debug(inventory.toString());
         pcache.setInventory(inventory, inventoryName);
         pcache.setFoodlevel(player.getFoodLevel());
         pcache.setGm(player.getGameMode());
@@ -128,6 +134,8 @@ public class MIPlayer implements Runnable {
         	cache.put(group, pcache);
         }
         MIEnderchestInventory inventory = pcache.getEnderchest(inventoryName);
+		MultiInv.log.debug("Load enderchest inventory for " + player.getName() + " with UUID: " + player.getUniqueId().toString() + " for world group: " + group);
+		MultiInv.log.debug(inventory.toString());
         inventory.loadIntoInventory(enderchest);
     }
     
@@ -141,6 +149,8 @@ public class MIPlayer implements Runnable {
         	cache.put(group, pcache);
         }
         MIEnderchestInventory inventory = new MIEnderchestInventory(player);
+		MultiInv.log.debug("Save enderchest inventory for " + player.getName() + " with UUID: " + player.getUniqueId().toString() + " for world group: " + group);
+		MultiInv.log.debug(inventory.toString());
         pcache.setEnderchest(inventory, inventoryName);
         if(MIYamlFiles.usesql) {
             MIYamlFiles.con.refreshConnection();

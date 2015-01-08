@@ -141,6 +141,7 @@ public class MIYamlFiles {
     }
     
     public static void savePlayerLogoutWorld(String player, String world) {
+		MultiInv.log.debug("Saving player logout world for " + player + " World: " + world);
         logoutworld.put(player, world);
         playerlogoutmap.set(player, world);
         logoutdirty = true;

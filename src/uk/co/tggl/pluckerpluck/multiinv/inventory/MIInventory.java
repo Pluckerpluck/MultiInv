@@ -150,6 +150,10 @@ public class MIInventory implements Serializable {
         
         // Add MIInventoryContents
         for(MIItemStack itemStack : MIInventoryContents) {
+        	//Not sure how it becomes null, but, let's not let it error out!
+        	if(itemStack == null) {
+        		itemStack = new MIItemStack();
+        	}
             inventoryString.append(itemStack.toString());
             inventoryString.append(";");
         }

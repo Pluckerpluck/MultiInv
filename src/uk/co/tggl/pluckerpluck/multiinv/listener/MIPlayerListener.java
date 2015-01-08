@@ -323,6 +323,7 @@ public class MIPlayerListener implements Listener {
 		// TODO: Check config for each save method
 		MIPlayer miPlayer = players.get(player.getName());
 		//miPlayer.saveInventory(group, player.getGameMode().toString());
+		MultiInv.log.debug("Saving player state for " + player.getName() + " with UUID: " + player.getUniqueId().toString() + " for world group: " + group);
 		miPlayer.saveAll(group, player.getGameMode().toString());
 		//miPlayer.saveHealth(group);
 		//miPlayer.saveHunger(group);
@@ -332,6 +333,7 @@ public class MIPlayerListener implements Listener {
 
 	public void loadPlayerState(Player player, String group) {
 		// TODO: Check config for each save method
+		MultiInv.log.debug("Loading player state for " + player.getName() + " with UUID: " + player.getUniqueId().toString() + " for world group: " + group);
 		MIPlayer miPlayer = players.get(player.getName());
 		if(MIYamlFiles.controlgamemode) {
 			// If this is a creative world and we control the game modes let's always switch it.
@@ -364,16 +366,19 @@ public class MIPlayerListener implements Listener {
 
 	public void saveEnderchestState(Player player, String group) {
 		MIPlayer miPlayer = players.get(player.getName());
+		MultiInv.log.debug("Saving enderchest inventory for " + player.getName() + " with UUID: " + player.getUniqueId().toString() + " for world group: " + group);
 		miPlayer.saveEnderchestInventory(group, player.getGameMode().toString());
 	}
 
 	public void loadEnderchestState(Player player, String group) {
 		MIPlayer miPlayer = players.get(player.getName());
+		MultiInv.log.debug("Loading enderchest inventory for " + player.getName() + " with UUID: " + player.getUniqueId().toString() + " for world group: " + group);
 		miPlayer.loadEnderchestInventory(group, player.getGameMode().toString());
 	}
 
 	public void loadPlayerXP(Player player, String group) {
 		MIPlayer miPlayer = players.get(player.getName());
+		MultiInv.log.debug("Loading player XP for " + player.getName() + " with UUID: " + player.getUniqueId().toString() + " for world group: " + group);
 		miPlayer.loadExperience(group);
 	}
 
