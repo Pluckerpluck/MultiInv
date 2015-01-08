@@ -90,6 +90,9 @@ public class MIEnderchestInventory implements Serializable {
         
         // Add MIInventoryContents
         for(MIItemStack itemStack : MIInventoryContents) {
+        	if(itemStack == null) {
+        		itemStack = new MIItemStack();
+        	}
             inventoryString.append(itemStack.toString());
             inventoryString.append(";");
         }
