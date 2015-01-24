@@ -31,13 +31,15 @@ public class SqlConnector implements Runnable {
     private String username;
     private String password;
     private ConcurrentLinkedQueue<MISqlStatement> sqlstatements = new ConcurrentLinkedQueue<MISqlStatement>();
+    private MultiInv plugin;
     
-    public SqlConnector(Connection con, String prefix, String url, String username, String password) {
+    public SqlConnector(Connection con, String prefix, String url, String username, String password, MultiInv plugin) {
         this.con = con;
         this.prefix = prefix;
         this.url = url;
         this.username = username;
         this.password = password;
+        this.plugin = plugin;
         if(!tableExists()) {
             createTable();
         }
@@ -46,6 +48,9 @@ public class SqlConnector implements Runnable {
         }
         if(!inventoryColumnExists("SPECTATOR")) {
             addInventoryColumn("SPECTATOR");
+        }
+        if(!chestTableExists()) {
+            createChestTable();
         }
         if(chestColumnExists("chest_chest_SPECTATOR")) {
             try {
@@ -66,13 +71,13 @@ public class SqlConnector implements Runnable {
             addChestColumn("spectator");
         }
         if(!inventoryColumnExists("uuid")) {
-            convertToUUID();
-        }
-        if(!chestTableExists()) {
-            createChestTable();
-        }
-        if(!chestColumnExists("inv_uuid")) {
-        	convertChestToUUID();
+        	plugin.setIsImporting(true);
+        	plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+    			@Override
+    			public void run() {
+                	convertToUUID();
+    			}
+    		});
         }
         if(!bookTableExists()) {
             createBookTable();
@@ -276,6 +281,7 @@ public class SqlConnector implements Runnable {
     }
     
     public void convertToUUID() {
+    	plugin.log.info("Older data folder detected. Converting users to UUID in the background, please wait... Players will not be able to log in until conversion is complete.");
     	//TODO: convert to UUID
     	addInventoryColumn("uuid");
         Statement st;
@@ -294,6 +300,18 @@ public class SqlConnector implements Runnable {
             }
         } catch(SQLException e) {
             e.printStackTrace();
+        }
+
+        if(!chestColumnExists("inv_uuid")) {
+        	plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+    			@Override
+    			public void run() {
+    	        	convertChestToUUID();
+    			}
+    		});
+        }else {
+        	plugin.log.info("Conversion is complete.");
+        	plugin.setIsImporting(false);
         }
     }
     
@@ -315,6 +333,8 @@ public class SqlConnector implements Runnable {
         } catch(SQLException e) {
             e.printStackTrace();
         }
+    	plugin.log.info("Conversion is complete.");
+        plugin.setIsImporting(false);
     }
     
     public boolean createTable() {

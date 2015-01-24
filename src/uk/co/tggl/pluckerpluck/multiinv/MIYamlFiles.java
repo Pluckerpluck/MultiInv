@@ -111,7 +111,7 @@ public class MIYamlFiles {
                                 + config.getString("sql.database", "database") + "?autoReconnect=true";
                         Connection connect = DriverManager.getConnection(url, config.getString("sql.username", "username"),
                                 config.getString("sql.password", "password"));
-                        con = new SqlConnector(connect, config.getString("sql.prefix", "multiinv_"), url, username, password);
+                        con = new SqlConnector(connect, config.getString("sql.prefix", "multiinv_"), url, username, password, MultiInv.getPlugin());
                         
                     } catch(SQLException ex) {
                         MultiInv.log.warning("Could not establish connection to the database! User inventories won't be saved!");

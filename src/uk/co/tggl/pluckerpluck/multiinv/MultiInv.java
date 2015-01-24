@@ -3,7 +3,11 @@ package uk.co.tggl.pluckerpluck.multiinv;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,11 +19,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+
 import com.tux2mc.debugreport.DebugReport;
 
 import uk.co.tggl.pluckerpluck.multiinv.command.MICommand;
 import uk.co.tggl.pluckerpluck.multiinv.listener.MIPlayerListener;
 import uk.co.tggl.pluckerpluck.multiinv.logger.MILogger;
+import uk.co.tggl.pluckerpluck.multiinv.util.UUIDFetcher;
 
 /**
  * Created by IntelliJ IDEA. User: Pluckerpluck Date: 17/12/11 Time: 11:58 To change this template use File | Settings | File Templates.
@@ -31,9 +37,13 @@ public class MultiInv extends JavaPlugin {
     public int xpversion = 0;
     private MultiInvAPI api;
     
+    boolean importing = false;
+    
     public DebugReport dreport = null;
     
     private ArrayList<String> grouplist = new ArrayList<String>();
+    
+    static MultiInv instance;
     
     // Listeners
     MIPlayerListener playerListener;
@@ -61,6 +71,7 @@ public class MultiInv extends JavaPlugin {
     
     @Override
     public void onEnable() {
+    	instance = this;
         // Initialize Logger
         log = new MILogger();
         
@@ -145,9 +156,14 @@ public class MultiInv extends JavaPlugin {
             File groupsfolder = new File(getDataFolder(), "Groups");
             if(groupsfolder.exists()) {
             	//Let's convert!
-            	log.info("Older data folder detected. Converting users to UUID, please wait...");
-            	convertToUUID();
-            	log.info("Conversion complete!");
+            	log.info("Older data folder detected. Converting users to UUID in the background, please wait... Players will not be able to log in until conversion is complete.");
+            	getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
+        			
+        			@Override
+        			public void run() {
+                    	convertToUUID();
+        			}
+        		});
             }
         }else if(MIYamlFiles.con != null) {
             Bukkit.getScheduler().runTaskTimerAsynchronously(this, MIYamlFiles.con, 20, 20);
@@ -170,7 +186,9 @@ public class MultiInv extends JavaPlugin {
     	}
     }
     
-    private void convertToUUID() {
+    private synchronized void convertToUUID() {
+    	setIsImporting(true);
+    	ConcurrentHashMap<String, UUID> cacheduuids = new ConcurrentHashMap<String, UUID>();
         File groupsfolder = new File(getDataFolder(), "Groups");
         File uuidgroupsfolder = new File(getDataFolder(), "UUIDGroups");
         groupsfolder.renameTo(uuidgroupsfolder);
@@ -179,27 +197,64 @@ public class MultiInv extends JavaPlugin {
         	for(File gfolder : groups) {
         		if(gfolder.isDirectory()) {
         			File[] users = gfolder.listFiles();
+        			LinkedList<String> uncachedplayers = new LinkedList<String>();
+        			for(int i = 0; i < users.length; i++) {
+        				File user = users[i];
+        				if(user.isFile()) {
+        					String filename = user.getName();
+        					if(filename.endsWith(".yml")) {
+        						String username = filename.substring(0, filename.lastIndexOf("."));
+        						if(!cacheduuids.containsKey(username)) {
+        							uncachedplayers.add(username);
+        						}
+        					}
+        				}
+        			}
+        			while(uncachedplayers.size() > 0) {
+        				LinkedList<String> playerlist = new LinkedList<String>();
+        				for(int i = 0; i < uncachedplayers.size() && i < 100; i++) {
+        					playerlist.add(uncachedplayers.remove());
+        				}
+        				UUIDFetcher fetcher = new UUIDFetcher(playerlist);
+        				try {
+							Map<String, UUID> result = fetcher.call();
+        					cacheduuids.putAll(result);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+        			}
         			for(File user : users) {
         				if(user.isFile()) {
         					String filename = user.getName();
         					if(filename.endsWith(".ec.yml")) {
         						String username = filename.substring(0, filename.indexOf("."));
         						log.debug("Converting " + username + "'s enderchest file.");
-        						OfflinePlayer ouser = Bukkit.getOfflinePlayer(username);
-        						File newname = new File(user.getParent(), ouser.getUniqueId().toString() + ".ec.yml");
-        						user.renameTo(newname);
+        						UUID uuid = cacheduuids.get(username);
+        						if(uuid != null) {
+            						File newname = new File(user.getParent(), uuid.toString() + ".ec.yml");
+            						user.renameTo(newname);
+        						}else {
+        							log.warning(username + " doesn't have a UUID! Skipping player's enderchest file.");
+        						}
         					}else if(filename.endsWith(".yml")) {
         						String username = filename.substring(0, filename.lastIndexOf("."));
         						log.debug("Converting " + username + "'s inventory file.");
-        						OfflinePlayer ouser = Bukkit.getOfflinePlayer(username);
-        						File newname = new File(user.getParent(), ouser.getUniqueId().toString() + ".yml");
-        						user.renameTo(newname);
+        						UUID uuid = cacheduuids.get(username);
+        						if(uuid != null) {
+            						File newname = new File(user.getParent(), uuid.toString() + ".yml");
+            						user.renameTo(newname);
+        						}else {
+        							log.warning(username + " doesn't have a UUID! Skipping player's inventory file.");
+        						}
         					}
         				}
         			}
         		}
         	}
         }
+        setIsImporting(false);
+    	log.info("Conversion complete!");
     }
     
     public MultiInvAPI getAPI() {
@@ -298,4 +353,15 @@ public class MultiInv extends JavaPlugin {
     	return grouplist;
     }
     
+    public synchronized boolean isImporting() {
+    	return importing;
+    }
+    
+    public synchronized void setIsImporting(boolean iimport) {
+    	importing = iimport;
+    }
+    
+    public static MultiInv getPlugin() {
+    	return instance;
+    }
 }

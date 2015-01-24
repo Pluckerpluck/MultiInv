@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerKickEvent;
@@ -16,6 +17,7 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -62,6 +64,18 @@ public class MIPlayerListener implements Listener {
 	public void onWorldLoaded(WorldLoadEvent event) {
 		World world = event.getWorld();
 		plugin.addWorld(world);
+	}
+	
+	@EventHandler(priority=EventPriority.HIGHEST)
+	public void onPlayerPrelogin(AsyncPlayerPreLoginEvent event) {
+		//Only handle the event if something else isn't already handling it.
+		if(event.getLoginResult() != Result.ALLOWED) {
+			return;
+		}
+		if(plugin.isImporting()) {
+			event.setLoginResult(Result.KICK_OTHER);
+			event.setKickMessage("This server is undergoing maintenance please check back later.");
+		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
