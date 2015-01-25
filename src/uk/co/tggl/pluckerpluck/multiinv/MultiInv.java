@@ -160,7 +160,7 @@ public class MultiInv extends JavaPlugin {
             	getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
         			
         			@Override
-        			public void run() {
+        			public synchronized void run() {
                     	convertToUUID();
         			}
         		});
@@ -210,15 +210,26 @@ public class MultiInv extends JavaPlugin {
         					}
         				}
         			}
+        			boolean first = true;
         			while(uncachedplayers.size() > 0) {
         				LinkedList<String> playerlist = new LinkedList<String>();
         				for(int i = 0; i < uncachedplayers.size() && i < 100; i++) {
         					playerlist.add(uncachedplayers.remove());
         				}
         				UUIDFetcher fetcher = new UUIDFetcher(playerlist);
+
         				try {
 							Map<String, UUID> result = fetcher.call();
         					cacheduuids.putAll(result);
+        					if(first) {
+        						first = false;
+        					}else {
+        						try {
+        							wait(100);
+        						} catch (InterruptedException e1) {
+        							
+        						}
+        					}
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

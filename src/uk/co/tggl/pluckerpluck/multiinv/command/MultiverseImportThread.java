@@ -53,9 +53,9 @@ public class MultiverseImportThread implements Runnable {
 			}
 			plugin.setIsImporting(true);
 			List<WorldGroupProfile> mvgroups = mvinventories.getGroupManager().getGroups();
-			MultiInv.log.info("No groups.yml found. Creating example file...");
 			YamlConfiguration groups = new YamlConfiguration();
 			MIYamlFiles.getGroups().clear();
+			OfflinePlayer[] oplayers = Bukkit.getServer().getOfflinePlayers();
 			for(WorldGroupProfile mvgroup : mvgroups) {
 				Set<String> mvworlds = mvgroup.getWorlds();
 				ArrayList<String> exampleGroup = new ArrayList<String>();
@@ -66,7 +66,8 @@ public class MultiverseImportThread implements Runnable {
 				String group = mvgroup.getName();
 				groups.set(group, exampleGroup);
 				MIYamlFiles.saveYamlFile(groups, "groups.yml");
-				for(OfflinePlayer player1 : Bukkit.getServer().getOfflinePlayers()) {
+				int count = 1;
+				for(OfflinePlayer player1 : oplayers) {
 					try {
 						PlayerProfile playerdata = mvgroup.getPlayerData(ProfileTypes.SURVIVAL, player1);
 						if(playerdata != null && playerdata.get(Sharables.INVENTORY) != null) {
@@ -124,13 +125,15 @@ public class MultiverseImportThread implements Runnable {
 					}catch (Exception e) {
 						sender.sendMessage(ChatColor.DARK_RED + "Error importing adventure inventory for player " + player1.getName());
 					}
+					MultiInv.log.info("Imported " + count++ + " of " + oplayers.length  + " players in group " + mvgroup.getName());
 				}
 			}
 			for(World world : Bukkit.getWorlds()) {
 				String worldName = world.getName();
 				if(!MIYamlFiles.getGroups().containsKey(worldName)) {
 					WorldProfile worldprofile = mvinventories.getWorldManager().getWorldProfile(worldName);
-					for(OfflinePlayer player1 : Bukkit.getServer().getOfflinePlayers()) {
+					int count = 1;
+					for(OfflinePlayer player1 : oplayers) {
 						PlayerProfile playerdata = worldprofile.getPlayerData(ProfileTypes.SURVIVAL, player1);
 						if(playerdata != null && playerdata.get(Sharables.INVENTORY) != null) {
 							ItemStack[] inventory = playerdata.get(Sharables.INVENTORY);
@@ -180,6 +183,7 @@ public class MultiverseImportThread implements Runnable {
 								config.saveInventory(new MIInventory(inventory, armor, effects), "ADVENTURE");
 							}
 						}
+						MultiInv.log.info("Imported " + count++ + " of " + oplayers.length  + " players in group " + worldName);
 					}
 				}
 			}
