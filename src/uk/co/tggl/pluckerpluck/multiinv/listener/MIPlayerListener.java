@@ -381,7 +381,12 @@ public class MIPlayerListener implements Listener {
 	public void saveEnderchestState(Player player, String group) {
 		MIPlayer miPlayer = players.get(player.getName());
 		MultiInv.log.debug("Saving enderchest inventory for " + player.getName() + " with UUID: " + player.getUniqueId().toString() + " for world group: " + group);
-		miPlayer.saveEnderchestInventory(group, player.getGameMode().toString());
+		//This should never be null, but sometimes it is...
+		if(player.getGameMode() != null) {
+			miPlayer.saveEnderchestInventory(group, player.getGameMode().toString());
+		}else {
+			MultiInv.log.severe("The player's game mode was null while trying to save the enderchest inventory for " + player.getName() + " with UUID: " + player.getUniqueId().toString() + " for world group: " + group + ". Enderchest inventory save skipped!");
+		}
 	}
 
 	public void loadEnderchestState(Player player, String group) {
