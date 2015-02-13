@@ -1,5 +1,7 @@
 package uk.co.tggl.pluckerpluck.multiinv;
 
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -7,15 +9,15 @@ import uk.co.tggl.pluckerpluck.multiinv.listener.MIPlayerListener;
 
 public class PlayerLogoutRemover implements Runnable {
 	
-	String playername;
+	UUID playername;
 	
-	public PlayerLogoutRemover(String player) {
-		playername = player;
+	public PlayerLogoutRemover(UUID uuid) {
+		playername = uuid;
 	}
 
 	@Override
 	public void run() {
-		Player player = Bukkit.getPlayerExact(playername);
+		Player player = Bukkit.getPlayer(playername);
 		if(player == null || !player.isOnline()) {
 			MIPlayerListener.removePlayer(playername);
 		}

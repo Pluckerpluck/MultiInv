@@ -1,5 +1,6 @@
 package uk.co.tggl.pluckerpluck.multiinv.listener;
 
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -10,10 +11,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RemovePlayer implements Runnable {
     
-    String player;
-    ConcurrentHashMap<String,Boolean> players;
+    UUID player;
+    ConcurrentHashMap<UUID,Boolean> players;
     
-    public RemovePlayer(String player, ConcurrentHashMap<String,Boolean> players) {
+    public RemovePlayer(UUID player, ConcurrentHashMap<UUID,Boolean> players) {
         this.player = player;
         this.players = players;
     }

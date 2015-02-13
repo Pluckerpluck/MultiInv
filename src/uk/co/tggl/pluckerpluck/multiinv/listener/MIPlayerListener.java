@@ -29,6 +29,7 @@ import uk.co.tggl.pluckerpluck.multiinv.player.DeferredWorldCheck;
 import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayer;
 import uk.co.tggl.pluckerpluck.multiinv.workarounds.SetXP;
 
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -36,11 +37,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MIPlayerListener implements Listener {
 
-	static ConcurrentHashMap<String,MIPlayer> players = new ConcurrentHashMap<String,MIPlayer>();
-	ConcurrentHashMap<String,Boolean> playerchangeworlds = new ConcurrentHashMap<String,Boolean>();
+	private static ConcurrentHashMap<UUID,MIPlayer> players = new ConcurrentHashMap<UUID,MIPlayer>();
+	ConcurrentHashMap<UUID,Boolean> playerchangeworlds = new ConcurrentHashMap<UUID,Boolean>();
 	static public MultiInv plugin;
 
-	static ConcurrentHashMap<String, BukkitTask> playerremoval = new ConcurrentHashMap<String, BukkitTask>();
+	static ConcurrentHashMap<UUID, BukkitTask> playerremoval = new ConcurrentHashMap<UUID, BukkitTask>();
 
 
 	public MIPlayerListener(MultiInv plugin) {
@@ -48,16 +49,30 @@ public class MIPlayerListener implements Listener {
 		reloadPlayersMap();
 	}
 
+	public static MIPlayer getMIPlayer(Player player) {
+		MIPlayer mplayer = players.get(player.getUniqueId());
+		if(mplayer == null) {
+			mplayer = addMIPlayer(player);
+		}
+		return mplayer;
+	}
+	
+	public static MIPlayer addMIPlayer(Player player) {
+		MIPlayer mplayer = new MIPlayer(player, plugin);
+		players.put(player.getUniqueId(), mplayer);
+		return mplayer;
+	}
+	
 	public static void reloadPlayersMap() {
 		players.clear();
 		for(Player player : Bukkit.getServer().getOnlinePlayers()) {
-			players.put(player.getName(), new MIPlayer(player, plugin));
+			addMIPlayer(player);
 		}
 	}
 
-	public static void removePlayer(String player) {
-		players.remove(player);
-		playerremoval.remove(player);
+	public static void removePlayer(UUID playername) {
+		players.remove(playername);
+		playerremoval.remove(playername);
 	}
 	
 	@EventHandler(priority=EventPriority.MONITOR)
@@ -87,11 +102,13 @@ public class MIPlayerListener implements Listener {
 			return;
 		}
 		
-		if(playerremoval.containsKey(event.getPlayer().getName())) {
-			BukkitTask task = playerremoval.get(player.getName());
+		if(playerremoval.containsKey(player.getUniqueId())) {
+			BukkitTask task = playerremoval.get(player.getUniqueId());
 			task.cancel();
 		}
-		players.put(player.getName(), new MIPlayer(player, plugin));
+		if(!players.containsKey(player.getUniqueId())) {
+			addMIPlayer(player);
+		}
 		if(!player.hasPermission("multiinv.exempt") || !player.hasPermission("multiinv.enderchestexempt")) {
 			// Let's set a task to run once they get switched to the proper world by bukkit.
 			plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new DeferredWorldCheck(player, this), 1);
@@ -132,11 +149,11 @@ public class MIPlayerListener implements Listener {
             }
             //Remove the player from the list immediately if saveonquit is true.
             //Prevents a bug where stuff is saved to file within the 60 seconds time out.
-    		BukkitTask task = plugin.getServer().getScheduler().runTask(plugin, new PlayerLogoutRemover(event.getPlayer().getName()));
-    		playerremoval.put(event.getPlayer().getName(), task);
+    		BukkitTask task = plugin.getServer().getScheduler().runTask(plugin, new PlayerLogoutRemover(event.getPlayer().getUniqueId()));
+    		playerremoval.put(event.getPlayer().getUniqueId(), task);
         }else {
-    		BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, new PlayerLogoutRemover(event.getPlayer().getName()), 20*60);
-    		playerremoval.put(event.getPlayer().getName(), task);
+    		BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, new PlayerLogoutRemover(event.getPlayer().getUniqueId()), 20*60);
+    		playerremoval.put(event.getPlayer().getUniqueId(), task);
         }
 	}
 
@@ -161,11 +178,11 @@ public class MIPlayerListener implements Listener {
             }
             //Remove the player from the list immediately if saveonquit is true.
             //Prevents a bug where stuff is saved to file within the 60 seconds time out.
-    		BukkitTask task = plugin.getServer().getScheduler().runTask(plugin, new PlayerLogoutRemover(event.getPlayer().getName()));
-    		playerremoval.put(event.getPlayer().getName(), task);
+    		BukkitTask task = plugin.getServer().getScheduler().runTask(plugin, new PlayerLogoutRemover(event.getPlayer().getUniqueId()));
+    		playerremoval.put(event.getPlayer().getUniqueId(), task);
         }else {
-    		BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, new PlayerLogoutRemover(event.getPlayer().getName()), 20*60);
-    		playerremoval.put(event.getPlayer().getName(), task);
+    		BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, new PlayerLogoutRemover(event.getPlayer().getUniqueId()), 20*60);
+    		playerremoval.put(event.getPlayer().getUniqueId(), task);
         }
 	}
 
@@ -194,9 +211,9 @@ public class MIPlayerListener implements Listener {
 
 		if(!groupTo.equals(groupFrom)) {
 			// Let's put this player in the pool of players that switched worlds, that way we don't dupe the inventory.
-			playerchangeworlds.put(player.getName(), new Boolean(true));
+			playerchangeworlds.put(player.getUniqueId(), new Boolean(true));
 			// Let's schedule it so that we take the player out soon afterwards.
-			player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemovePlayer(player.getName(), playerchangeworlds), 2);
+			player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemovePlayer(player.getUniqueId(), playerchangeworlds), 2);
 
 			if(!player.hasPermission("multiinv.enderchestexempt")) {
 				saveEnderchestState(player, groupFrom);
@@ -207,7 +224,7 @@ public class MIPlayerListener implements Listener {
 				loadPlayerState(player, groupTo);
 			}
 			// Save the player's current world
-			MIYamlFiles.savePlayerLogoutWorld(player.getName(), groupTo);
+			MIYamlFiles.savePlayerLogoutWorld(player.getUniqueId(), groupTo);
 			ChangeInventoryEvent eventcall = new ChangeInventoryEvent(worldTo,worldFrom,player);
 			Bukkit.getServer().getPluginManager().callEvent(eventcall);
 		}
@@ -224,7 +241,7 @@ public class MIPlayerListener implements Listener {
 			return;
 		}
 		
-		if(playerchangeworlds.containsKey(event.getPlayer().getName())) {
+		if(playerchangeworlds.containsKey(event.getPlayer().getUniqueId())) {
 			if(!event.getFrom().getWorld().getName().equals(event.getTo().getWorld().getName())) {
 				event.setCancelled(true);
 				event.getPlayer().sendMessage(ChatColor.DARK_RED + "You're teleporting too fast, slow down!");
@@ -249,9 +266,9 @@ public class MIPlayerListener implements Listener {
 
 				if(!groupTo.equals(groupFrom)) {
 					// Let's put this player in the pool of players that switched worlds, that way we don't dupe the inventory.
-					playerchangeworlds.put(player.getName(), new Boolean(true));
+					playerchangeworlds.put(player.getUniqueId(), new Boolean(true));
 					// Let's schedule it so that we take the player out soon afterwards.
-					player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemovePlayer(player.getName(), playerchangeworlds), 2);
+					player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemovePlayer(player.getUniqueId(), playerchangeworlds), 2);
 
 					if(!player.hasPermission("multiinv.enderchestexempt")) {
 						saveEnderchestState(player, groupFrom);
@@ -262,7 +279,7 @@ public class MIPlayerListener implements Listener {
 						loadPlayerState(player, groupTo);
 					}
 					// Save the player's current world
-					MIYamlFiles.savePlayerLogoutWorld(player.getName(), groupTo);
+					MIYamlFiles.savePlayerLogoutWorld(player.getUniqueId(), groupTo);
 					ChangeInventoryEvent eventcall = new ChangeInventoryEvent(worldTo,worldFrom,player);
 					Bukkit.getServer().getPluginManager().callEvent(eventcall);
 
@@ -285,7 +302,7 @@ public class MIPlayerListener implements Listener {
 		if(respawn.getWorld() != player.getWorld()) {
 			String groupTo = getGroup(respawn.getWorld());
 			String groupFrom = getGroup(player.getWorld());
-			MIPlayer miPlayer = players.get(player.getName());
+			MIPlayer miPlayer = getMIPlayer(player);
 			miPlayer.saveInventory(groupFrom, player.getGameMode().toString());
 			miPlayer.saveFakeHealth(groupFrom, 20);
 			miPlayer.saveFakeHunger(groupFrom, 20, 5);
@@ -293,7 +310,7 @@ public class MIPlayerListener implements Listener {
 			miPlayer.saveExperience(groupFrom);
 			loadPlayerState(player, groupTo);
 			// Save the player's current world
-			MIYamlFiles.savePlayerLogoutWorld(player.getName(), groupTo);
+			MIYamlFiles.savePlayerLogoutWorld(player.getUniqueId(), groupTo);
 			ChangeInventoryEvent eventcall = new ChangeInventoryEvent(respawn.getWorld(),player.getWorld(),player);
 			Bukkit.getServer().getPluginManager().callEvent(eventcall);
 		}
@@ -307,7 +324,7 @@ public class MIPlayerListener implements Listener {
 				//It's an NPC, we can safely exit...
 				return;
 			}
-			MIPlayer miPlayer = players.get(player.getName());
+			MIPlayer miPlayer = getMIPlayer(player);
 
 			// Find correct group
 			World world = player.getWorld();
@@ -316,7 +333,7 @@ public class MIPlayerListener implements Listener {
 			MultiInv.log.debug(player.getName() + " changed from " + player.getGameMode().toString() + " to " + event.getNewGameMode().toString());
 
 			// We only want to save the old inventory if we didn't switch worlds in the same tick. Inventory problems otherwise.
-			if(!playerchangeworlds.containsKey(player.getName())) {
+			if(!playerchangeworlds.containsKey(player.getUniqueId())) {
 				if(!player.hasPermission("multiinv.enderchestexempt")) {
 					miPlayer.saveEnderchestInventory(group, player.getGameMode().toString());
 				}
@@ -335,7 +352,7 @@ public class MIPlayerListener implements Listener {
 
 	public void savePlayerState(Player player, String group) {
 		// TODO: Check config for each save method
-		MIPlayer miPlayer = players.get(player.getName());
+		MIPlayer miPlayer = getMIPlayer(player);
 		//miPlayer.saveInventory(group, player.getGameMode().toString());
 		MultiInv.log.debug("Saving player state for " + player.getName() + " with UUID: " + player.getUniqueId().toString() + " for world group: " + group);
 		miPlayer.saveAll(group, player.getGameMode().toString());
@@ -348,7 +365,7 @@ public class MIPlayerListener implements Listener {
 	public void loadPlayerState(Player player, String group) {
 		// TODO: Check config for each save method
 		MultiInv.log.debug("Loading player state for " + player.getName() + " with UUID: " + player.getUniqueId().toString() + " for world group: " + group);
-		MIPlayer miPlayer = players.get(player.getName());
+		MIPlayer miPlayer = getMIPlayer(player);
 		if(MIYamlFiles.controlgamemode) {
 			// If this is a creative world and we control the game modes let's always switch it.
 			if(MIYamlFiles.creativegroups.containsKey(group)) {
@@ -379,7 +396,7 @@ public class MIPlayerListener implements Listener {
 	}
 
 	public void saveEnderchestState(Player player, String group) {
-		MIPlayer miPlayer = players.get(player.getName());
+		MIPlayer miPlayer = getMIPlayer(player);
 		MultiInv.log.debug("Saving enderchest inventory for " + player.getName() + " with UUID: " + player.getUniqueId().toString() + " for world group: " + group);
 		//This should never be null, but sometimes it is...
 		if(player.getGameMode() != null) {
@@ -390,13 +407,13 @@ public class MIPlayerListener implements Listener {
 	}
 
 	public void loadEnderchestState(Player player, String group) {
-		MIPlayer miPlayer = players.get(player.getName());
+		MIPlayer miPlayer = getMIPlayer(player);
 		MultiInv.log.debug("Loading enderchest inventory for " + player.getName() + " with UUID: " + player.getUniqueId().toString() + " for world group: " + group);
 		miPlayer.loadEnderchestInventory(group, player.getGameMode().toString());
 	}
 
 	public void loadPlayerXP(Player player, String group) {
-		MIPlayer miPlayer = players.get(player.getName());
+		MIPlayer miPlayer = getMIPlayer(player);
 		MultiInv.log.debug("Loading player XP for " + player.getName() + " with UUID: " + player.getUniqueId().toString() + " for world group: " + group);
 		miPlayer.loadExperience(group);
 	}

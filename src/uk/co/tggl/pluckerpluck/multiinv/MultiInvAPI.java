@@ -53,7 +53,7 @@ public class MultiInvAPI {
         if(giveplayer != null) {
             // Let's see if the player is in the same world group.
             if((playeronline && MIPlayerListener.getGroup(giveplayer.getWorld().getName()).equalsIgnoreCase(MIPlayerListener.getGroup(world))) ||
-                    (!playeronline && MIYamlFiles.logoutworld.get(giveplayer.getName()).equals(MIPlayerListener.getGroup(world)))) {
+                    (!playeronline && MIYamlFiles.logoutworld.get(giveplayer.getUniqueId()).equals(MIPlayerListener.getGroup(world)))) {
                 // If they are in the same world, yet are in the wrong game mode, let's get the inventory from the file.
                 if(MIYamlFiles.config.getBoolean("separateGamemodeInventories", true) && (giveplayer.getGameMode() != gm)) {
                     String inventoryName = "CREATIVE";
@@ -125,7 +125,7 @@ public class MultiInvAPI {
             if(giveplayer == null) {
                 return false;
             }
-            currentworld = MIYamlFiles.logoutworld.get(player);
+            currentworld = MIYamlFiles.logoutworld.get(giveplayer.getUniqueId());
             offlineplayer = true;
         }
         if((!offlineplayer && MIPlayerListener.getGroup(currentworld).equalsIgnoreCase(MIPlayerListener.getGroup(world))) ||
@@ -200,7 +200,7 @@ public class MultiInvAPI {
             if(giveplayer == null) {
                 return false;
             }
-            currentworld = MIYamlFiles.logoutworld.get(player);
+            currentworld = MIYamlFiles.logoutworld.get(giveplayer.getUniqueId());
             offlineplayer = true;
         }
         if((!offlineplayer && MIPlayerListener.getGroup(currentworld).equalsIgnoreCase(MIPlayerListener.getGroup(world))) ||
@@ -334,7 +334,7 @@ public class MultiInvAPI {
         if(giveplayer != null) {
             // Let's see if the player is in the same world group.
             if((playeronline && MIPlayerListener.getGroup(giveplayer.getWorld().getName()).equalsIgnoreCase(MIPlayerListener.getGroup(world))) ||
-                    (!playeronline && MIYamlFiles.logoutworld.get(giveplayer.getName()).equals(MIPlayerListener.getGroup(world)))) {
+                    (!playeronline && MIYamlFiles.logoutworld.get(giveplayer.getUniqueId()).equals(MIPlayerListener.getGroup(world)))) {
                 // If they are in the same world, yet are in the wrong game mode, let's get the inventory from the file.
                 if(MIYamlFiles.config.getBoolean("separateGamemodeInventories", true) && (giveplayer.getGameMode() != gm)) {
                     String inventoryName = "CREATIVE";
@@ -444,7 +444,7 @@ public class MultiInvAPI {
         if(giveplayer != null) {
             // Let's see if the player is in the same world group.
             if((playeronline && MIPlayerListener.getGroup(giveplayer.getWorld().getName()).equalsIgnoreCase(MIPlayerListener.getGroup(world))) ||
-                    (!playeronline && MIYamlFiles.logoutworld.get(giveplayer.getName()).equals(MIPlayerListener.getGroup(world)))) {
+                    (!playeronline && MIYamlFiles.logoutworld.get(giveplayer.getUniqueId()).equals(MIPlayerListener.getGroup(world)))) {
                 // If they are in the same world, yet are in the wrong game mode, let's save the player to a file.
                 if(MIYamlFiles.config.getBoolean("separateGamemodeInventories", true) && (giveplayer.getGameMode() != player.getGm())) {
                     String inventoryName = player.getGm().toString();

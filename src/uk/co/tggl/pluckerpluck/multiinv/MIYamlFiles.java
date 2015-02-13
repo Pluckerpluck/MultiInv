@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -26,7 +27,7 @@ public class MIYamlFiles {
     public static YamlConfiguration playerlogoutmap;
     private static HashMap<String,String> worldgroups = new HashMap<String,String>();
     public static HashMap<String,String> creativegroups = new HashMap<String,String>();
-    public static ConcurrentHashMap<String,String> logoutworld = new ConcurrentHashMap<String,String>();
+    public static ConcurrentHashMap<UUID,String> logoutworld = new ConcurrentHashMap<UUID,String>();
     
     public static boolean separategamemodeinventories = true;
     public static boolean usesql = false;
@@ -135,15 +136,20 @@ public class MIYamlFiles {
             Map<String,Object> playermap = playerlogoutmap.getValues(false);
             Set<String> players = playermap.keySet();
             for(String player : players) {
-                logoutworld.put(player, playermap.get(player).toString());
+            	try {
+            		UUID uuid = UUID.fromString(player);
+                    logoutworld.put(uuid, playermap.get(player).toString());
+            	}catch (Exception ex) {
+            		//Logout world database reset
+            	}
             }
         }
     }
     
-    public static void savePlayerLogoutWorld(String player, String world) {
-		MultiInv.log.debug("Saving player logout world for " + player + " World: " + world);
-        logoutworld.put(player, world);
-        playerlogoutmap.set(player, world);
+    public static void savePlayerLogoutWorld(UUID uuid, String world) {
+		MultiInv.log.debug("Saving player logout world for " + uuid + " World: " + world);
+        logoutworld.put(uuid, world);
+        playerlogoutmap.set(uuid.toString(), world);
         logoutdirty = true;
     }
     

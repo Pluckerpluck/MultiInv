@@ -39,7 +39,7 @@ public class DeferredWorldCheck implements Runnable {
                         // and switch them to the correct inventory for this world.
                         listener.loadPlayerState(player, currentworld);
                     }
-                    MIYamlFiles.savePlayerLogoutWorld(player.getName(), currentworld);
+                    MIYamlFiles.savePlayerLogoutWorld(player.getUniqueId(), currentworld);
                 }else if(MIYamlFiles.saveonquit) {
                 	if(!player.hasPermission("multiinv.enderchestexempt")) {
                         // Load the enderchest inventory for this world from file.
