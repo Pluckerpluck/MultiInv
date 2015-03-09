@@ -65,6 +65,10 @@ public class MultiInv extends JavaPlugin {
 	                playerListener.savePlayerState(player, currentworld);
 	            }
 			}
+			//Let's make sure all the files get saved before shutdown!
+			if(MIYamlFiles.usesql && MIYamlFiles.con != null) {
+				MIYamlFiles.con.run();
+			}
 		}
 	
     }
