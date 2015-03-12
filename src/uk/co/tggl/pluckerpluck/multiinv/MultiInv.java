@@ -170,7 +170,7 @@ public class MultiInv extends JavaPlugin {
         		});
             }
         }else if(MIYamlFiles.con != null) {
-            Bukkit.getScheduler().runTaskTimerAsynchronously(this, MIYamlFiles.con, 20, 20);
+            Bukkit.getScheduler().runTaskTimerAsynchronously(this, MIYamlFiles.con, 1, 1);
         }
         
         getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
