@@ -117,8 +117,8 @@ public class MIInventory implements Serializable {
 			} else {
 				inventoryContents[i] = null;
 			}
-			inventory.setContents(inventoryContents);
 		}
+		inventory.setContents(inventoryContents);
 
 		// Iterate and get armour contents
 		ItemStack[] armourContents = new ItemStack[MIArmourContents.length];
@@ -128,8 +128,8 @@ public class MIInventory implements Serializable {
 			} else {
 				armourContents[i] = null;
 			}
-			inventory.setArmorContents(armourContents);
 		}
+		inventory.setArmorContents(armourContents);
 	}
 
 	public MIItemStack[] getInventoryContents() {

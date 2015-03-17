@@ -23,6 +23,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.tux2mc.debugreport.DebugReport;
 
 import uk.co.tggl.pluckerpluck.multiinv.command.MICommand;
+import uk.co.tggl.pluckerpluck.multiinv.inventory.PlayerRestrictionRemoverThread;
+import uk.co.tggl.pluckerpluck.multiinv.listener.MIInventoryListener;
 import uk.co.tggl.pluckerpluck.multiinv.listener.MIPlayerListener;
 import uk.co.tggl.pluckerpluck.multiinv.logger.MILogger;
 import uk.co.tggl.pluckerpluck.multiinv.util.UUIDFetcher;
@@ -38,6 +40,8 @@ public class MultiInv extends JavaPlugin {
     private MultiInvAPI api;
     
     boolean importing = false;
+    
+    boolean tuxtwoliblistener = false;
     
     public DebugReport dreport = null;
     
@@ -121,6 +125,16 @@ public class MultiInv extends JavaPlugin {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(playerListener, this);
         
+        try {
+        	Class.forName("Tux2.TuxTwoLib.InventoryChangeEvent");
+        	tuxtwoliblistener = true;
+        	pm.registerEvents(new MIInventoryListener(this, playerListener), this);
+        }catch (ClassNotFoundException e) {
+        	getLogger().warning("You need a newer version of TuxTwoLib for your Minecraft version for some features to work correctly.");
+        }
+        
+        
+        
 		Matcher mcmatch;
 		if(isglowstone) {
 			Pattern pmcversion = Pattern.compile("(\\d+)\\.(\\d+)\\.?(\\d*)");
@@ -182,6 +196,9 @@ public class MultiInv extends JavaPlugin {
 		}, 60, 20);
         scanWorlds();
         loadReportPlugin();
+        
+        //Let's start the timer that will make sure players can start doing things after the set time period.
+        Bukkit.getScheduler().runTaskTimer(this, new PlayerRestrictionRemoverThread(playerListener), 20, 5);
     }
     
     private void loadReportPlugin() {
@@ -378,5 +395,9 @@ public class MultiInv extends JavaPlugin {
     
     public static MultiInv getPlugin() {
     	return instance;
+    }
+    
+    public boolean updatedTuxTwoLib() {
+    	return tuxtwoliblistener;
     }
 }

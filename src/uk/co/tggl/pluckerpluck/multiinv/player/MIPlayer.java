@@ -30,13 +30,13 @@ public class MIPlayer implements Runnable {
     // Initialize (and assign) variables containing the initial state of an
     // MIPlayer
     
-    public MIPlayer(Player player, MultiInv plugin) {
+    public MIPlayer(Player player, MultiInv plugin, int precache) {
         this.player = player;
         this.plugin = plugin;
         inventory = player.getInventory();
         enderchest = player.getEnderChest();
         //Load world data asynchronously.
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, this);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, this, precache);
     }
     
     /*

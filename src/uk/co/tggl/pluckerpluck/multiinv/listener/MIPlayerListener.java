@@ -4,21 +4,29 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 import org.bukkit.event.world.WorldLoadEvent;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.scheduler.BukkitTask;
 
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
@@ -27,6 +35,7 @@ import uk.co.tggl.pluckerpluck.multiinv.PlayerLogoutRemover;
 import uk.co.tggl.pluckerpluck.multiinv.api.ChangeInventoryEvent;
 import uk.co.tggl.pluckerpluck.multiinv.player.DeferredWorldCheck;
 import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayer;
+import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayerGiveCache;
 import uk.co.tggl.pluckerpluck.multiinv.workarounds.SetXP;
 
 import java.util.UUID;
@@ -42,6 +51,8 @@ public class MIPlayerListener implements Listener {
 	static public MultiInv plugin;
 
 	static ConcurrentHashMap<UUID, BukkitTask> playerremoval = new ConcurrentHashMap<UUID, BukkitTask>();
+	static ConcurrentHashMap<UUID, MIPlayerGiveCache> playerrestrict = new ConcurrentHashMap<UUID, MIPlayerGiveCache>();
+	public ConcurrentHashMap<UUID, MIPlayerGiveCache> playerworldrestrict = new ConcurrentHashMap<UUID, MIPlayerGiveCache>();
 
 
 	public MIPlayerListener(MultiInv plugin) {
@@ -52,13 +63,13 @@ public class MIPlayerListener implements Listener {
 	public static MIPlayer getMIPlayer(Player player) {
 		MIPlayer mplayer = players.get(player.getUniqueId());
 		if(mplayer == null) {
-			mplayer = addMIPlayer(player);
+			mplayer = addMIPlayer(player, 0);
 		}
 		return mplayer;
 	}
 	
-	public static MIPlayer addMIPlayer(Player player) {
-		MIPlayer mplayer = new MIPlayer(player, plugin);
+	public static MIPlayer addMIPlayer(Player player, int cachedelay) {
+		MIPlayer mplayer = new MIPlayer(player, plugin, cachedelay);
 		players.put(player.getUniqueId(), mplayer);
 		return mplayer;
 	}
@@ -66,7 +77,7 @@ public class MIPlayerListener implements Listener {
 	public static void reloadPlayersMap() {
 		players.clear();
 		for(Player player : Bukkit.getServer().getOnlinePlayers()) {
-			addMIPlayer(player);
+			addMIPlayer(player, 0);
 		}
 	}
 
@@ -106,12 +117,23 @@ public class MIPlayerListener implements Listener {
 			BukkitTask task = playerremoval.get(player.getUniqueId());
 			task.cancel();
 		}
-		if(!players.containsKey(player.getUniqueId())) {
-			addMIPlayer(player);
+		if(MIYamlFiles.saveonquit) {
+			addMIPlayer(player, 38);
+		}else if(!players.containsKey(player.getUniqueId())) {
+			addMIPlayer(player, 0);
 		}
 		if(!player.hasPermission("multiinv.exempt") || !player.hasPermission("multiinv.enderchestexempt")) {
 			// Let's set a task to run once they get switched to the proper world by bukkit.
-			plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new DeferredWorldCheck(player, this), 1);
+			
+			if(MIYamlFiles.saveonquit) {
+				//We need to do a few things to stop exploits.
+				playerrestrict.put(player.getUniqueId(), new MIPlayerGiveCache(System.currentTimeMillis() + (50*40), player.getUniqueId()));
+				//Usually we want to wait 2 seconds, which players won't notice as they will still be logging in anyways.
+				//This is also to give Bungeecord servers time to switch the player before polling the inventory.
+				plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new DeferredWorldCheck(player, this), 40);
+			}else {
+				plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new DeferredWorldCheck(player, this), 1);
+			}
 		}
 		if(player.hasPermission("multiinv.exempt") && player.hasPermission("multiinv.enderchestexempt")) {
 			player.sendMessage(ChatColor.GOLD + "[MultiInv] You have the multiinv.exempt and multiinv.enderchestexempt permission nodes.");
@@ -122,6 +144,95 @@ public class MIPlayerListener implements Listener {
 		}else if(player.hasPermission("multiinv.enderchestexempt")) {
 			player.sendMessage(ChatColor.GOLD + "[MultiInv] You have the multiinv.enderchestexempt permission node.");
 			player.sendMessage(ChatColor.GOLD + "Your enderchest contents will not change between worlds.");
+		}
+	}
+	
+	public MIPlayerGiveCache getPlayerGiveCache(UUID uuid) {
+		MIPlayerGiveCache cache = playerrestrict.get(uuid);
+		if(cache == null) {
+			cache = playerworldrestrict.get(uuid);
+		}
+		return cache;
+	}
+	
+	public MIPlayerGiveCache removePlayerGiveCache(UUID uuid) {
+		return playerrestrict.remove(uuid);
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onPlayerPickupItem(PlayerPickupItemEvent event) {
+		MIPlayerGiveCache time = playerrestrict.get(event.getPlayer().getUniqueId());
+		if(time != null) {
+			if(time.getTime() > System.currentTimeMillis()) {
+				event.setCancelled(true);
+			}else {
+			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onPlayerDropItem(PlayerDropItemEvent event) {
+		MIPlayerGiveCache time = playerrestrict.get(event.getPlayer().getUniqueId());
+		if(time != null) {
+			if(time.getTime() > System.currentTimeMillis()) {
+				event.setCancelled(true);
+			}else {
+			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onPlayerInventoryClick(InventoryClickEvent event) {
+		if(event.getWhoClicked() instanceof Player) {
+			Player player = (Player) event.getWhoClicked();
+			MIPlayerGiveCache time = playerrestrict.get(player.getUniqueId());
+			if(time != null) {
+				if(time.getTime() > System.currentTimeMillis()) {
+					event.setCancelled(true);
+				}else {
+				}
+			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onPlayerInventoryDrag(InventoryDragEvent event) {
+		if(event.getWhoClicked() instanceof Player) {
+			Player player = (Player) event.getWhoClicked();
+			MIPlayerGiveCache time = playerrestrict.get(player.getUniqueId());
+			if(time != null) {
+				if(time.getTime() > System.currentTimeMillis()) {
+					event.setCancelled(true);
+				}
+			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onPlayerInventoryMoveItem(InventoryMoveItemEvent event) {
+		InventoryHolder holder = event.getInitiator().getHolder();
+		if(holder != null && holder instanceof Player) {
+			Player player = (Player) holder;
+			MIPlayerGiveCache time = playerrestrict.get(player.getUniqueId());
+			if(time != null) {
+				if(time.getTime() > System.currentTimeMillis()) {
+					event.setCancelled(true);
+				}
+			}
+		}
+	}
+	
+	//Let's make sure they can't place blocks or interact with anything while they are locked.
+	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+	public void onPlayerIteract(PlayerInteractEvent event) {
+		Player player = (Player) event.getPlayer();
+		MIPlayerGiveCache time = playerrestrict.get(player.getUniqueId());
+		if(time != null) {
+			if(time.getTime() > System.currentTimeMillis()) {
+				if(event.getItem() != null && event.getItem().getType() != Material.AIR) {
+					event.setCancelled(true);
+				}
+			}
 		}
 	}
 	
@@ -218,14 +329,22 @@ public class MIPlayerListener implements Listener {
 			// Let's schedule it so that we take the player out soon afterwards.
 			player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemovePlayer(player.getUniqueId(), playerchangeworlds), 2);
 
+			MIPlayerGiveCache cache = getPlayerGiveCache(player.getUniqueId());
+			
 			if(!player.hasPermission("multiinv.enderchestexempt")) {
-				saveEnderchestState(player, groupFrom);
+				if(cache == null) {
+					saveEnderchestState(player, groupFrom);
+				}
 				loadEnderchestState(player, groupTo);
 			}
 			if(!player.hasPermission("multiinv.exempt")) {
-				savePlayerState(player, groupFrom);
+				if(cache == null) {
+					savePlayerState(player, groupFrom);
+				}
 				loadPlayerState(player, groupTo);
 			}
+			//Let's add them to the restricted part to bypass a couple of exploits
+			playerworldrestrict.put(player.getUniqueId(), new MIPlayerGiveCache(System.currentTimeMillis() + (50*15), player.getUniqueId()));
 			// Save the player's current world
 			MIYamlFiles.savePlayerLogoutWorld(player.getUniqueId(), groupTo);
 			ChangeInventoryEvent eventcall = new ChangeInventoryEvent(worldTo,worldFrom,player);
@@ -273,14 +392,22 @@ public class MIPlayerListener implements Listener {
 					// Let's schedule it so that we take the player out soon afterwards.
 					player.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemovePlayer(player.getUniqueId(), playerchangeworlds), 2);
 
+					MIPlayerGiveCache cache = getPlayerGiveCache(player.getUniqueId());
+					
 					if(!player.hasPermission("multiinv.enderchestexempt")) {
-						saveEnderchestState(player, groupFrom);
+						if(cache == null) {
+							saveEnderchestState(player, groupFrom);
+						}
 						loadEnderchestState(player, groupTo);
 					}
 					if(!player.hasPermission("multiinv.exempt")) {
-						savePlayerState(player, groupFrom);
+						if(cache == null) {
+							savePlayerState(player, groupFrom);
+						}
 						loadPlayerState(player, groupTo);
 					}
+					//Let's add them to the restricted part to bypass a couple of exploits
+					playerworldrestrict.put(player.getUniqueId(), new MIPlayerGiveCache(System.currentTimeMillis() + (50*15), player.getUniqueId()));
 					// Save the player's current world
 					MIYamlFiles.savePlayerLogoutWorld(player.getUniqueId(), groupTo);
 					ChangeInventoryEvent eventcall = new ChangeInventoryEvent(worldTo,worldFrom,player);
