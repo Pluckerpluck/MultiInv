@@ -26,7 +26,7 @@ public class DeferredWorldCheck implements Runnable {
                 String currentworld = MIPlayerListener.getGroup(player.getWorld());
                 MultiInv.log.debug(player.getName() + " has logged in in world " + currentworld + ". Logout world was: " + logoutworld);
                 //Inventory is saved on quit, no need to save on load.
-                if(!MIYamlFiles.saveonquit || !currentworld.equals(logoutworld)) {
+                if(!MIYamlFiles.saveonquit && !currentworld.equals(logoutworld)) {
                     if(!player.hasPermission("multiinv.enderchestexempt")) {
                         // If they aren't in the same world they logged out of let's save their current inventory
                         listener.saveEnderchestState(player, logoutworld);
