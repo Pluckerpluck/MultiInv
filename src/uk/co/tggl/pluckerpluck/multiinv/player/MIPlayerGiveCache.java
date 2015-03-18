@@ -35,30 +35,32 @@ public class MIPlayerGiveCache {
 		Player player = Bukkit.getPlayer(playerID);
 		if(player != null && player.isOnline()) {
 			for(InventoryChangeEvent event : inventorychanges) {
-				if(event.isArmor()) {
-					if(event.getItems().length > 1) {
-						player.getInventory().setArmorContents(event.getItems());
-					}else {
-						switch(event.getSlot()) {
-						case 0:
-							player.getInventory().setBoots(event.getItems()[0]);
-							break;
-						case 1:
-							player.getInventory().setLeggings(event.getItems()[0]);
-							break;
-						case 2:
-							player.getInventory().setChestplate(event.getItems()[0]);
-							break;
-						case 3:
-							player.getInventory().setHelmet(event.getItems()[0]);
-							break;
+				if(event.getItems() != null) {
+					if(event.isArmor()) {
+						if(event.getItems().length > 1) {
+							player.getInventory().setArmorContents(event.getItems());
+						}else {
+							switch(event.getSlot()) {
+							case 0:
+								player.getInventory().setBoots(event.getItems()[0]);
+								break;
+							case 1:
+								player.getInventory().setLeggings(event.getItems()[0]);
+								break;
+							case 2:
+								player.getInventory().setChestplate(event.getItems()[0]);
+								break;
+							case 3:
+								player.getInventory().setHelmet(event.getItems()[0]);
+								break;
+							}
 						}
-					}
-				}else {
-					if(event.getSlot() < 0 || event.getItems().length > 1) {
-						player.getInventory().addItem(event.getItems());
 					}else {
-						player.getInventory().setItem(event.getSlot(), event.getItems()[0]);
+						if(event.getSlot() < 0 || event.getItems().length > 1) {
+							player.getInventory().addItem(event.getItems());
+						}else {
+							player.getInventory().setItem(event.getSlot(), event.getItems()[0]);
+						}
 					}
 				}
 			}
