@@ -55,7 +55,7 @@ public class MIPlayerGiveCache {
 						}
 					}
 				}else {
-					if(event.getSlot() < 0) {
+					if(event.getSlot() < 0 || event.getItems().length > 1) {
 						player.getInventory().addItem(event.getItems());
 					}else {
 						player.getInventory().setItem(event.getSlot(), event.getItems()[0]);
