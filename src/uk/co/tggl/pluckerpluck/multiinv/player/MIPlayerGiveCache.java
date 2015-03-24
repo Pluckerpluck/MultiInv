@@ -65,7 +65,9 @@ public class MIPlayerGiveCache {
 								}
 							}
 						}else {
-							player.getInventory().setItem(event.getSlot(), event.getItems()[0]);
+							if(event.getItems()[0] != null) {
+								player.getInventory().setItem(event.getSlot(), event.getItems()[0]);
+							}
 						}
 					}
 				}
