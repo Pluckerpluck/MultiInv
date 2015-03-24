@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import Tux2.TuxTwoLib.InventoryChangeEvent;
 
@@ -57,7 +58,12 @@ public class MIPlayerGiveCache {
 						}
 					}else {
 						if(event.getSlot() < 0 || event.getItems().length > 1) {
-							player.getInventory().addItem(event.getItems());
+							for(ItemStack is : event.getItems()) {
+								//Dont add in null items
+								if(is != null) {
+									player.getInventory().addItem(is);
+								}
+							}
 						}else {
 							player.getInventory().setItem(event.getSlot(), event.getItems()[0]);
 						}
