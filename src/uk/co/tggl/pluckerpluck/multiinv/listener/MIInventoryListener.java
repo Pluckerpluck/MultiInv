@@ -21,7 +21,7 @@ public class MIInventoryListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void inventoryChangeListener(InventoryChangeEvent event) {
 		MIPlayerGiveCache cache = listener.getPlayerGiveCache(event.getPlayer().getUniqueId());
-		if(cache != null) {
+		if(cache != null && !listener.isAddingItemsToPlayer(event.getPlayer().getUniqueId())) {
 			cache.addInventoryChangeEvent(event);
 		}
 	}

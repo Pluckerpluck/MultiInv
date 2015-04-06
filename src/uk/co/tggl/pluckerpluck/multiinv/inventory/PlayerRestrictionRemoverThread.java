@@ -38,7 +38,9 @@ public class PlayerRestrictionRemoverThread implements Runnable {
 						listener.loadPlayerState(player, groupTo);
 					}
 					//Let's do any stored inventory change events.
+					listener.addingItemsToPlayer(player.getUniqueId());
 					cache.ExecuteStoredInventoryChanges();
+					listener.stoppedAddingItemsToPlayer(player.getUniqueId());
 					// Save the player's current world
 					MIYamlFiles.savePlayerLogoutWorld(player.getUniqueId(), groupTo);
 				}

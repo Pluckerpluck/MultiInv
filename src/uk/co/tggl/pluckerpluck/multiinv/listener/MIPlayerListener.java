@@ -53,11 +53,26 @@ public class MIPlayerListener implements Listener {
 	static ConcurrentHashMap<UUID, BukkitTask> playerremoval = new ConcurrentHashMap<UUID, BukkitTask>();
 	static ConcurrentHashMap<UUID, MIPlayerGiveCache> playerrestrict = new ConcurrentHashMap<UUID, MIPlayerGiveCache>();
 	public ConcurrentHashMap<UUID, MIPlayerGiveCache> playerworldrestrict = new ConcurrentHashMap<UUID, MIPlayerGiveCache>();
+	
+	private ConcurrentHashMap<UUID, Boolean> additems = new ConcurrentHashMap<UUID, Boolean>();
 
 
 	public MIPlayerListener(MultiInv plugin) {
 		MIPlayerListener.plugin = plugin;
 		reloadPlayersMap();
+	}
+	
+	public void addingItemsToPlayer(UUID uuid) {
+		additems.put(uuid, true);
+	}
+	
+	public void stoppedAddingItemsToPlayer(UUID uuid) {
+		additems.remove(uuid);
+	}
+	
+	public boolean isAddingItemsToPlayer(UUID uuid) {
+		Boolean result = additems.get(uuid);
+		return (result != null && result.booleanValue());
 	}
 
 	public static MIPlayer getMIPlayer(Player player) {
@@ -472,10 +487,14 @@ public class MIPlayerListener implements Listener {
 				}
 			}
 			if(!player.hasPermission("multiinv.enderchestexempt")) {
+				addingItemsToPlayer(player.getUniqueId());
 				miPlayer.loadEnderchestInventory(group, event.getNewGameMode().toString());
+				stoppedAddingItemsToPlayer(player.getUniqueId());
 			}
 			if(!player.hasPermission("multiinv.exempt")) {
+				addingItemsToPlayer(player.getUniqueId());
 				miPlayer.loadInventory(group, event.getNewGameMode().toString());
+				stoppedAddingItemsToPlayer(player.getUniqueId());
 			}
 		}
 	}
@@ -505,7 +524,9 @@ public class MIPlayerListener implements Listener {
 				miPlayer.loadGameMode(group);
 			}
 		}
+		addingItemsToPlayer(player.getUniqueId());
 		miPlayer.loadInventory(group, player.getGameMode().toString());
+		stoppedAddingItemsToPlayer(player.getUniqueId());
 
 		// Due to a dupe exploit this has to come after loading inventory
 		miPlayer.loadHealth(group);
