@@ -20,17 +20,22 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import Tux2.TuxTwoLib.attributes.Attribute;
+import Tux2.TuxTwoLib.attributes.Attributes;
+import Tux2.TuxTwoLib.attributes.Operation;
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.books.MIBook;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Created by IntelliJ IDEA.
@@ -42,6 +47,7 @@ public class MIItemStack {
     private int quantity = 0;
     private short durability = 0;
     private Map<Enchantment,Integer> enchantments = new HashMap<Enchantment,Integer>();
+    private ArrayList<Attribute> attributes = new ArrayList<Attribute>();
     private MIBook book = null;
     private ItemStack is = null;
     String nbttags = null;
@@ -52,6 +58,7 @@ public class MIItemStack {
             quantity = itemStack.getAmount();
             durability = itemStack.getDurability();
             enchantments = itemStack.getEnchantments();
+            attributes = Attributes.fromStack(itemStack);
             if(itemStack.getItemMeta() instanceof BookMeta) {
                 BookMeta meta = (BookMeta) itemStack.getItemMeta();
                 // Make sure we don't use this on an empty book!
@@ -79,13 +86,58 @@ public class MIItemStack {
             getEnchantments(data[3]);
             if(data.length > 4) {
                 // New format starts with a #
-                if(data[4].startsWith("#")) {
+                if(data[4].startsWith("#NM")) {
                     // Chop off the beginning "#" sign...
                     nbttags = data[4].substring(1);
+                }else if(data[4].startsWith("#AD")) {
+            		parseAttributes(data[5]);
                 }
+            }if(data.length > 5) {
+            	if(data[5].startsWith("#AD")) {
+            		parseAttributes(data[5]);
+            	}
             }
         }
         is = getItemStack();
+    }
+    
+    private String getAttributeString() {
+    	StringBuilder sb = new StringBuilder();
+    	for(Attribute attribute : attributes) {
+    		if(sb.length() == 0) {
+    			sb.append("#AD#");
+    		}else {
+    			sb.append("#");
+    		}
+    		sb.append(attribute.getType());
+    		sb.append(":");
+    		sb.append(attribute.getAmount());
+    		sb.append(":");
+    		sb.append(attribute.getOperation());
+    		sb.append(":");
+    		sb.append(attribute.getUUID().toString());
+    	}
+    	return sb.toString();
+    }
+    
+    private void parseAttributes(String sattributes) {
+    	//Attributes!
+    	String[] attribs = sattributes.split("#");
+    	for(String attrib : attribs) {
+    		//Let's skip the Attribute Data identifier
+    		if(attrib.equals("AD")) continue;
+    		String[] a = attrib.split(":");
+    		String type = a[0];
+    		try {
+    			double amount = Double.parseDouble(a[1]);
+    			int operation = Integer.parseInt(a[2]);
+    			UUID uuid = UUID.fromString(a[3]);
+    			Attribute at = new Attribute(type, operation, amount, uuid);
+    			attributes.add(at);
+    		}catch (NumberFormatException e) {
+    			
+    		}
+    	}
     }
     
     public MIItemStack() {
@@ -99,6 +151,7 @@ public class MIItemStack {
         ItemStack itemStack = null;
         if(item != Material.AIR && quantity != 0) {
             itemStack = new ItemStack(item, quantity, durability);
+            Attributes.apply(itemStack, attributes, true);
             itemStack.addUnsafeEnchantments(enchantments);
             if((item == Material.BOOK_AND_QUILL || item == Material.WRITTEN_BOOK) && book != null) {
                 BookMeta bi = (BookMeta) itemStack.getItemMeta();
@@ -115,11 +168,15 @@ public class MIItemStack {
     }
     
     public String toString() {
+    	StringBuilder is = new StringBuilder();
+    	is.append(item.name() + "," + quantity + "," + durability + "," + getEnchantmentString());
         if(nbttags != null) {
-            return item.name() + "," + quantity + "," + durability + "," + getEnchantmentString() + "," + "#" + nbttags;
-        } else {
-            return item.name() + "," + quantity + "," + durability + "," + getEnchantmentString();
+        	is.append("," + "#" + nbttags);
         }
+        if(attributes.size() > 0) {
+        	is.append("," + getAttributeString());
+        }
+        return is.toString();
     }
     
     private String getEnchantmentString() {
