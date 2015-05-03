@@ -31,8 +31,8 @@ public class DeferredWorldCheck implements Runnable {
                     // Load the inventory for this world from file.
                     listener.loadPlayerState(player, currentworld);
                 }
-            }else if(MIYamlFiles.logoutworld.containsKey(player.getName()) && MIYamlFiles.logoutworld.get(player.getName()) != null) {
-                String logoutworld = MIYamlFiles.logoutworld.get(player.getName());
+            }else if(MIYamlFiles.logoutworld.containsKey(player.getUniqueId().toString()) && MIYamlFiles.logoutworld.get(player.getUniqueId().toString()) != null) {
+                String logoutworld = MIYamlFiles.logoutworld.get(player.getUniqueId().toString());
                 String currentworld = MIPlayerListener.getGroup(player.getWorld());
                 MultiInv.log.debug(player.getName() + " has logged in in world " + currentworld + ". Logout world was: " + logoutworld);
                 //Inventory is saved on quit, no need to save on load.

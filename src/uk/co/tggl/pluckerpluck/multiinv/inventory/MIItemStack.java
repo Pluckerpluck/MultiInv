@@ -22,7 +22,6 @@ import org.bukkit.potion.PotionEffectType;
 
 import Tux2.TuxTwoLib.attributes.Attribute;
 import Tux2.TuxTwoLib.attributes.Attributes;
-import Tux2.TuxTwoLib.attributes.Operation;
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.books.MIBook;
 
@@ -90,11 +89,11 @@ public class MIItemStack {
                     // Chop off the beginning "#" sign...
                     nbttags = data[4].substring(1);
                 }else if(data[4].startsWith("#AD")) {
-            		parseAttributes(data[5]);
+            		parseAttributes(data[5].substring(1));
                 }
             }if(data.length > 5) {
             	if(data[5].startsWith("#AD")) {
-            		parseAttributes(data[5]);
+            		parseAttributes(data[5].substring(1));
             	}
             }
         }
@@ -104,17 +103,20 @@ public class MIItemStack {
     private String getAttributeString() {
     	StringBuilder sb = new StringBuilder();
     	for(Attribute attribute : attributes) {
+    		if(attribute == null) {
+    			continue;
+    		}
     		if(sb.length() == 0) {
     			sb.append("#AD#");
     		}else {
     			sb.append("#");
     		}
     		sb.append(attribute.getType());
-    		sb.append(":");
+    		sb.append("|");
     		sb.append(attribute.getAmount());
-    		sb.append(":");
+    		sb.append("|");
     		sb.append(attribute.getOperation());
-    		sb.append(":");
+    		sb.append("|");
     		sb.append(attribute.getUUID().toString());
     	}
     	return sb.toString();
@@ -126,16 +128,18 @@ public class MIItemStack {
     	for(String attrib : attribs) {
     		//Let's skip the Attribute Data identifier
     		if(attrib.equals("AD")) continue;
-    		String[] a = attrib.split(":");
-    		String type = a[0];
-    		try {
-    			double amount = Double.parseDouble(a[1]);
-    			int operation = Integer.parseInt(a[2]);
-    			UUID uuid = UUID.fromString(a[3]);
-    			Attribute at = new Attribute(type, operation, amount, uuid);
-    			attributes.add(at);
-    		}catch (NumberFormatException e) {
-    			
+    		String[] a = attrib.split("\\|");
+    		if(a.length > 1) {
+        		String type = a[0];
+        		try {
+        			double amount = Double.parseDouble(a[1]);
+        			int operation = Integer.parseInt(a[2]);
+        			UUID uuid = UUID.fromString(a[3]);
+        			Attribute at = new Attribute(type, operation, amount, uuid);
+        			attributes.add(at);
+        		}catch (NumberFormatException e) {
+        			
+        		}
     		}
     	}
     }

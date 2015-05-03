@@ -25,6 +25,14 @@ permissions:
         description: import flat files to mysql.
         default: op
         command: "/multiinv import"
+    multiinv.mcimport:
+        description: imports minecraft player files into MultiInv.
+        default: op
+        command: "/multiinv mcimport"
+    multiinv.mcexport:
+        description: exports MultiInv player files for the default world into the default world.
+        default: op
+        command: "/multiinv mcexport"
     multiinv.exempt:
         description: exempts a player from world inventory changes.
         default: false

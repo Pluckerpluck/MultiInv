@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
 import me.drayshak.WorldInventories.Group;
 import me.drayshak.WorldInventories.InventoryLoadType;
@@ -29,18 +27,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 
-import com.onarandombox.multiverseinventories.MultiverseInventories;
-import com.onarandombox.multiverseinventories.ProfileTypes;
-import com.onarandombox.multiverseinventories.api.profile.PlayerProfile;
-import com.onarandombox.multiverseinventories.api.profile.WorldGroupProfile;
-import com.onarandombox.multiverseinventories.api.profile.WorldProfile;
-import com.onarandombox.multiverseinventories.api.share.Sharables;
-
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
-import uk.co.tggl.pluckerpluck.multiinv.books.MIBook;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIEnderchestInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
+import uk.co.tggl.pluckerpluck.multiinv.listener.MIPlayerListener;
 import uk.co.tggl.pluckerpluck.multiinv.player.MIPlayerFile;
 
 /**
@@ -131,6 +122,16 @@ public class MICommand {
 			} else if(command.equalsIgnoreCase("mvimport")) {
 				sender.sendMessage(ChatColor.GOLD + "Please wait as we import all the player files from Multiverse-Inventories.");
 				MultiverseImportThread ithread = new MultiverseImportThread(sender, plugin);
+				plugin.getServer().getScheduler().runTaskAsynchronously(plugin, ithread);
+			} else if(command.equalsIgnoreCase("mcimport")) {
+				sender.sendMessage(ChatColor.GOLD + "Please wait as we import all the player files from Minecraft.");
+				String defaultgroup = MIPlayerListener.getGroup(Bukkit.getWorlds().get(0).getName());
+				MCImportThread ithread = new MCImportThread(sender, plugin, defaultgroup);
+				plugin.getServer().getScheduler().runTaskAsynchronously(plugin, ithread);
+			} else if(command.equalsIgnoreCase("mcexport")) {
+				sender.sendMessage(ChatColor.GOLD + "Please wait as we export all the player files to Minecraft.");
+				String defaultgroup = MIPlayerListener.getGroup(Bukkit.getWorlds().get(0).getName());
+				MCExportThread ithread = new MCExportThread(sender, plugin, defaultgroup);
 				plugin.getServer().getScheduler().runTaskAsynchronously(plugin, ithread);
 			} else if(command.equalsIgnoreCase("miimport")) {
 				Plugin p = plugin.getServer().getPluginManager().getPlugin("WorldInventories");

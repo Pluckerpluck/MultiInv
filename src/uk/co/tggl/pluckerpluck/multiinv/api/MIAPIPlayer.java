@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
-
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIEnderchestInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 
@@ -103,5 +102,4 @@ public class MIAPIPlayer {
     public UUID getUniqueId() {
     	return uuid;
     }
-    
 }

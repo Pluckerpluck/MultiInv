@@ -38,7 +38,7 @@ public class MIYamlFiles {
     
     static boolean logoutdirty = false;
     
-    public static SqlConnector con;
+    public static SqlConnector con = null;
     
     public static void loadConfig() {
         config = loadYamlFile("config.yml");
