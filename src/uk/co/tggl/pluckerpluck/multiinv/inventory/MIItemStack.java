@@ -2,12 +2,16 @@ package uk.co.tggl.pluckerpluck.multiinv.inventory;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.DyeColor;
 import org.bukkit.FireworkEffect;
 import org.bukkit.FireworkEffect.Builder;
 import org.bukkit.FireworkEffect.Type;
 import org.bukkit.Material;
+import org.bukkit.block.banner.Pattern;
+import org.bukkit.block.banner.PatternType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.FireworkEffectMeta;
@@ -89,7 +93,7 @@ public class MIItemStack {
                     // Chop off the beginning "#" sign...
                     nbttags = data[4].substring(1);
                 }else if(data[4].startsWith("#AD")) {
-            		parseAttributes(data[5].substring(1));
+            		parseAttributes(data[4].substring(1));
                 }
             }if(data.length > 5) {
             	if(data[5].startsWith("#AD")) {
@@ -129,6 +133,10 @@ public class MIItemStack {
     		//Let's skip the Attribute Data identifier
     		if(attrib.equals("AD")) continue;
     		String[] a = attrib.split("\\|");
+    		System.out.println("Attributes on item: ");
+    		for(int i = 0; i < a.length; i++) {
+        		System.out.println("   " + i +": " + a[i]);
+    		}
     		if(a.length > 1) {
         		String type = a[0];
         		try {
@@ -138,7 +146,7 @@ public class MIItemStack {
         			Attribute at = new Attribute(type, operation, amount, uuid);
         			attributes.add(at);
         		}catch (NumberFormatException e) {
-        			
+        			e.printStackTrace();
         		}
     		}
     	}
@@ -155,7 +163,7 @@ public class MIItemStack {
         ItemStack itemStack = null;
         if(item != Material.AIR && quantity != 0) {
             itemStack = new ItemStack(item, quantity, durability);
-            Attributes.apply(itemStack, attributes, true);
+            itemStack = Attributes.apply(itemStack, attributes, true);
             itemStack.addUnsafeEnchantments(enchantments);
             if((item == Material.BOOK_AND_QUILL || item == Material.WRITTEN_BOOK) && book != null) {
                 BookMeta bi = (BookMeta) itemStack.getItemMeta();
@@ -359,6 +367,29 @@ public class MIItemStack {
                         ((FireworkEffectMeta) ismeta).setEffect(ef.build());
                     }
                 }
+            }else if(ismeta instanceof BannerMeta) {
+                data = itemdata.get("B");
+                if(data != null) {
+                	BannerMeta bmeta = (BannerMeta)ismeta;
+                    String[] fedata = data.split("\\+");
+                	DyeColor basecolor = DyeColor.valueOf(fedata[0]);
+                	if(basecolor != null) {
+                    	List<Pattern> patterns = new ArrayList<Pattern>();
+                		for(int i = 1; i < fedata.length; i++) {
+                			try {
+                                String[] spattern = fedata[i].split("-");
+                                DyeColor patterncolor = DyeColor.valueOf(spattern[0]);
+                                PatternType patterntype = PatternType.getByIdentifier(spattern[1]);
+                                Pattern pattern = new Pattern(patterncolor, patterntype);
+                    			patterns.add(pattern);
+                			}catch (Exception e) {
+                				//Don't want to crash item creation here!
+                			}
+                		}
+                		bmeta.setBaseColor(basecolor);
+                		bmeta.setPatterns(patterns);
+                	}
+                }
             }
             if(ismeta instanceof Repairable) {
                 data = itemdata.get("R");
@@ -494,6 +525,20 @@ public class MIItemStack {
                 }
                 smeta.append("F" + effect.getType().name() + "+" + colorstring.toString() + "+" + fadecolorstring.toString() + "+" + 
                         effect.hasFlicker() + "+" + effect.hasTrail() + "#");
+            }
+        }else if(meta instanceof BannerMeta) {
+        	BannerMeta bmeta = (BannerMeta)meta;
+        	DyeColor basecolor = bmeta.getBaseColor();
+        	List<Pattern> patterns = bmeta.getPatterns();
+        	StringBuilder colorstring = new StringBuilder();
+            if(patterns != null) {
+                for(Pattern pattern : patterns) {
+                    if(colorstring.length() > 0) {
+                        colorstring.append("+");
+                    }
+                    colorstring.append(pattern.getColor().name() + "-" + pattern.getPattern().getIdentifier());
+                }
+                smeta.append("B" + basecolor.name() + "+" + colorstring.toString() + "#");
             }
         }
         if(meta instanceof Repairable) {
