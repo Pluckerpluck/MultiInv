@@ -133,10 +133,6 @@ public class MIItemStack {
     		//Let's skip the Attribute Data identifier
     		if(attrib.equals("AD")) continue;
     		String[] a = attrib.split("\\|");
-    		System.out.println("Attributes on item: ");
-    		for(int i = 0; i < a.length; i++) {
-        		System.out.println("   " + i +": " + a[i]);
-    		}
     		if(a.length > 1) {
         		String type = a[0];
         		try {
