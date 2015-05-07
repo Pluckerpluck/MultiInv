@@ -159,7 +159,10 @@ public class MIItemStack {
         ItemStack itemStack = null;
         if(item != Material.AIR && quantity != 0) {
             itemStack = new ItemStack(item, quantity, durability);
-            itemStack = Attributes.apply(itemStack, attributes, true);
+            //Only apply attributes if they exist! Otherwise items don't stack.
+            if(attributes.size() > 0) {
+                itemStack = Attributes.apply(itemStack, attributes, true);
+            }
             itemStack.addUnsafeEnchantments(enchantments);
             if((item == Material.BOOK_AND_QUILL || item == Material.WRITTEN_BOOK) && book != null) {
                 BookMeta bi = (BookMeta) itemStack.getItemMeta();
