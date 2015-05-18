@@ -136,6 +136,8 @@ public class MIPlayerListener implements Listener {
 			addMIPlayer(player, 38);
 		}else if(!players.containsKey(player.getUniqueId())) {
 			addMIPlayer(player, 0);
+		}else {
+			setCachedPlayer(player);
 		}
 		if(!player.hasPermission("multiinv.exempt") || !player.hasPermission("multiinv.enderchestexempt")) {
 			// Let's set a task to run once they get switched to the proper world by bukkit.
@@ -275,11 +277,11 @@ public class MIPlayerListener implements Listener {
             }
             //Remove the player from the list immediately if saveonquit is true.
             //Prevents a bug where stuff is saved to file within the 60 seconds time out.
-    		BukkitTask task = plugin.getServer().getScheduler().runTask(plugin, new PlayerLogoutRemover(event.getPlayer().getUniqueId()));
-    		playerremoval.put(event.getPlayer().getUniqueId(), task);
+			MIPlayerListener.removePlayer(player.getUniqueId());
         }else {
     		BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, new PlayerLogoutRemover(event.getPlayer().getUniqueId()), 20*60);
     		playerremoval.put(event.getPlayer().getUniqueId(), task);
+			removeCachedPlayer(player);
         }
 	}
 
@@ -304,14 +306,11 @@ public class MIPlayerListener implements Listener {
             }
             //Remove the player from the list immediately if saveonquit is true.
             //Prevents a bug where stuff is saved to file within the 60 seconds time out.
-            if(MIYamlFiles.usesql) {
-    			MIPlayerListener.removePlayer(player.getUniqueId());
-            }else {
-            	
-            }
+			MIPlayerListener.removePlayer(player.getUniqueId());
         }else {
     		BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, new PlayerLogoutRemover(event.getPlayer().getUniqueId()), 20*60);
     		playerremoval.put(event.getPlayer().getUniqueId(), task);
+			removeCachedPlayer(player);
         }
 	}
 
@@ -505,10 +504,20 @@ public class MIPlayerListener implements Listener {
 		//miPlayer.saveInventory(group, player.getGameMode().toString());
 		MultiInv.log.debug("Saving player state for " + player.getName() + " with UUID: " + player.getUniqueId().toString() + " for world group: " + group);
 		miPlayer.saveAll(group, player.getGameMode().toString());
-		//miPlayer.saveHealth(group);
-		//miPlayer.saveHunger(group);
-		//miPlayer.saveGameMode(group);
-		//miPlayer.saveExperience(group);
+	}
+
+	public void removeCachedPlayer(Player player) {
+		MIPlayer miplayer = players.get(player.getUniqueId());
+		if(miplayer != null) {
+			miplayer.removePlayer();
+		}
+	}
+
+	public void setCachedPlayer(Player player) {
+		MIPlayer miplayer = players.get(player.getUniqueId());
+		if(miplayer != null) {
+			miplayer.setPlayer(player);
+		}
 	}
 
 	public void loadPlayerState(Player player, String group) {

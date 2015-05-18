@@ -20,9 +20,9 @@ import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 public class MIPlayer implements Runnable {
     
     // Initialize final variables that define the MIPlayer
-    final Player player;
-    final PlayerInventory inventory;
-    final Inventory enderchest;
+    private Player player;
+    private PlayerInventory inventory;
+    private Inventory enderchest;
     MultiInv plugin;
     
     ConcurrentHashMap<String, MIPlayerCache> cache = new ConcurrentHashMap<String, MIPlayerCache>();
@@ -37,6 +37,16 @@ public class MIPlayer implements Runnable {
         enderchest = player.getEnderChest();
         //Load world data asynchronously.
         Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, this, precache);
+    }
+    
+    public void removePlayer() {
+    	player = null;
+    }
+    
+    public void setPlayer(Player player) {
+    	this.player = player;
+        inventory = player.getInventory();
+        enderchest = player.getEnderChest();
     }
     
     /*
