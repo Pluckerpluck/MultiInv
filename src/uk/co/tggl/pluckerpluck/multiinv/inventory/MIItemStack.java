@@ -531,13 +531,18 @@ public class MIItemStack {
         	List<Pattern> patterns = bmeta.getPatterns();
         	StringBuilder colorstring = new StringBuilder();
             if(patterns != null) {
-                for(Pattern pattern : patterns) {
-                    if(colorstring.length() > 0) {
-                        colorstring.append("+");
+            	try {
+                    for(Pattern pattern : patterns) {
+                        if(colorstring.length() > 0) {
+                            colorstring.append("+");
+                        }
+                        colorstring.append(pattern.getColor().name() + "-" + pattern.getPattern().getIdentifier());
                     }
-                    colorstring.append(pattern.getColor().name() + "-" + pattern.getPattern().getIdentifier());
-                }
-                smeta.append("B" + basecolor.name() + "+" + colorstring.toString() + "#");
+                    smeta.append("B" + basecolor.name() + "+" + colorstring.toString() + "#");
+            	}catch(NullPointerException e) {
+            		//Hmm... the banner data isn't quite in the right format...
+            		//Let's just blank the banner instead of throwing an NPE.
+            	}
             }
         }
         if(meta instanceof Repairable) {

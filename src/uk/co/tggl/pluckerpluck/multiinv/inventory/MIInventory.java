@@ -6,6 +6,8 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import uk.co.tggl.pluckerpluck.multiinv.MultiInv;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -44,7 +46,13 @@ public class MIInventory implements Serializable {
 	public MIInventory(ItemStack[] inventory, ItemStack[] armor, Collection<PotionEffect> effects) {
 		if(inventory != null) {
 			for(int i = 0; i < inventory.length && i < 36; i++) {
-				MIInventoryContents[i] = new MIItemStack(inventory[i]);
+				try {
+					MIInventoryContents[i] = new MIItemStack(inventory[i]);
+				}catch (Exception e) {
+					MIInventoryContents[i] = new MIItemStack("");
+					MultiInv.log.severe("Unable to serialize item " + inventory[i].getType().toString() + " in item slot " + i + ". Removing item from inventory save.");
+					e.printStackTrace();
+				}
 			}
 		} else {
 			for(int i = 0; i < MIInventoryContents.length; i++) {
@@ -53,7 +61,13 @@ public class MIInventory implements Serializable {
 		}
 		if(armor != null) {
 			for(int i = 0; i < armor.length && i < 4; i++) {
-				MIArmourContents[i] = new MIItemStack(armor[i]);
+				try {
+					MIArmourContents[i] = new MIItemStack(armor[i]);
+				}catch (Exception e) {
+					MIArmourContents[i] = new MIItemStack("");
+					MultiInv.log.severe("Unable to serialize item " + armor[i].getType().toString() + " in armor slot " + i + ". Removing item from inventory save.");
+					e.printStackTrace();
+				}
 			}
 		} else {
 			for(int i = 0; i < MIArmourContents.length; i++) {
