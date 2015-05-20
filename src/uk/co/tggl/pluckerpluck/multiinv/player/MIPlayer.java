@@ -24,6 +24,7 @@ public class MIPlayer implements Runnable {
     private PlayerInventory inventory;
     private Inventory enderchest;
     MultiInv plugin;
+    GameMode gamemode = GameMode.SURVIVAL;
     
     ConcurrentHashMap<String, MIPlayerCache> cache = new ConcurrentHashMap<String, MIPlayerCache>();
     
@@ -35,6 +36,10 @@ public class MIPlayer implements Runnable {
         this.plugin = plugin;
         inventory = player.getInventory();
         enderchest = player.getEnderChest();
+        gamemode = player.getGameMode();
+        if(gamemode == null) {
+        	gamemode = GameMode.SURVIVAL;
+        }
         //Load world data asynchronously.
         Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, this, precache);
     }
@@ -47,6 +52,16 @@ public class MIPlayer implements Runnable {
     	this.player = player;
         inventory = player.getInventory();
         enderchest = player.getEnderChest();
+        gamemode = player.getGameMode();
+        if(gamemode == null) {
+        	gamemode = GameMode.SURVIVAL;
+        }
+    }
+    
+    public void gameModeChanged(GameMode mode) {
+    	if(mode != null) {
+    		gamemode = mode;
+    	}
     }
     
     /*
@@ -104,7 +119,11 @@ public class MIPlayer implements Runnable {
         MIInventory inventory = new MIInventory(player);
         pcache.setInventory(inventory, inventoryName);
         pcache.setFoodlevel(player.getFoodLevel());
-        pcache.setGm(player.getGameMode());
+        GameMode gm = player.getGameMode();
+        if(gm == null) {
+        	gm = gamemode;
+        }
+        pcache.setGm(gm);
         pcache.setHealth(player.getHealth());
         pcache.setSaturation(player.getSaturation());
         pcache.setXp(player.getExp());
@@ -113,11 +132,11 @@ public class MIPlayer implements Runnable {
             MIYamlFiles.con.refreshConnection();
             int totalxp = plugin.getTotalXP(player.getLevel(), player.getExp());
             MIYamlFiles.con.saveAll(player, group, inventory, inventoryName, totalxp,
-            		player.getGameMode(), player.getHealth(), player.getFoodLevel(), player.getSaturation());
+            		gm, player.getHealth(), player.getFoodLevel(), player.getSaturation());
         } else {
             MIPlayerFile config = pcache.getFile();
             config.saveAll(inventory, inventoryName, player.getTotalExperience(),
-                    player.getLevel(), player.getExp(), player.getGameMode(), player.getHealth(),
+                    player.getLevel(), player.getExp(), gm, player.getHealth(),
                     player.getFoodLevel(), player.getSaturation());
         }
     }
@@ -242,13 +261,17 @@ public class MIPlayer implements Runnable {
         	pcache = loadGroup(group);
         	cache.put(group, pcache);
         }
-        pcache.setGm(player.getGameMode());
+        GameMode gm = player.getGameMode();
+        if(gm == null) {
+        	gm = gamemode;
+        }
+        pcache.setGm(gm);
         if(MIYamlFiles.usesql) {
             MIYamlFiles.con.saveGameMode(player, group,
                     player.getGameMode());
         } else {
             MIPlayerFile config = pcache.getFile();
-            config.saveGameMode(player.getGameMode());
+            config.saveGameMode(gm);
         }
     }
     

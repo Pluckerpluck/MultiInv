@@ -495,6 +495,7 @@ public class MIPlayerListener implements Listener {
 				miPlayer.loadInventory(group, event.getNewGameMode().toString());
 				stoppedAddingItemsToPlayer(player.getUniqueId());
 			}
+			miPlayer.gameModeChanged(event.getNewGameMode());
 		}
 	}
 
