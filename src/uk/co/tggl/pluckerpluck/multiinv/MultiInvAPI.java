@@ -5,6 +5,7 @@ import java.util.HashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import Tux2.TuxTwoLib.TuxTwoPlayer;
@@ -516,4 +517,14 @@ public class MultiInvAPI {
         return MIYamlFiles.getGroups();
     }
     
+    /**
+     * Forces the plugin to do an immediate save of inventory for a player.
+     * @param player the player to force a save on.
+     */
+    public void forcePlayerSave(Player player) {
+		String groupFrom = MIPlayerListener.getGroup(player.getWorld());
+		plugin.playerListener.saveEnderchestState(player, groupFrom);
+		plugin.playerListener.savePlayerState(player, groupFrom);
+    	
+    }
 }
