@@ -528,6 +528,11 @@ public class MIItemStack {
         }else if(meta instanceof BannerMeta) {
         	BannerMeta bmeta = (BannerMeta)meta;
         	DyeColor basecolor = bmeta.getBaseColor();
+        	//Bukkit has a habait of setting the base color for black to null...
+        	//Let's just automagically fill this in
+        	if(basecolor == null) {
+        		basecolor = DyeColor.BLACK;
+        	}
         	List<Pattern> patterns = bmeta.getPatterns();
         	StringBuilder colorstring = new StringBuilder();
             if(patterns != null) {
