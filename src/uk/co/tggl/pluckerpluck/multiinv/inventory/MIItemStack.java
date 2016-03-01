@@ -157,7 +157,7 @@ public class MIItemStack {
     		return is.clone();
     	}
         ItemStack itemStack = null;
-        if(item != Material.AIR && quantity != 0) {
+        if(item != null && item != Material.AIR && quantity != 0) {
             itemStack = new ItemStack(item, quantity, durability);
             //Only apply attributes if they exist! Otherwise items don't stack.
             if(attributes.size() > 0) {
