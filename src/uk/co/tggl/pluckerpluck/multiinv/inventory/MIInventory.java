@@ -128,7 +128,6 @@ public class MIInventory implements Serializable {
 	}
 
 	public void loadIntoInventory(PlayerInventory inventory) {
-		System.out.println("MIInventoryContents size: " + MIInventoryContents.length);
 		// Iterate and get inventory contents
 		ItemStack[] inventoryContents = new ItemStack[36];
 		for(int i = 0; i < inventoryContents.length; i++) {
@@ -141,7 +140,6 @@ public class MIInventory implements Serializable {
 		inventory.setContents(inventoryContents);
 		if(MultiInv.hasOffhandSlot()) {
 			if(MIInventoryContents.length > 36 && MIInventoryContents[MIInventoryContents.length-1] != null) {
-				System.out.println("MIInventoryContents[" + (MIInventoryContents.length-1) + "] item: " + MIInventoryContents[MIInventoryContents.length-1].toString());
 				inventory.setItemInOffHand(MIInventoryContents[MIInventoryContents.length-1].getItemStack());
 			}else {
 				inventory.setItemInOffHand(null);
