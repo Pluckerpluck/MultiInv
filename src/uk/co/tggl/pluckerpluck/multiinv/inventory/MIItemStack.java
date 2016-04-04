@@ -24,6 +24,8 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import Tux2.TuxTwoLib.NMSHeadData;
+import Tux2.TuxTwoLib.TuxTwoPlayerHead;
 import Tux2.TuxTwoLib.attributes.Attribute;
 import Tux2.TuxTwoLib.attributes.Attributes;
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
@@ -53,6 +55,7 @@ public class MIItemStack {
     private ArrayList<Attribute> attributes = new ArrayList<Attribute>();
     private MIBook book = null;
     private ItemStack is = null;
+    private NMSHeadData headdata = null;
     String nbttags = null;
     
     public MIItemStack(ItemStack itemStack) {
@@ -69,7 +72,7 @@ public class MIItemStack {
                     book = new MIBook(meta.getAuthor(), meta.getTitle(), meta.getPages());
                 }
             } else if(itemStack.hasItemMeta()) {
-                nbttags = getItemMetaSerialized(itemStack.getItemMeta());
+                nbttags = getItemMetaSerialized(itemStack);
             }
             is = itemStack.clone();
         }
@@ -276,6 +279,17 @@ public class MIItemStack {
                 if(data != null) {
                     ((SkullMeta) ismeta).setOwner(data);
                 }
+                data = itemdata.get("I");
+                if(data != null) {
+                	try {
+                    	String texture = itemdata.get("T");
+                    	headdata = new NMSHeadData(UUID.fromString(data), texture);
+                    	is = TuxTwoPlayerHead.getHead(is, headdata);
+                    	ismeta = is.getItemMeta();
+                	}catch(IllegalArgumentException e) {
+                		
+                	}
+                }
             } else if(ismeta instanceof LeatherArmorMeta) {
                 data = itemdata.get("C");
                 if(data != null) {
@@ -451,7 +465,8 @@ public class MIItemStack {
         return is;
     }
     
-    private String getItemMetaSerialized(ItemMeta meta) {
+    private String getItemMetaSerialized(ItemStack is) {
+    	ItemMeta meta = is.getItemMeta();
         StringBuilder smeta = new StringBuilder();
         smeta.append("NM#");
         smeta.append("N" + base64Encode(meta.getDisplayName()) + "#");
@@ -460,6 +475,11 @@ public class MIItemStack {
             SkullMeta skullmeta = (SkullMeta) meta;
             if(((SkullMeta) meta).hasOwner()) {
                 smeta.append("O" + skullmeta.getOwner() + "#");
+            }
+            headdata = TuxTwoPlayerHead.getHeadData(is);
+            if(headdata != null) {
+                smeta.append("I" + headdata.getId().toString() + "#");
+                smeta.append("T" + headdata.getTexture() + "#");
             }
         } else if(meta instanceof LeatherArmorMeta) {
             Color color = ((LeatherArmorMeta) meta).getColor();
