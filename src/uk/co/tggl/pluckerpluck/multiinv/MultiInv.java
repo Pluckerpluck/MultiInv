@@ -40,6 +40,8 @@ public class MultiInv extends JavaPlugin {
     
     boolean importing = false;
     
+    private static boolean is19 = false;
+    
     boolean tuxtwoliblistener = false;
     
     public DebugReport dreport = null;
@@ -155,9 +157,15 @@ public class MultiInv extends JavaPlugin {
                 } else {
                     log.info("MC 1.2 or below found, enabling version 1 XP handling.");
                 }
+                if(minorversion > 8) {
+                	is19 = true;
+                    log.info("MC 1.9 or above found, enabling offhand slot.");
+                }
             } else if(majorversion > 1) {
                 xpversion = 1;
                 log.info("MC 1.3 or above found, enabling version 2 XP handling.");
+            	is19 = true;
+                log.info("MC 1.9 or above found, enabling offhand slot.");
             }
         } catch(Exception e) {
             log.severe("Unable to get server version! Inaccurate XP handling may occurr!");
@@ -204,6 +212,10 @@ public class MultiInv extends JavaPlugin {
     	if(Bukkit.getPluginManager().isPluginEnabled("DebugReport")) {
     		dreport = DebugReport.getInstance();
     	}
+    }
+    
+    public static boolean hasOffhandSlot() {
+    	return is19;
     }
     
     private synchronized void convertToUUID() {

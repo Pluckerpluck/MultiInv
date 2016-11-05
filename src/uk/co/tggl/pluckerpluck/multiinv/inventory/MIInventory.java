@@ -29,13 +29,14 @@ public class MIInventory implements Serializable {
 	public MIInventory(Player player) {
 		// Iterate and store inventory contents
 		ItemStack[] inventoryContents = player.getInventory().getContents();
+		MIInventoryContents = new MIItemStack[inventoryContents.length]; 
 		for(int i = 0; i < inventoryContents.length; i++) {
 			MIInventoryContents[i] = new MIItemStack(inventoryContents[i]);
 		}
 
 		// Iterate and store armour contents
 		ItemStack[] armourContents = player.getInventory().getArmorContents();
-
+		MIArmourContents = new MIItemStack[armourContents.length];
 		for(int i = 0; i < armourContents.length; i++) {
 			MIArmourContents[i] = new MIItemStack(armourContents[i]);
 		}
@@ -45,6 +46,7 @@ public class MIInventory implements Serializable {
 
 	public MIInventory(ItemStack[] inventory, ItemStack[] armor, Collection<PotionEffect> effects) {
 		if(inventory != null) {
+			MIInventoryContents = new MIItemStack[inventory.length]; 
 			for(int i = 0; i < inventory.length && i < 36; i++) {
 				try {
 					MIInventoryContents[i] = new MIItemStack(inventory[i]);
@@ -60,6 +62,7 @@ public class MIInventory implements Serializable {
 			}
 		}
 		if(armor != null) {
+			MIArmourContents = new MIItemStack[armor.length];
 			for(int i = 0; i < armor.length && i < 4; i++) {
 				try {
 					MIArmourContents[i] = new MIItemStack(armor[i]);
@@ -88,6 +91,7 @@ public class MIInventory implements Serializable {
 
 			// Fill MIInventoryContents
 			String[] inventoryData = data[0].split(";");
+			MIInventoryContents = new MIItemStack[inventoryData.length]; 
 			for(int i = 0; i < inventoryData.length; i++) {
 				MIInventoryContents[i] = new MIItemStack(inventoryData[i]);
 			}
@@ -95,6 +99,7 @@ public class MIInventory implements Serializable {
 			// Fill MIArmourContents
 			if(data.length > 1) {
 				String[] armourData = data[1].split(";");
+				MIArmourContents = new MIItemStack[armourData.length];
 				for(int i = 0; i < armourData.length; i++) {
 					MIArmourContents[i] = new MIItemStack(armourData[i]);
 				}
@@ -124,7 +129,7 @@ public class MIInventory implements Serializable {
 
 	public void loadIntoInventory(PlayerInventory inventory) {
 		// Iterate and get inventory contents
-		ItemStack[] inventoryContents = new ItemStack[MIInventoryContents.length];
+		ItemStack[] inventoryContents = new ItemStack[36];
 		for(int i = 0; i < inventoryContents.length; i++) {
 			if(MIInventoryContents[i] != null) {
 				inventoryContents[i] = MIInventoryContents[i].getItemStack();
@@ -133,17 +138,28 @@ public class MIInventory implements Serializable {
 			}
 		}
 		inventory.setContents(inventoryContents);
+		if(MultiInv.hasOffhandSlot()) {
+			if(MIInventoryContents.length > 36 && MIInventoryContents[MIInventoryContents.length-1] != null) {
+				inventory.setItemInOffHand(MIInventoryContents[MIInventoryContents.length-1].getItemStack());
+			}else {
+				inventory.setItemInOffHand(null);
+			}
+		}
 
 		// Iterate and get armour contents
-		ItemStack[] armourContents = new ItemStack[MIArmourContents.length];
+		ItemStack[] armourContents = new ItemStack[4];
 		for(int i = 0; i < armourContents.length; i++) {
-			if(MIArmourContents[i] != null) {
+			if(MIArmourContents.length > i && MIArmourContents[i] != null) {
 				armourContents[i] = MIArmourContents[i].getItemStack();
 			} else {
 				armourContents[i] = null;
 			}
 		}
-		inventory.setArmorContents(armourContents);
+		inventory.setBoots(armourContents[0]);
+		inventory.setLeggings(armourContents[1]);
+		inventory.setChestplate(armourContents[2]);
+		inventory.setHelmet(armourContents[3]);
+		//inventory.setArmorContents(armourContents);
 	}
 
 	public MIItemStack[] getInventoryContents() {

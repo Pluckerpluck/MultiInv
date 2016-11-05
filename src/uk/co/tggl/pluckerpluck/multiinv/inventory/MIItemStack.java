@@ -7,11 +7,13 @@ import org.bukkit.FireworkEffect;
 import org.bukkit.FireworkEffect.Builder;
 import org.bukkit.FireworkEffect.Type;
 import org.bukkit.Material;
+import org.bukkit.block.Banner;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.FireworkEffectMeta;
@@ -24,6 +26,8 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import Tux2.TuxTwoLib.NMSHeadData;
+import Tux2.TuxTwoLib.TuxTwoPlayerHead;
 import Tux2.TuxTwoLib.attributes.Attribute;
 import Tux2.TuxTwoLib.attributes.Attributes;
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
@@ -53,6 +57,7 @@ public class MIItemStack {
     private ArrayList<Attribute> attributes = new ArrayList<Attribute>();
     private MIBook book = null;
     private ItemStack is = null;
+    private NMSHeadData headdata = null;
     String nbttags = null;
     
     public MIItemStack(ItemStack itemStack) {
@@ -69,7 +74,7 @@ public class MIItemStack {
                     book = new MIBook(meta.getAuthor(), meta.getTitle(), meta.getPages());
                 }
             } else if(itemStack.hasItemMeta()) {
-                nbttags = getItemMetaSerialized(itemStack.getItemMeta());
+                nbttags = getItemMetaSerialized(itemStack);
             }
             is = itemStack.clone();
         }
@@ -157,7 +162,7 @@ public class MIItemStack {
     		return is.clone();
     	}
         ItemStack itemStack = null;
-        if(item != Material.AIR && quantity != 0) {
+        if(item != null && item != Material.AIR && quantity != 0) {
             itemStack = new ItemStack(item, quantity, durability);
             //Only apply attributes if they exist! Otherwise items don't stack.
             if(attributes.size() > 0) {
@@ -276,6 +281,17 @@ public class MIItemStack {
                 if(data != null) {
                     ((SkullMeta) ismeta).setOwner(data);
                 }
+                data = itemdata.get("I");
+                if(data != null) {
+                	try {
+                    	String texture = itemdata.get("T");
+                    	headdata = new NMSHeadData(UUID.fromString(data), texture);
+                    	is = TuxTwoPlayerHead.getHead(is, headdata);
+                    	ismeta = is.getItemMeta();
+                	}catch(IllegalArgumentException e) {
+                		
+                	}
+                }
             } else if(ismeta instanceof LeatherArmorMeta) {
                 data = itemdata.get("C");
                 if(data != null) {
@@ -389,6 +405,34 @@ public class MIItemStack {
                 		bmeta.setPatterns(patterns);
                 	}
                 }
+            }else if(ismeta instanceof BlockStateMeta) {
+        		BlockStateMeta bmeta = (BlockStateMeta) ismeta;
+        		if(bmeta instanceof Banner) {
+                    data = itemdata.get("B");
+                    if(data != null) {
+                		Banner banner = (Banner) bmeta.getBlockState();
+                        String[] fedata = data.split("\\+");
+                    	DyeColor basecolor = DyeColor.valueOf(fedata[0]);
+                    	if(basecolor != null) {
+                        	List<Pattern> patterns = new ArrayList<Pattern>();
+                    		for(int i = 1; i < fedata.length; i++) {
+                    			try {
+                                    String[] spattern = fedata[i].split("-");
+                                    DyeColor patterncolor = DyeColor.valueOf(spattern[0]);
+                                    PatternType patterntype = PatternType.getByIdentifier(spattern[1]);
+                                    Pattern pattern = new Pattern(patterncolor, patterntype);
+                        			patterns.add(pattern);
+                    			}catch (Exception e) {
+                    				//Don't want to crash item creation here!
+                    			}
+                    		}
+                    		banner.setBaseColor(basecolor);
+                    		banner.setPatterns(patterns);
+                    		banner.update();
+                    		bmeta.setBlockState(banner);
+                    	}
+                    }
+        		}
             }
             if(ismeta instanceof Repairable) {
                 data = itemdata.get("R");
@@ -451,7 +495,8 @@ public class MIItemStack {
         return is;
     }
     
-    private String getItemMetaSerialized(ItemMeta meta) {
+    private String getItemMetaSerialized(ItemStack is) {
+    	ItemMeta meta = is.getItemMeta();
         StringBuilder smeta = new StringBuilder();
         smeta.append("NM#");
         smeta.append("N" + base64Encode(meta.getDisplayName()) + "#");
@@ -460,6 +505,11 @@ public class MIItemStack {
             SkullMeta skullmeta = (SkullMeta) meta;
             if(((SkullMeta) meta).hasOwner()) {
                 smeta.append("O" + skullmeta.getOwner() + "#");
+            }
+            headdata = TuxTwoPlayerHead.getHeadData(is);
+            if(headdata != null) {
+                smeta.append("I" + headdata.getId().toString() + "#");
+                smeta.append("T" + headdata.getTexture() + "#");
             }
         } else if(meta instanceof LeatherArmorMeta) {
             Color color = ((LeatherArmorMeta) meta).getColor();
@@ -549,6 +599,33 @@ public class MIItemStack {
             		//Let's just blank the banner instead of throwing an NPE.
             	}
             }
+        }else if(meta instanceof BlockStateMeta) {
+    		BlockStateMeta bmeta = (BlockStateMeta) meta;
+    		if(bmeta instanceof Banner) {
+        		Banner banner = (Banner) bmeta.getBlockState();
+            	DyeColor basecolor = banner.getBaseColor();
+            	//Bukkit has a habait of setting the base color for black to null...
+            	//Let's just automagically fill this in
+            	if(basecolor == null) {
+            		basecolor = DyeColor.BLACK;
+            	}
+            	List<Pattern> patterns = banner.getPatterns();
+            	StringBuilder colorstring = new StringBuilder();
+                if(patterns != null) {
+                	try {
+                        for(Pattern pattern : patterns) {
+                            if(colorstring.length() > 0) {
+                                colorstring.append("+");
+                            }
+                            colorstring.append(pattern.getColor().name() + "-" + pattern.getPattern().getIdentifier());
+                        }
+                        smeta.append("B" + basecolor.name() + "+" + colorstring.toString() + "#");
+                	}catch(NullPointerException e) {
+                		//Hmm... the banner data isn't quite in the right format...
+                		//Let's just blank the banner instead of throwing an NPE.
+                	}
+                }
+    		}
         }
         if(meta instanceof Repairable) {
             Repairable rmeta = (Repairable) meta;
