@@ -292,6 +292,17 @@ public class MIItemStack {
                 		
                 	}
                 }
+                data = itemdata.get("I");
+                if(data != null) {
+                	try {
+                    	String texture = itemdata.get("T");
+                    	headdata = new NMSHeadData(UUID.fromString(data), texture);
+                    	is = TuxTwoPlayerHead.getHead(is, headdata);
+                    	ismeta = is.getItemMeta();
+                	}catch(IllegalArgumentException e) {
+                		
+                	}
+                }
             } else if(ismeta instanceof LeatherArmorMeta) {
                 data = itemdata.get("C");
                 if(data != null) {
@@ -505,6 +516,11 @@ public class MIItemStack {
             SkullMeta skullmeta = (SkullMeta) meta;
             if(((SkullMeta) meta).hasOwner()) {
                 smeta.append("O" + skullmeta.getOwner() + "#");
+            }
+            headdata = TuxTwoPlayerHead.getHeadData(is);
+            if(headdata != null) {
+                smeta.append("I" + headdata.getId().toString() + "#");
+                smeta.append("T" + headdata.getTexture() + "#");
             }
             headdata = TuxTwoPlayerHead.getHeadData(is);
             if(headdata != null) {
