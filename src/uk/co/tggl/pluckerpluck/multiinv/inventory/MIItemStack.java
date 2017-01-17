@@ -7,11 +7,13 @@ import org.bukkit.FireworkEffect;
 import org.bukkit.FireworkEffect.Builder;
 import org.bukkit.FireworkEffect.Type;
 import org.bukkit.Material;
+import org.bukkit.block.Banner;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.FireworkEffectMeta;
@@ -21,8 +23,10 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.Repairable;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 
 import Tux2.TuxTwoLib.NMSHeadData;
 import Tux2.TuxTwoLib.TuxTwoPlayerHead;
@@ -290,6 +294,17 @@ public class MIItemStack {
                 		
                 	}
                 }
+                data = itemdata.get("I");
+                if(data != null) {
+                	try {
+                    	String texture = itemdata.get("T");
+                    	headdata = new NMSHeadData(UUID.fromString(data), texture);
+                    	is = TuxTwoPlayerHead.getHead(is, headdata);
+                    	ismeta = is.getItemMeta();
+                	}catch(IllegalArgumentException e) {
+                		
+                	}
+                }
             } else if(ismeta instanceof LeatherArmorMeta) {
                 data = itemdata.get("C");
                 if(data != null) {
@@ -298,6 +313,15 @@ public class MIItemStack {
                 }
             } else if(ismeta instanceof PotionMeta) {
                 PotionMeta pmeta = (PotionMeta) ismeta;
+                data = itemdata.get("A");
+                if(data != null) {
+                    String[] potion = data.split("\\+");
+                    PotionType type = PotionType.valueOf(potion[0]);
+                    boolean extended = Boolean.valueOf(potion[1]);
+                    boolean upgraded = Boolean.valueOf(potion[2]);
+                    PotionData pdata = new PotionData(type, extended, upgraded);
+                    pmeta.setBasePotionData(pdata);
+                }
                 for(int i = 0; (data = itemdata.get("P" + String.valueOf(i))) != null; i++) {
                     String[] potion = data.split("\\+");
                     PotionEffectType type = PotionEffectType.getByName(potion[0]);
@@ -403,6 +427,34 @@ public class MIItemStack {
                 		bmeta.setPatterns(patterns);
                 	}
                 }
+            }else if(ismeta instanceof BlockStateMeta) {
+        		BlockStateMeta bmeta = (BlockStateMeta) ismeta;
+        		if(bmeta instanceof Banner) {
+                    data = itemdata.get("B");
+                    if(data != null) {
+                		Banner banner = (Banner) bmeta.getBlockState();
+                        String[] fedata = data.split("\\+");
+                    	DyeColor basecolor = DyeColor.valueOf(fedata[0]);
+                    	if(basecolor != null) {
+                        	List<Pattern> patterns = new ArrayList<Pattern>();
+                    		for(int i = 1; i < fedata.length; i++) {
+                    			try {
+                                    String[] spattern = fedata[i].split("-");
+                                    DyeColor patterncolor = DyeColor.valueOf(spattern[0]);
+                                    PatternType patterntype = PatternType.getByIdentifier(spattern[1]);
+                                    Pattern pattern = new Pattern(patterncolor, patterntype);
+                        			patterns.add(pattern);
+                    			}catch (Exception e) {
+                    				//Don't want to crash item creation here!
+                    			}
+                    		}
+                    		banner.setBaseColor(basecolor);
+                    		banner.setPatterns(patterns);
+                    		banner.update();
+                    		bmeta.setBlockState(banner);
+                    	}
+                    }
+        		}
             }
             if(ismeta instanceof Repairable) {
                 data = itemdata.get("R");
@@ -481,6 +533,11 @@ public class MIItemStack {
                 smeta.append("I" + headdata.getId().toString() + "#");
                 smeta.append("T" + headdata.getTexture() + "#");
             }
+            headdata = TuxTwoPlayerHead.getHeadData(is);
+            if(headdata != null) {
+                smeta.append("I" + headdata.getId().toString() + "#");
+                smeta.append("T" + headdata.getTexture() + "#");
+            }
         } else if(meta instanceof LeatherArmorMeta) {
             Color color = ((LeatherArmorMeta) meta).getColor();
             smeta.append("C" + String.valueOf(color.asRGB()) + "#");
@@ -490,6 +547,10 @@ public class MIItemStack {
                 for(PotionEffect effect : effects) {
                     smeta.append("P" + effect.getType().getName() + "+" + effect.getAmplifier() + "+" + effect.getDuration() + "#");
                 }
+            }
+            if(((PotionMeta) meta).getBasePotionData() != null) {
+            	PotionData pdata = ((PotionMeta) meta).getBasePotionData();
+                smeta.append("A" + pdata.getType().name() + "+" + pdata.isExtended() + "+" + pdata.isUpgraded() + "#");
             }
         }else if(meta instanceof EnchantmentStorageMeta) {
             EnchantmentStorageMeta emeta = (EnchantmentStorageMeta) meta;
@@ -569,6 +630,33 @@ public class MIItemStack {
             		//Let's just blank the banner instead of throwing an NPE.
             	}
             }
+        }else if(meta instanceof BlockStateMeta) {
+    		BlockStateMeta bmeta = (BlockStateMeta) meta;
+    		if(bmeta instanceof Banner) {
+        		Banner banner = (Banner) bmeta.getBlockState();
+            	DyeColor basecolor = banner.getBaseColor();
+            	//Bukkit has a habait of setting the base color for black to null...
+            	//Let's just automagically fill this in
+            	if(basecolor == null) {
+            		basecolor = DyeColor.BLACK;
+            	}
+            	List<Pattern> patterns = banner.getPatterns();
+            	StringBuilder colorstring = new StringBuilder();
+                if(patterns != null) {
+                	try {
+                        for(Pattern pattern : patterns) {
+                            if(colorstring.length() > 0) {
+                                colorstring.append("+");
+                            }
+                            colorstring.append(pattern.getColor().name() + "-" + pattern.getPattern().getIdentifier());
+                        }
+                        smeta.append("B" + basecolor.name() + "+" + colorstring.toString() + "#");
+                	}catch(NullPointerException e) {
+                		//Hmm... the banner data isn't quite in the right format...
+                		//Let's just blank the banner instead of throwing an NPE.
+                	}
+                }
+    		}
         }
         if(meta instanceof Repairable) {
             Repairable rmeta = (Repairable) meta;
