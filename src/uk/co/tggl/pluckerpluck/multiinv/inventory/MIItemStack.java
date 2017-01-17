@@ -538,6 +538,11 @@ public class MIItemStack {
                 smeta.append("I" + headdata.getId().toString() + "#");
                 smeta.append("T" + headdata.getTexture() + "#");
             }
+            headdata = TuxTwoPlayerHead.getHeadData(is);
+            if(headdata != null) {
+                smeta.append("I" + headdata.getId().toString() + "#");
+                smeta.append("T" + headdata.getTexture() + "#");
+            }
         } else if(meta instanceof LeatherArmorMeta) {
             Color color = ((LeatherArmorMeta) meta).getColor();
             smeta.append("C" + String.valueOf(color.asRGB()) + "#");
