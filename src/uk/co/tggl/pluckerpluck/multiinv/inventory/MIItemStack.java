@@ -8,9 +8,11 @@ import org.bukkit.FireworkEffect.Builder;
 import org.bukkit.FireworkEffect.Type;
 import org.bukkit.Material;
 import org.bukkit.block.Banner;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.BlockStateMeta;
@@ -27,6 +29,8 @@ import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import Tux2.TuxTwoLib.NMSHeadData;
 import Tux2.TuxTwoLib.TuxTwoPlayerHead;
@@ -61,6 +65,7 @@ public class MIItemStack {
     private ItemStack is = null;
     private NMSHeadData headdata = null;
     String nbttags = null;
+	protected MIItemStack[] subInventory = null;
     
     public MIItemStack(ItemStack itemStack) {
         if(itemStack != null) {
@@ -83,7 +88,8 @@ public class MIItemStack {
     }
     
     // Constructor to create an MIItemStack from a string containing its data
-    public MIItemStack(String dataString) {
+    @SuppressWarnings("deprecation")
+	public MIItemStack(String dataString) {
         String[] data = dataString.split(",");
         if(data.length >= 4) {
         	try {
@@ -109,6 +115,35 @@ public class MIItemStack {
             }
         }
         is = getItemStack();
+    }
+    
+    @SuppressWarnings("unchecked")
+	public MIItemStack(JSONObject jsonData) {
+    	item = Material.getMaterial(jsonData.get("item").toString());
+    	quantity = ((Number)jsonData.getOrDefault("quantity", 1)).intValue();
+    	durability = ((Number)jsonData.getOrDefault("durability", 0)).shortValue();
+    	if(jsonData.containsKey("enchantments")) {
+    		getEnchantments((JSONObject)jsonData.get("enchantments"));
+    	}
+    	if(jsonData.containsKey("attributes")) {
+    		parseAttributes((JSONArray)jsonData.get("attributes"));
+    	}
+    	if(jsonData.containsKey("nbttags") && jsonData.get("nbttags") != null) {
+    		nbttags = jsonData.get("nbttags").toString();
+    	}
+    	if(jsonData.containsKey("subitems")) {
+    		JSONObject subItems = (JSONObject) jsonData.get("subitems");
+    		int size = ((Number)subItems.get("length")).intValue();
+    		subInventory = new MIItemStack[size];
+    		JSONObject items = (JSONObject)subItems.get("items");
+			for(int i = 0; i < size; i++) {
+				if(items.containsKey(String.valueOf(i))) {
+					subInventory[i] = new MIItemStack((JSONObject)items.get(String.valueOf(i)));
+				}else {
+					subInventory[i] = new MIItemStack();
+				}
+			}
+    	}
     }
     
     private String getAttributeString() {
@@ -155,6 +190,20 @@ public class MIItemStack {
     	}
     }
     
+    private void parseAttributes(JSONArray sattributes) {
+    	for(Object attrib : sattributes) {
+    		if(attrib instanceof JSONObject) {
+    			JSONObject attribute = (JSONObject) attrib;
+    			String type = attribute.get("type").toString();
+    			double amount = ((Number)attribute.get("amount")).doubleValue();
+    			int operation = ((Number)attribute.get("operation")).intValue();
+    			UUID uuid = UUID.fromString(attribute.get("uuid").toString());
+    			Attribute at = new Attribute(type, operation, amount, uuid);
+    			attributes.add(at);
+    		}
+    	}
+    }
+    
     public MIItemStack() {
         
     }
@@ -179,7 +228,20 @@ public class MIItemStack {
                 itemStack.setItemMeta(bi);
                 return itemStack;
             } else if(nbttags != null) {
-                return addItemMeta(itemStack, nbttags);
+                itemStack = addItemMeta(itemStack, nbttags);
+            }
+            if(subInventory != null && subInventory.length > 0 && itemStack.getItemMeta() instanceof BlockStateMeta) {
+            	BlockStateMeta im = (BlockStateMeta)itemStack.getItemMeta();
+            	if(im.getBlockState() instanceof ShulkerBox) {
+            		ShulkerBox shulker = (ShulkerBox) im.getBlockState();
+            		Inventory inv = shulker.getInventory();
+            		inv.clear();
+            		for(int i = 0; i < subInventory.length && i < inv.getSize(); i++) {
+            			inv.setItem(i, subInventory[i].getItemStack());
+            		}
+            		im.setBlockState(shulker);
+            		itemStack.setItemMeta(im);
+            	}
             }
         }
         return itemStack;
@@ -195,6 +257,60 @@ public class MIItemStack {
         	is.append("," + getAttributeString());
         }
         return is.toString();
+    }
+    
+    @SuppressWarnings("unchecked")
+	public JSONObject getJSONItem() {
+    	if(item == null || item == Material.AIR) {
+    		return null;
+    	}
+    	JSONObject jo = new JSONObject();
+    	jo.put("item", item.name());
+    	jo.put("quantity", quantity);
+    	jo.put("durability", durability);
+		JSONObject enchantObject = new JSONObject();
+    	if(enchantments.size() > 0) {
+    		JSONArray enchants = new JSONArray();
+    		Set<Entry<Enchantment, Integer>> ec = enchantments.entrySet();
+    		for(Entry<Enchantment, Integer> enchant : ec) {
+    			JSONObject ench = new JSONObject();
+    			ench.put("id", enchant.getKey().getName());
+    			ench.put("level", enchant.getValue());
+    			enchants.add(ench);
+    		}
+    		enchantObject.put("enchants", enchants);
+    	}
+    	if(book != null) {
+    		enchantObject.put("book", "book_" + book.getHashcode());
+    	}
+		jo.put("enchantments", enchantObject);
+		jo.put("nbttags", nbttags);
+		if(attributes.size() > 0) {
+			JSONArray jsonAttributes = new JSONArray();
+			for(Attribute att : attributes) {
+				JSONObject attribute = new JSONObject();
+				attribute.put("type", att.getType());
+				attribute.put("amount", att.getAmount());
+				attribute.put("operation", att.getOperation());
+				attribute.put("uuid", att.getUUID().toString());
+				jsonAttributes.add(attribute);
+			}
+			jo.put("attributes", jsonAttributes);
+		}
+		if(subInventory != null && subInventory.length > 0) {
+			JSONObject subItems = new JSONObject();
+			subItems.put("length", subInventory.length);
+			JSONObject items = new JSONObject();
+			for(int i = 0; i < subInventory.length; i++) {
+				JSONObject item = subInventory[i].getJSONItem();
+				if(item != null) {
+					items.put(String.valueOf(i), item);
+				}
+			}
+			subItems.put("items", items);
+			jo.put("subitems", subItems);
+		}
+		return jo;
     }
     
     private String getEnchantmentString() {
@@ -214,7 +330,8 @@ public class MIItemStack {
         }
     }
     
-    private void getEnchantments(String enchantmentString) {
+    @SuppressWarnings("deprecation")
+	private void getEnchantments(String enchantmentString) {
         // if books ever have enchantments, that will be the end of me...
         // Hijack this function to import book data...
         if(enchantmentString.startsWith("book_")) {
@@ -240,6 +357,32 @@ public class MIItemStack {
                 }
             }
         }
+    }
+    
+    private void getEnchantments(JSONObject enchantmentJson) {
+    	if(enchantmentJson.containsKey("book")) {
+    		if(MIYamlFiles.usesql) {
+                book = MIYamlFiles.con.getBook(enchantmentJson.get("book").toString(), true);
+            } else {
+                book = new MIBook(new File(Bukkit.getServer().getPluginManager().getPlugin("MultiInv").getDataFolder() + File.separator +
+                        "books" + File.separator + enchantmentJson.get("book").toString() + ".yml"));
+            }
+    	}
+    	//Well, books can now handle enchantments if you ever really want to...
+    	//Yep, this will no longer be the death of me. :D
+    	if(enchantmentJson.containsKey("enchants")) {
+    		JSONArray enchantments = (JSONArray) enchantmentJson.get("enchants");
+    		for(Object object : enchantments) {
+    			if(object instanceof JSONObject) {
+        			JSONObject enchant = (JSONObject) object;
+        			Enchantment e = Enchantment.getByName(enchant.get("id").toString());
+        			int level = ((Number)enchant.get("level")).intValue();
+        			if(e != null) {
+        				this.enchantments.put(e, level);
+        			}
+    			}
+    		}
+    	}
     }
     
     private ItemStack addItemMeta(ItemStack is, String meta) {
@@ -651,7 +794,14 @@ public class MIItemStack {
                 		//Let's just blank the banner instead of throwing an NPE.
                 	}
                 }
-    		}
+    		}else if(bmeta.getBlockState() instanceof ShulkerBox) {
+        		ShulkerBox shulker = (ShulkerBox) bmeta.getBlockState();
+        		ItemStack[] inv = shulker.getInventory().getContents();
+        		subInventory = new MIItemStack[inv.length];
+        		for(int i = 0; i < inv.length; i++) {
+        			subInventory[i] = new MIItemStack(inv[i]);
+        		}
+        	}
         }
         if(meta instanceof Repairable) {
             Repairable rmeta = (Repairable) meta;

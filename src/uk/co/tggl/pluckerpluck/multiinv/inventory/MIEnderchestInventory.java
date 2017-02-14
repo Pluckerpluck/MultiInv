@@ -3,6 +3,8 @@ package uk.co.tggl.pluckerpluck.multiinv.inventory;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.io.Serializable;
 
@@ -36,13 +38,34 @@ public class MIEnderchestInventory implements Serializable {
     // Create an MIInventory from a string containing inventory data
     public MIEnderchestInventory(String inventoryString) {
         if(inventoryString != null && !inventoryString.equals("")) {
-            
-            // Fill MIInventoryContents
-            String[] inventoryData = inventoryString.split(";");
-            MIInventoryContents = new MIItemStack[inventoryData.length];
-            for(int i = 0; i < inventoryData.length; i++) {
-                MIInventoryContents[i] = new MIItemStack(inventoryData[i]);
-            }
+			if(inventoryString.startsWith("{")) {
+				//New JSON format
+			    JSONParser parser = new JSONParser();
+				JSONObject jsonInventory = null;
+		        try {
+					jsonInventory = (JSONObject)parser.parse(inventoryString);
+					@SuppressWarnings("unchecked")
+					int invLength = ((Number)jsonInventory.getOrDefault("size", 0)).intValue();
+					MIInventoryContents = new MIItemStack[invLength]; 
+					JSONObject items = (JSONObject)jsonInventory.get("items");
+					for(int i = 0; i < invLength; i++) {
+						if(items.containsKey(String.valueOf(i))) {
+							MIInventoryContents[i] = new MIItemStack((JSONObject)items.get(String.valueOf(i)));
+						}else {
+							MIInventoryContents[i] = new MIItemStack();
+						}
+					}
+				}catch(Exception e) {
+					e.printStackTrace();
+				}
+			}else {
+	            // Fill MIInventoryContents
+	            String[] inventoryData = inventoryString.split(";");
+	            MIInventoryContents = new MIItemStack[inventoryData.length];
+	            for(int i = 0; i < inventoryData.length; i++) {
+	                MIInventoryContents[i] = new MIItemStack(inventoryData[i]);
+	            }
+			}
         }
     }
     
@@ -84,7 +107,20 @@ public class MIEnderchestInventory implements Serializable {
         return MIInventoryContents;
     }
     
-    public String toString() {
+    @SuppressWarnings("unchecked")
+	public String toString() {
+		JSONObject inventoryContents = new JSONObject();
+		inventoryContents.put("size", MIInventoryContents.length);
+		JSONObject items = new JSONObject();
+		for(int i = 0; i < MIInventoryContents.length; i++) {
+			JSONObject item = MIInventoryContents[i].getJSONItem();
+			if(item != null) {
+				items.put(String.valueOf(i), item);
+			}
+		}
+		inventoryContents.put("items", items);
+		return inventoryContents.toJSONString();
+    	/*
         // Initial capacity = (20 + 4) * 7 - 1
         StringBuilder inventoryString = new StringBuilder(167);
         
@@ -100,6 +136,6 @@ public class MIEnderchestInventory implements Serializable {
         // Remove final ";"
         inventoryString.deleteCharAt(inventoryString.length() - 1);
         
-        return inventoryString.toString();
+        return inventoryString.toString();*/
     }
 }
