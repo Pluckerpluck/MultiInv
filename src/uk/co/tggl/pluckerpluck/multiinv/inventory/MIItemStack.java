@@ -574,7 +574,7 @@ public class MIItemStack {
                 }
             }else if(ismeta instanceof BlockStateMeta) {
         		BlockStateMeta bmeta = (BlockStateMeta) ismeta;
-        		if(bmeta instanceof Banner) {
+        		if(bmeta.getBlockState() instanceof Banner) {
                     data = itemdata.get("B");
                     if(data != null) {
                 		Banner banner = (Banner) bmeta.getBlockState();
@@ -779,7 +779,7 @@ public class MIItemStack {
             }
         }else if(meta instanceof BlockStateMeta) {
     		BlockStateMeta bmeta = (BlockStateMeta) meta;
-    		if(bmeta instanceof Banner) {
+    		if(bmeta.getBlockState() instanceof Banner) {
         		Banner banner = (Banner) bmeta.getBlockState();
             	DyeColor basecolor = banner.getBaseColor();
             	//Bukkit has a habait of setting the base color for black to null...
