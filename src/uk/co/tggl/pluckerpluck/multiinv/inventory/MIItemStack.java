@@ -1,5 +1,16 @@
 package uk.co.tggl.pluckerpluck.multiinv.inventory;
 
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
@@ -12,6 +23,7 @@ import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
@@ -25,6 +37,7 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.Repairable;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.meta.SpawnEggMeta;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -38,17 +51,6 @@ import Tux2.TuxTwoLib.attributes.Attribute;
 import Tux2.TuxTwoLib.attributes.Attributes;
 import uk.co.tggl.pluckerpluck.multiinv.MIYamlFiles;
 import uk.co.tggl.pluckerpluck.multiinv.books.MIBook;
-
-import java.io.File;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * Created by IntelliJ IDEA.
@@ -598,7 +600,14 @@ public class MIItemStack {
                     	}
                     }
         		}
+            }else if (ismeta instanceof SpawnEggMeta) {
+            	data = itemdata.get("S");
+            	if (data != null) {
+            		SpawnEggMeta bmeta = (SpawnEggMeta) ismeta;
+            		bmeta.setSpawnedType(EntityType.valueOf(data));
+            	}
             }
+            
             if(ismeta instanceof Repairable) {
                 data = itemdata.get("R");
                 if(data != null) {
@@ -802,7 +811,11 @@ public class MIItemStack {
         			subInventory[i] = new MIItemStack(inv[i]);
         		}
         	}
+        }else if (meta instanceof SpawnEggMeta) {
+        	SpawnEggMeta semeta = (SpawnEggMeta)meta;
+        	smeta.append("S" + semeta.getSpawnedType().toString() + "#");
         }
+        
         if(meta instanceof Repairable) {
             Repairable rmeta = (Repairable) meta;
             smeta.append("R" + rmeta.getRepairCost());
