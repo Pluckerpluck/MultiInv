@@ -813,7 +813,9 @@ public class MIItemStack {
         	}
         }else if (meta instanceof SpawnEggMeta) {
         	SpawnEggMeta semeta = (SpawnEggMeta)meta;
-        	smeta.append("S" + semeta.getSpawnedType().toString() + "#");
+        	
+        	if (semeta.getSpawnedType() != null)
+        		smeta.append("S" + semeta.getSpawnedType().toString() + "#");
         }
         
         if(meta instanceof Repairable) {
