@@ -378,7 +378,7 @@ public class MultiInv extends JavaPlugin {
     	grouplist.clear();
     	List<World> worlds = Bukkit.getServer().getWorlds();
     	for(World world : worlds) {
-    		String group = playerListener.getGroup(world);
+    		String group = MIPlayerListener.getGroup(world);
     		if(!grouplist.contains(group)) {
     			grouplist.add(group);
     		}
@@ -386,7 +386,7 @@ public class MultiInv extends JavaPlugin {
     }
     
     public void addWorld(World world) {
-    	String group = playerListener.getGroup(world);
+    	String group = MIPlayerListener.getGroup(world);
 		if(!grouplist.contains(group)) {
 			grouplist.add(group);
 		}

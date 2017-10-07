@@ -214,6 +214,24 @@ public class SqlConnector implements Runnable {
         }
     }
     
+    public boolean inventoryEnumExists(String gamemode) {
+        Statement st;
+        try {
+        	//TODO
+            st = con.createStatement();
+            ResultSet rs = st.executeQuery("SHOW COLUMNS FROM `" + prefix + "multiinv` LIKE 'inv_gamemode';");
+            if(rs.next()) {
+            	System.out.println(rs.getObject("inv_gamemode").toString());
+                return false;
+            } else {
+                return false;
+            }
+        } catch(SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
     public boolean chestColumnExists(String columnname) {
         Statement st;
         try {
@@ -352,7 +370,7 @@ public class SqlConnector implements Runnable {
                     +
                     "`inv_uuid` VARCHAR( 36 ) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL COMMENT 'Minecraft player UUID.', "
                     +
-                    "`inv_gamemode` ENUM('ADVENTURE','CREATIVE','SURVIVAL') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL COMMENT 'ADVENTURE, CREATIVE or SURVIVAL game mode.', "
+                    "`inv_gamemode` ENUM('ADVENTURE','CREATIVE','SURVIVAL','SPECTATOR') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL COMMENT 'ADVENTURE, CREATIVE, SURVIVAL or SPECTATOR game mode.', "
                     +
                     "`inv_health` DOUBLE NOT NULL COMMENT 'Valid values are 0 to 20.', " +
                     "`inv_hunger` TINYINT( 4 ) NOT NULL COMMENT 'Valid values are 0 to 20.', " +

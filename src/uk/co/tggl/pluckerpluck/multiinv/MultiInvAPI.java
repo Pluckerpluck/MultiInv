@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 
 import Tux2.TuxTwoLib.TuxTwoPlayer;
 import uk.co.tggl.pluckerpluck.multiinv.api.MIAPIPlayer;
+import uk.co.tggl.pluckerpluck.multiinv.inventory.MIEnderchestInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIInventory;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.MIItemStack;
 import uk.co.tggl.pluckerpluck.multiinv.listener.MIPlayerListener;
@@ -370,8 +371,8 @@ public class MultiInvAPI {
                     // If they are currently using the inventory, let's just grab it...
                 } else {
                     MIAPIPlayer playerfile = new MIAPIPlayer(giveplayer);
-                    playerfile.setInventory(playerfile.getInventory());
-                    playerfile.setEnderchest(playerfile.getEnderchest());
+                    playerfile.setInventory(new MIInventory(giveplayer));
+                    playerfile.setEnderchest(new MIEnderchestInventory(giveplayer));
                     playerfile.setFoodlevel(giveplayer.getFoodLevel());
                     playerfile.setSaturation(giveplayer.getSaturation());
                     playerfile.setHealth(giveplayer.getHealth());

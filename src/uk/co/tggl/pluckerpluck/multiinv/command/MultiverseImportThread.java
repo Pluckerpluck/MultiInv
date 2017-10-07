@@ -48,7 +48,7 @@ public class MultiverseImportThread implements Runnable {
 				mvinventories = (MultiverseInventories) p;
 			} catch(Exception e) {
 				MultiInv.log.severe("Unable to import inventories from Multiverse-Inventories.");
-				sender.sendMessage(ChatColor.DARK_RED + "I'm sorry, something funky happened... Import aborted.");
+				sender.sendMessage(ChatColor.DARK_RED + "I'm sorry, something happened... Import aborted.");
 				return;
 			}
 			plugin.setIsImporting(true);
