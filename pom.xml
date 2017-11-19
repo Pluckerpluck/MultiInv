@@ -21,11 +21,13 @@
       <id>spigot-repo</id>
       <url>http://hub.spigot.org/nexus/content/groups/public/</url>
     </repository>
+    <!-- Local library repository -->
+    <!-- From http://randomizedsort.blogspot.co.uk/2011/10/configuring-maven-to-use-local-library.html -->
     <repository>
-      <id>spout-repo</id>
-      <url>http://repo.spout.org/</url>
+      <id>lib</id>
+      <url>file://${project.basedir}/lib</url>
     </repository>
-    </repositories>
+  </repositories>
   <dependencies>
     <dependency>
       <groupId>org.spigotmc</groupId>
@@ -33,10 +35,35 @@
       <version>1.9-R0.1-SNAPSHOT</version>
       <type>jar</type>
     </dependency>
+    <!-- TuxTwoLib; included locally as not available on repo -->
+    <!-- From http://blog.valdaris.com/post/custom-jar/ -->
     <dependency>
-      <groupId>org.getspout</groupId>
-      <artifactId>spoutplugin</artifactId>
-      <version>dev-SNAPSHOT</version>
+      <groupId>Tux2.TuxTwoLib</groupId>
+      <artifactId>TuxTwoLib</artifactId>
+      <version>b7</version>
+    </dependency>
+    <!-- DebugReport; included locally as not available on repo -->
+    <dependency>
+      <groupId>com.tux2mc.debugreport</groupId>
+      <artifactId>DebugReport</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <!-- Multiverse libraries; included locally for latest builds -->
+    <dependency>
+      <groupId>com.onarandombox.multiversecore</groupId>
+      <artifactId>Multiverse-Core</artifactId>
+      <version>2.5b719</version>
+    </dependency>
+    <dependency>
+      <groupId>com.onarandombox.multiverseinventories</groupId>
+      <artifactId>Multiverse-Inventories</artifactId>
+      <version>2.5b408</version>
+    </dependency>
+    <!-- WorldInventories; included locally as not available on repo -->
+    <dependency>
+      <groupId>me.drayshak.WorldInventories</groupId>
+      <artifactId>WorldInventories</artifactId>
+      <version>1.7.0-dev4</version>
     </dependency>
   </dependencies>
   
@@ -68,7 +95,7 @@
             <manifestEntries>
               <Main-Class>Main</Main-Class>
               <Implementation-Title>MultiInv</Implementation-Title>
-              <Implementation-Version>${describe}</Implementation-Version>
+              <Implementation-Version>${project.version}</Implementation-Version>
               <Implementation-Vendor>Pluckerpluck</Implementation-Vendor>
             </manifestEntries>
           </archive>
@@ -79,10 +106,10 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.3.2</version>
         <inherited>true</inherited>
-        <!-- If you don't code against Java 1.5, fix me here! -->
+        <!-- If you don't code against Java 1.7, fix me here! -->
         <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
+          <source>1.7</source>
+          <target>1.7</target>
         </configuration>
       </plugin>
     </plugins>
