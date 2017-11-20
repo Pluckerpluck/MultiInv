@@ -1,16 +1,6 @@
 package uk.co.tggl.pluckerpluck.multiinv;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.tux2mc.debugreport.DebugReport;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -18,15 +8,19 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import com.tux2mc.debugreport.DebugReport;
-
 import uk.co.tggl.pluckerpluck.multiinv.command.MICommand;
 import uk.co.tggl.pluckerpluck.multiinv.inventory.PlayerRestrictionRemoverThread;
 import uk.co.tggl.pluckerpluck.multiinv.listener.MIInventoryListener;
 import uk.co.tggl.pluckerpluck.multiinv.listener.MIPlayerListener;
 import uk.co.tggl.pluckerpluck.multiinv.logger.MILogger;
 import uk.co.tggl.pluckerpluck.multiinv.util.UUIDFetcher;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by IntelliJ IDEA. User: Pluckerpluck Date: 17/12/11 Time: 11:58 To change this template use File | Settings | File Templates.
@@ -229,44 +223,34 @@ public class MultiInv extends JavaPlugin {
         	for(File gfolder : groups) {
         		if(gfolder.isDirectory()) {
         			File[] users = gfolder.listFiles();
-        			LinkedList<String> uncachedplayers = new LinkedList<String>();
+        			Set<String> uncachedplayers = new HashSet<String>();
         			for(int i = 0; i < users.length; i++) {
         				File user = users[i];
         				if(user.isFile()) {
         					String filename = user.getName();
-        					if(filename.endsWith(".yml")) {
-        						String username = filename.substring(0, filename.lastIndexOf("."));
-        						if(!cacheduuids.containsKey(username)) {
-        							uncachedplayers.add(username);
-        						}
-        					}
-        				}
-        			}
-        			boolean first = true;
-        			while(uncachedplayers.size() > 0) {
-        				LinkedList<String> playerlist = new LinkedList<String>();
-        				for(int i = 0; i < uncachedplayers.size() && i < 100; i++) {
-        					playerlist.add(uncachedplayers.remove());
-        				}
-        				UUIDFetcher fetcher = new UUIDFetcher(playerlist);
+         					String username;
+         					if (filename.endsWith(".ec.yml")) {
+         						username = filename.substring(0, filename.length() - 7);
+         					} else if(filename.endsWith(".yml")) {
+         						username = filename.substring(0, filename.length() - 4);
+         					} else {
+         						continue;
+         					}
 
-        				try {
-							Map<String, UUID> result = fetcher.call();
-        					cacheduuids.putAll(result);
-        					if(first) {
-        						first = false;
-        					}else {
-        						try {
-        							wait(100);
-        						} catch (InterruptedException e1) {
-        							
-        						}
-        					}
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+         					if(!cacheduuids.containsKey(username) && !uncachedplayers.contains(username)) {
+         						uncachedplayers.add(username);
+         					}
+        				}
         			}
+
+         			UUIDFetcher fetcher = new UUIDFetcher(uncachedplayers);
+         			try {
+         				Map<String, UUID> result = fetcher.call();
+         				cacheduuids.putAll(result);
+         			} catch (Exception e) {
+         				// TODO Auto-generated catch block
+         				e.printStackTrace();
+         			}
         			for(File user : users) {
         				if(user.isFile()) {
         					String filename = user.getName();
